@@ -1,36 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/setting_background_color"
+    android:padding="16dp"
+    android:paddingTop="100dp">
 
-    <Button
-        android:id="@+id/btnToggleService"
+    <!-- Big Round Button -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start Service" />
+        android:gravity="center"
+        android:layout_marginBottom="32dp">
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnToggleService"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:background="@drawable/round_button"
+            android:text="@string/start_service"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textAllCaps="true"
+            android:elevation="8dp"
+            android:stateListAnimator="@null"/>
+    </FrameLayout>
+
+    <!-- Settings Section -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Logs:"
-        android:textStyle="bold" />
+        android:text="Settings"
+        android:textColor="@color/brand_teal"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="4dp"/>
 
-    <ScrollView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#EEEEEE"
-        android:padding="8dp">
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardElevation="2dp">
 
-        <TextView
-            android:id="@+id/tvLogs"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:textSize="12sp" />
-    </ScrollView>
+            android:orientation="vertical">
+
+            <!-- Connection Mode Item -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="?attr/selectableItemBackground">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connection_mode_label"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+                <Spinner
+                    android:id="@+id/spinnerConnectionMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:background="@null" 
+                    android:spinnerMode="dropdown"/>
+                    <!-- Note: Custom spinner styling might be needed to perfectly match a 'text only' look, 
+                         or we use a TextView + Dialog approach like Headunit Revived. 
+                         For now, standard spinner inside the card. -->
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Logs Section (Hidden/Collapsed by default or kept at bottom?) 
+         User asked to remove debug stuff "from bottom". I will assume they want a clean UI.
+         But logs are useful. I'll hide them for now or put them in a separate dialog/activity if needed later.
+         For this iteration, I will REMOVE the logs from the main UI as requested.
+    -->
 
 </LinearLayout>

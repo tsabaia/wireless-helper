@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">WirelessHelper</string>
+    <string name="app_name">Wireless Helper</string>
+    <string name="start_service">Start Service</string>
+    <string name="stop_service">Stop Service</string>
+    <string name="connection_mode_label">Connection Mode:</string>
+    <string name="mode_network_discovery">Network Discovery (Same WiFi)</string>
+    <string name="mode_wifi_direct">Wifi Direct</string>
+    <string name="mode_hotspot_phone">Hotspot on this device</string>
+    <string name="mode_hotspot_headunit">Hotspot on Headunit</string>
+    <string name="logs_label">Logs:</string>
 </resources>
