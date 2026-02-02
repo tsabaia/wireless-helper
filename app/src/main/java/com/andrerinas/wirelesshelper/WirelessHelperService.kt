@@ -26,7 +26,7 @@ import java.net.InetAddress
 
 import com.andrerinas.wirelesshelper.connection.NetworkDiscovery
 
-class WirelessLauncherService : Service() {
+class WirelessHelperService : Service() {
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
@@ -35,13 +35,14 @@ class WirelessLauncherService : Service() {
     private var discoveryListener: NsdManager.DiscoveryListener? = null
     private var networkDiscovery: NetworkDiscovery? = null
     private var isRunning = false
-    private var isScanning = false
+    private var isCurrentlyConnected = false
+    private var monitoringJob: Job? = null
 
     companion object {
-        private const val TAG = "WirelessLauncher"
+        private const val TAG = "WirelessHelper"
         private const val PORT_AA_WIFI_DISCOVERY = 5289
         private const val PORT_AA_WIFI_SERVICE = 5288
-        private const val CHANNEL_ID = "WirelessLauncherChannel"
+        private const val CHANNEL_ID = "WirelessHelperChannel"
         private const val NOTIFICATION_ID = 1
         private const val SERVICE_TYPE = "_aawireless._tcp."
 
@@ -73,22 +74,26 @@ class WirelessLauncherService : Service() {
         startForeground(NOTIFICATION_ID, notification)
         
         sendUiLog("Service started")
-        
-        // Always listen on TCP (Passive Mode)
-        sendUiLog("Listening on TCP port $PORT_AA_WIFI_DISCOVERY")
-        startTcpServer()
-        
-        // Always try NSD (Passive/Active mDNS)
-        sendUiLog("Starting NSD discovery for $SERVICE_TYPE")
-        startNsdDiscovery()
 
-        // Check Connection Mode Preference
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-        val mode = prefs.getInt("connection_mode", 0) // 0 = Network Discovery
+        val mode = prefs.getInt("connection_mode", 0)
 
-        if (mode == 0) { // Network Discovery Mode
-            sendUiLog("Mode: Network Discovery (Active Scan)")
-            startActiveScan()
+        when (mode) {
+            3 -> { // Hotspot on Headunit
+                sendUiLog("Mode: Hotspot on Headunit (Passive Wait)")
+                sendUiLog("Listening on TCP port $PORT_AA_WIFI_DISCOVERY")
+                startTcpServer()
+            }
+            else -> { // Network Discovery / Active Scan / Wifi Direct / Phone Hotspot
+                sendUiLog("Mode: Active Discovery (Scanning)")
+                // Do NOT start TCP Server here to avoid confusing HUR logic
+                
+                sendUiLog("Starting NSD discovery for $SERVICE_TYPE")
+                startNsdDiscovery()
+                
+                sendUiLog("Starting Active Network Scan")
+                startActiveScan()
+            }
         }
     }
 
@@ -96,16 +101,20 @@ class WirelessLauncherService : Service() {
         if (networkDiscovery == null) {
             networkDiscovery = NetworkDiscovery(this, object : NetworkDiscovery.Listener {
                 override fun onServiceFound(ip: String, port: Int) {
+                    if (isCurrentlyConnected) return
+                    
                     sendUiLog("Active Scan found service at $ip:$port")
+                    isCurrentlyConnected = true
+                    updateNotification("Connected to Headunit ($ip)")
                     launchAndroidAuto(ip)
+                    startMonitoring(ip, PORT_AA_WIFI_SERVICE)
                 }
 
                 override fun onScanFinished() {
-                    // Schedule next scan if still running
-                    if (isRunning) {
+                    if (isRunning && !isCurrentlyConnected) {
                          serviceScope.launch {
-                             delay(10000) // Wait 10 seconds
-                             if (isRunning) {
+                             delay(10000)
+                             if (isRunning && !isCurrentlyConnected) {
                                  sendUiLog("Restarting Active Scan...")
                                  networkDiscovery?.startScan()
                              }
@@ -114,41 +123,118 @@ class WirelessLauncherService : Service() {
                 }
             })
         }
-        networkDiscovery?.startScan()
+        if (!isCurrentlyConnected) {
+            networkDiscovery?.startScan()
+        }
+    }
+
+    private fun startMonitoring(ip: String, port: Int) {
+        monitoringJob?.cancel()
+        monitoringJob = serviceScope.launch {
+            delay(5000)
+            while (isActive && isRunning && isCurrentlyConnected) {
+                if (!checkPort(ip, port)) {
+                    delay(1000)
+                    if (!checkPort(ip, port)) {
+                        sendUiLog("Headunit Service Port ($port) unreachable at $ip")
+                        isCurrentlyConnected = false
+                        updateNotification("Searching for Headunit...")
+                        
+                        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+                        if (prefs.getInt("connection_mode", 0) == 0) {
+                            networkDiscovery?.startScan()
+                        }
+                        break
+                    }
+                }
+                delay(5000)
+            }
+        }
+    }
+
+    private fun checkPort(ip: String, port: Int): Boolean {
+        return try {
+            val socket = Socket()
+            socket.connect(InetSocketAddress(ip, port), 2000)
+            socket.close()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun startTcpServer() {
         serviceScope.launch {
             try {
+                sendUiLog("Binding TCP server to port $PORT_AA_WIFI_DISCOVERY")
                 serverSocket = ServerSocket().apply {
                     reuseAddress = true
                     bind(InetSocketAddress(PORT_AA_WIFI_DISCOVERY))
-                    soTimeout = 5000
+                    soTimeout = 0 
                 }
+                sendUiLog("TCP server bound successfully")
 
                 while (isActive && isRunning) {
                     try {
+                        sendUiLog("Waiting for incoming connection (accept)...")
                         val clientSocket = serverSocket?.accept()
+                        
+                        sendUiLog("Connection accepted! Processing...")
+                        
                         clientSocket?.use { socket ->
                             val remoteIp = (socket.remoteSocketAddress as? InetSocketAddress)?.address?.hostAddress
+                            sendUiLog("Incoming connection from IP: $remoteIp")
+                            
                             if (remoteIp != null) {
-                                sendUiLog("Headunit found via TCP at: $remoteIp")
+                                if (isCurrentlyConnected) {
+                                    sendUiLog("Ignored connection from $remoteIp (already connected)")
+                                    return@use
+                                }
+
+                                isCurrentlyConnected = true
+                                sendUiLog("Headunit connected via TCP: $remoteIp")
+                                updateNotification("Connected to Headunit ($remoteIp)")
+                                
                                 launchAndroidAuto(remoteIp)
+                                startMonitoring(remoteIp, PORT_AA_WIFI_SERVICE)
+
+                                try {
+                                    val inputStream = socket.getInputStream()
+                                    val buffer = ByteArray(1024)
+                                    sendUiLog("Entering Keep-Alive loop for $remoteIp")
+                                    while (isActive && isRunning && isCurrentlyConnected) {
+                                        val read = inputStream.read(buffer)
+                                        if (read == -1) {
+                                            sendUiLog("Socket EOF (Peer closed connection)")
+                                            break
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    sendUiLog("Socket error/closed: ${e.message}")
+                                }
+                                
+                                sendUiLog("TCP connection closed. Relying on 5288 monitoring.")
+                            } else {
+                                sendUiLog("Error: Could not determine remote IP")
                             }
                         }
-                    } catch (e: SocketTimeoutException) {
-                        // Just timeout, continue loop
                     } catch (e: Exception) {
-                        if (isRunning) sendUiLog("Error accepting connection: ${e.message}")
+                        if (isRunning) sendUiLog("Error in accept loop: ${e.message}")
+                        delay(1000)
                     }
                 }
             } catch (e: Exception) {
                 sendUiLog("Server error: ${e.message}")
             } finally {
-                // Do not call stopLauncher here as it kills NSD too, just clean up socket if loop exits
                 serverSocket?.close()
             }
         }
+    }
+
+    private fun updateNotification(content: String) {
+        val notification = createNotification(content)
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(NOTIFICATION_ID, notification)
     }
 
     private fun startNsdDiscovery() {
@@ -158,8 +244,8 @@ class WirelessLauncherService : Service() {
             }
 
             override fun onServiceFound(service: NsdServiceInfo) {
-                sendUiLog("NSD Service found: ${service.serviceName}")
-                if (service.serviceType.contains("aawireless")) { // Sometimes type has dot or not
+                if (isCurrentlyConnected) return
+                if (service.serviceType.contains("aawireless")) {
                     resolveService(service)
                 }
             }
@@ -167,20 +253,10 @@ class WirelessLauncherService : Service() {
             override fun onServiceLost(service: NsdServiceInfo) {
                 sendUiLog("NSD Service lost: ${service.serviceName}")
             }
-
-            override fun onDiscoveryStopped(serviceType: String) {
-                sendUiLog("NSD Discovery stopped")
-            }
-
-            override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
-                sendUiLog("NSD Start Discovery failed: Error $errorCode")
-                stopNsdDiscovery()
-            }
-
-            override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
-                sendUiLog("NSD Stop Discovery failed: Error $errorCode")
-                stopNsdDiscovery()
-            }
+            
+            override fun onDiscoveryStopped(serviceType: String) {}
+            override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) { stopNsdDiscovery() }
+            override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) { stopNsdDiscovery() }
         }
 
         try {
@@ -197,10 +273,14 @@ class WirelessLauncherService : Service() {
             }
 
             override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
+                if (isCurrentlyConnected) return
                 val hostIp = serviceInfo.host.hostAddress
                 sendUiLog("NSD Resolved IP: $hostIp")
                 if (hostIp != null) {
+                    isCurrentlyConnected = true
+                    updateNotification("Connected to Headunit ($hostIp)")
                     launchAndroidAuto(hostIp)
+                    startMonitoring(hostIp, PORT_AA_WIFI_SERVICE)
                 }
             }
         })
@@ -208,12 +288,13 @@ class WirelessLauncherService : Service() {
 
     private fun stopLauncher() {
         isRunning = false
+        isCurrentlyConnected = false
+        monitoringJob?.cancel()
+        monitoringJob = null
         
-        // Stop Active Scan
         networkDiscovery?.stop()
         networkDiscovery = null
 
-        // Stop TCP
         try {
             serverSocket?.close()
         } catch (e: Exception) {
@@ -221,7 +302,6 @@ class WirelessLauncherService : Service() {
         }
         serverSocket = null
         
-        // Stop NSD
         stopNsdDiscovery()
         
         serviceJob.cancelChildren()
@@ -234,9 +314,7 @@ class WirelessLauncherService : Service() {
         if (discoveryListener != null) {
             try {
                 nsdManager?.stopServiceDiscovery(discoveryListener)
-            } catch (e: Exception) {
-                // Listener might not be started or already stopped
-            }
+            } catch (e: Exception) { }
             discoveryListener = null
         }
     }
@@ -251,7 +329,6 @@ class WirelessLauncherService : Service() {
                 return
             }
 
-            // Create fake WifiInfo if possible, as seen in original code
             val wifiInfo: WifiInfo? = try {
                 val clazz = Class.forName("android.net.wifi.WifiInfo")
                 val constructor = clazz.getDeclaredConstructor()
@@ -289,21 +366,22 @@ class WirelessLauncherService : Service() {
     private fun createNotification(content: String): Notification {
         val pendingIntent = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Wireless Launcher Active")
+            .setContentTitle("Wireless Helper Active")
             .setContentText(content)
             .setSmallIcon(android.R.drawable.ic_menu_compass)
             .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
-                CHANNEL_ID, "Wireless Launcher Service Channel",
+                CHANNEL_ID, "Wireless Helper Service Channel",
                 NotificationManager.IMPORTANCE_LOW
             )
             val manager = getSystemService(NotificationManager::class.java)

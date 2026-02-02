@@ -27,7 +27,7 @@ class NetworkDiscovery(private val context: Context, private val listener: Liste
     }
 
     private var scanJob: Job? = null
-    private val TAG = "NetworkDiscovery"
+    private val TAG = "WirelessHelper"
 
     fun startScan() {
         if (scanJob?.isActive == true) return
@@ -59,6 +59,8 @@ class NetworkDiscovery(private val context: Context, private val listener: Liste
 
     private suspend fun scanGateways(): Boolean {
         var foundAny = false
+        val myIp = getLocalIpAddress()
+        
         try {
             val suspects = mutableSetOf<String>()
 
@@ -80,6 +82,7 @@ class NetworkDiscovery(private val context: Context, private val listener: Liste
             if (suspects.isNotEmpty()) {
                 Log.i(TAG, "Checking suspects: $suspects")
                 for (ip in suspects) {
+                    if (ip == myIp) continue // Skip self
                     if (checkAndReport(ip)) {
                         foundAny = true
                     }
@@ -98,19 +101,41 @@ class NetworkDiscovery(private val context: Context, private val listener: Liste
             return
         }
 
-        Log.i(TAG, "Scanning subnet: $subnet.*")
+        val myIp = getLocalIpAddress()
+        Log.i(TAG, "Scanning subnet: $subnet.* (My IP: $myIp)")
 
         val tasks = mutableListOf<Deferred<Boolean>>()
 
         // Scan range 1..254 (excluding gateway potentially, but checkAndReport handles duplicates if called)
         for (i in 1..254) {
             val ip = "$subnet.$i"
+            if (ip == myIp) continue // Skip self
+            
             tasks.add(CoroutineScope(Dispatchers.IO).async {
                 checkAndReport(ip)
             })
         }
 
         tasks.awaitAll()
+    }
+
+    private fun getLocalIpAddress(): String? {
+        try {
+            val interfaces = Collections.list(NetworkInterface.getNetworkInterfaces())
+            for (intf in interfaces) {
+                if (intf.isLoopback || !intf.isUp) continue
+                
+                val addrs = Collections.list(intf.inetAddresses)
+                for (addr in addrs) {
+                    if (addr is Inet4Address) {
+                        return addr.hostAddress
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting local IP", e)
+        }
+        return null
     }
 
     private suspend fun checkAndReport(ip: String): Boolean {

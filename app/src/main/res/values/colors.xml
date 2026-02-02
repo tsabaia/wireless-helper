@@ -8,6 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Headunit Revived Colors -->
     <color name="material_grey_500">#9E9E9E</color>
     <color name="material_grey_700">#616161</color>
     <color name="material_grey_900">#212121</color>
@@ -31,4 +32,11 @@
     <color name="color_usb_orange">#f57c00</color>
     <color name="color_wifi_purple">#8e44ad</color>
     <color name="color_settings_darkblue">#2c3e50</color>
+
+    <!-- UI Colors Semantic (Mapping to above or new) -->
+    <color name="window_background">#F5F5F5</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="text_title">#000000</color>
+    <color name="text_subtitle">#757575</color>
+
 </resources>

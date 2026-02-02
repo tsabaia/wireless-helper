@@ -5,86 +5,189 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/setting_background_color"
+    android:background="@color/window_background"
     android:paddingTop="100dp">
 
-    <!-- Big Round Button Container -->
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginBottom="48dp">
+        android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnToggleService"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:background="@drawable/round_button"
-            android:text="@string/start_service"
-            android:textColor="@android:color/white"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textAllCaps="true"
-            android:elevation="12dp"
-            android:stateListAnimator="@null"/>
-    </FrameLayout>
-
-    <!-- Settings Section Header -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="CONNECTION SETTINGS"
-        android:textColor="@color/brand_teal"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"/>
-
-    <!-- Settings List Container -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <!-- Connection Mode Item (Clickable Row) -->
         <LinearLayout
-            android:id="@+id/layoutConnectionMode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
+            android:paddingBottom="32dp">
 
+            <!-- Big Round Button -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginBottom="48dp">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnToggleService"
+                    android:layout_width="180dp"
+                    android:layout_height="180dp"
+                    android:background="@drawable/round_button"
+                    android:text="@string/start_service"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textAllCaps="true"
+                    android:elevation="8dp"
+                    android:stateListAnimator="@null"/>
+            </FrameLayout>
+
+            <!-- SETTINGS Header -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/connection_mode_label"
-                android:textColor="@color/adaptive_text_color"
-                android:textSize="16sp"
-                android:textStyle="normal"
-                android:layout_marginBottom="4dp"/>
+                android:text="SETTINGS"
+                android:textColor="@color/brand_teal"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:paddingBottom="8dp"/>
 
-            <TextView
-                android:id="@+id/tvConnectionModeValue"
+            <!-- Settings List -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Network Discovery"
-                android:textColor="@color/material_grey_700"
-                android:textSize="14sp"/>
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp">
+
+                <!-- 1. Connection Mode -->
+                <LinearLayout
+                    android:id="@+id/layoutConnectionMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="@drawable/bg_item_top"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/connection_mode_label"
+                        android:textColor="@color/text_title"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvConnectionModeValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Network Discovery"
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+
+                <!-- 2. Auto Start -->
+                <LinearLayout
+                    android:id="@+id/layoutAutoStart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="@drawable/bg_item_bottom"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/auto_start_label"
+                        android:textColor="@color/text_title"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvAutoStartValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/auto_start_no"
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+
+                <!-- 3. Bluetooth Device -->
+                <LinearLayout
+                    android:id="@+id/layoutBluetoothDevice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="@drawable/bg_item_bottom"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/bt_device_label"
+                        android:textColor="@color/text_title"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvBluetoothDeviceValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/not_set"
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+
+                <!-- 4. Wifi Network -->
+                <LinearLayout
+                    android:id="@+id/layoutWifiNetwork"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="@drawable/bg_item_bottom"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/wifi_network_label"
+                        android:textColor="@color/text_title"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvWifiNetworkValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/not_set"
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
-        
-        <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider_color"
-            android:layout_marginStart="16dp"/>
-
-    </LinearLayout>
-
+    </ScrollView>
 </LinearLayout>

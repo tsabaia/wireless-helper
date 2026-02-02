@@ -8,12 +8,25 @@
     <color name="black">#FFFFFFFF</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="setting_background_color">#2C2C2C</color>
-    <color name="primary_dark">#000000</color>
-    <color name="divider_color">#1FFFFFFF</color>
+    <!-- Headunit Revived Colors (Night) -->
+    <color name="setting_background_color">#2C2C2C</color> <!-- Cards & Dialog Background -->
+    <color name="primary_dark">#000000</color> <!-- App Background -->
     <color name="adaptive_text_color">#FFFFFF</color>
-    
-    <!-- Inherit other colors or redefine for night if needed, but these are the key ones from HUR -->
     <color name="brand_teal">#009688</color>
-    <color name="material_grey_700">#BDBDBD</color> <!-- Lighter grey for subtitles in dark mode -->
+    <color name="material_grey_700">#BDBDBD</color>
+
+    <!-- Divider Color from HUR -->
+    <color name="divider_color">#1FFFFFFF</color>
+
+    <!-- Missing colors -->
+    <color name="color_projection_blue">#3198ef</color>
+    <color name="color_usb_orange">#f57c00</color>
+    <color name="color_wifi_purple">#8e44ad</color>
+    <color name="color_settings_darkblue">#2c3e50</color>
+
+    <!-- UI Colors Semantic Mapping -->
+    <color name="window_background">#000000</color>
+    <color name="card_background">#2C2C2C</color>
+    <color name="text_title">#FFFFFF</color>
+    <color name="text_subtitle">#8E8E93</color>
 </resources>

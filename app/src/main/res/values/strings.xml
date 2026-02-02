@@ -2,10 +2,21 @@
     <string name="app_name">Wireless Helper</string>
     <string name="start_service">Start</string>
     <string name="stop_service">Stop</string>
-    <string name="connection_mode_label">Connection Mode:</string>
+    
+    <string name="connection_mode_label">Connection Mode</string>
     <string name="mode_network_discovery">Network Discovery (Same WiFi)</string>
     <string name="mode_wifi_direct">Wifi Direct</string>
     <string name="mode_hotspot_phone">Hotspot on this device</string>
     <string name="mode_hotspot_headunit">Hotspot on Headunit</string>
+    
+    <string name="auto_start_label">Auto Start Service</string>
+    <string name="auto_start_no">No (Manual)</string>
+    <string name="auto_start_bt">On Bluetooth Connection</string>
+    <string name="auto_start_wifi">On Wifi Connection</string>
+    
+    <string name="bt_device_label">Bluetooth Device</string>
+    <string name="wifi_network_label">Wifi Network</string>
+    <string name="not_set">Not set</string>
+    
     <string name="logs_label">Logs:</string>
 </resources>

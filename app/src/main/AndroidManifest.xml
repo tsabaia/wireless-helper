@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name=".WirelessLauncherService"
+            android:name=".WirelessHelperService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
