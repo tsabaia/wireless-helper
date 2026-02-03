@@ -13,6 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-test_files
-headunit-revived
 todo.txt

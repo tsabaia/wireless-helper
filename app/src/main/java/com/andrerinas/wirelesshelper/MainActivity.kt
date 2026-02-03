@@ -10,10 +10,10 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.core.content.edit
 
 class MainActivity : AppCompatActivity() {
 
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
             MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
                 .setTitle(R.string.connection_mode_label)
                 .setSingleChoiceItems(connectionModes, currentMode) { dialog, which ->
-                    prefs.edit().putInt("connection_mode", which).apply()
+                    prefs.edit { putInt("connection_mode", which) }
                     tvConnectionModeValue.text = connectionModes[which]
                     dialog.dismiss()
                 }
@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
                 .setTitle(R.string.auto_start_label)
                 .setSingleChoiceItems(autoStartModes, currentMode) { dialog, which ->
-                    prefs.edit().putInt("auto_start_mode", which).apply()
+                    prefs.edit { putInt("auto_start_mode", which) }
                     updateAutoStartUI(which)
                     dialog.dismiss()
                 }
@@ -200,6 +200,22 @@ class MainActivity : AppCompatActivity() {
     private fun updateButtonState(running: Boolean) {
         isServiceRunning = running
         btnToggleService.text = if (running) getString(R.string.stop_service) else getString(R.string.start_service)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateButtonState(isMyServiceRunning(WirelessHelperService::class.java))
+    }
+
+    private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager
+        @Suppress("DEPRECATION")
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
