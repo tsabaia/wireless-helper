@@ -22,8 +22,6 @@ import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 import java.net.InetSocketAddress
 import java.net.ServerSocket
-import java.net.Socket
-import java.net.SocketTimeoutException
 
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
@@ -157,41 +155,11 @@ class WirelessHelperService : Service() {
                     
                     AppLog.i("Starting NSD discovery for $SERVICE_TYPE")
                     startNsdDiscovery()
-                    
-                    AppLog.i("Starting Active Network Scan")
-                    startActiveScan()
                 }
             }
         }
     }
 
-    private fun startActiveScan() {
-        if (networkDiscovery == null) {
-            networkDiscovery = NetworkDiscovery(this, object : NetworkDiscovery.Listener {
-                override fun onServiceFound(ip: String, port: Int) {
-                    if (isCurrentlyConnected) return
-                    
-                    AppLog.i("Active Scan found service at $ip:$port. Launching...")
-                    launchAndroidAuto(ip)
-                }
-
-                override fun onScanFinished() {
-                    if (isRunning && !isCurrentlyConnected) {
-                         serviceScope.launch {
-                             delay(10000)
-                             if (isRunning && !isCurrentlyConnected) {
-                                 AppLog.i("Restarting Active Scan...")
-                                 networkDiscovery?.startScan()
-                             }
-                         }
-                    }
-                }
-            })
-        }
-        if (!isCurrentlyConnected) {
-            networkDiscovery?.startScan()
-        }
-    }
 
     private fun startTcpServer() {
         serviceScope.launch {
@@ -317,45 +285,8 @@ class WirelessHelperService : Service() {
         }
     }
 
-    private fun checkIfHeadunitIsBusy(ip: String): Boolean {
-        return try {
-            AppLog.i("Checking if Headunit at $ip is busy...")
-            val socket = Socket()
-            socket.connect(InetSocketAddress(ip, PORT_AA_WIFI_SERVICE), 1000)
-            socket.soTimeout = 500 // Short read timeout
-            
-            val input = socket.getInputStream()
-            val byte = input.read()
-            socket.close()
-            
-            // If read returns -1, server closed connection -> BUSY (HURev rejects new connections)
-            if (byte == -1) {
-                AppLog.i("Headunit closed connection immediately -> BUSY")
-                true
-            } else {
-                // Should not happen as HURev doesn't send data on connect
-                true
-            }
-        } catch (e: SocketTimeoutException) {
-            // Read timed out -> Server kept connection open -> READY (HURev waiting for handshake)
-            AppLog.i("Headunit holding connection -> READY")
-            false
-        } catch (e: Exception) {
-            AppLog.i("Check failed (${e.javaClass.simpleName}) -> Assuming READY")
-            false
-        }
-    }
-
     private fun launchAndroidAuto(hostIp: String) {
         serviceScope.launch {
-            // Pre-flight check: Is Headunit already busy?
-            if (checkIfHeadunitIsBusy(hostIp)) {
-                AppLog.i("Headunit is BUSY (Already connected). Skipping launch.")
-                isCurrentlyConnected = true
-                updateNotification("Android Auto is active")
-                return@launch
-            }
-
             try {
                 val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                 val network: Network? = connectivityManager.activeNetwork

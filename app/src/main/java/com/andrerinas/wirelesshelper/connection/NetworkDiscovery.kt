@@ -139,23 +139,11 @@ class NetworkDiscovery(private val context: Context, private val listener: Liste
     }
 
     private suspend fun checkAndReport(ip: String): Boolean {
-        // Check Port 5289 (Wifi Launcher) - prioritizing this
-        if (checkPort(ip, 5289, timeout = 300)) {
-            Log.i(TAG, "Found Wifi Launcher on $ip:5289")
-            // Notify on Main thread? Or Listener handles it? 
-            // The original code uses withContext(Main). Listener implementation needs to be thread safe or UI aware.
-            // But here the listener might call launchAndroidAuto which touches UI/Main Looper.
+        // Check Port 5288 (HURev Server on Tablet)
+        if (checkPort(ip, 5288, timeout = 300)) {
+            Log.i(TAG, "Found Headunit Server on $ip:5288")
             withContext(Dispatchers.Main) {
-                listener.onServiceFound(ip, 5289)
-            }
-            return true
-        }
-        
-        // Check Port 5277 (Standard Headunit)
-        if (checkPort(ip, 5277, timeout = 300)) {
-            Log.i(TAG, "Found Headunit Server on $ip:5277")
-            withContext(Dispatchers.Main) {
-                listener.onServiceFound(ip, 5277)
+                listener.onServiceFound(ip, 5288)
             }
             return true
         }
