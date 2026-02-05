@@ -7,7 +7,6 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ServiceInfo
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.ConnectivityManager
@@ -129,7 +128,7 @@ class WirelessHelperService : Service() {
         
         val notification = createNotification("Checking connection status...")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+            startForeground(NOTIFICATION_ID, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
@@ -145,11 +144,19 @@ class WirelessHelperService : Service() {
             }
             
             updateNotification("Searching for Headunit...")
-            Log.i(TAG, "Service started (Auto-Discovery Mode)")
+            Log.i(TAG, "Service started")
 
-            // Always start both mechanisms: NSD (Client) and TCP 5289 (Server)
-            startNsdDiscovery()
-            startTcpServer()
+            val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+            val mode = prefs.getInt("connection_mode", 0) // 0=Auto, 1=NSD, 2=Passive
+
+            if (mode == 0 || mode == 1) {
+                Log.i(TAG, "Starting NSD Discovery...")
+                startNsdDiscovery()
+            }
+            if (mode == 0 || mode == 2) {
+                Log.i(TAG, "Starting TCP Trigger Server...")
+                startTcpServer()
+            }
         }
     }
 
@@ -250,6 +257,14 @@ class WirelessHelperService : Service() {
         monitoringJob?.cancel()
         monitoringJob = null
         
+        stopDiscoveryListeners()
+        
+        serviceJob.cancelChildren()
+        Log.i(TAG, "Launcher stopped")
+        stopForeground(true)
+    }
+
+    private fun stopDiscoveryListeners() {
         networkDiscovery?.stop()
         networkDiscovery = null
 
@@ -259,10 +274,6 @@ class WirelessHelperService : Service() {
         serverSocket = null
         
         stopNsdDiscovery()
-        
-        serviceJob.cancelChildren()
-        Log.i(TAG, "Launcher stopped")
-        stopForeground(true)
     }
 
     private fun stopNsdDiscovery() {
@@ -285,6 +296,9 @@ class WirelessHelperService : Service() {
             Log.i(TAG, "Already connected or launching. Ignoring request for $finalIp")
             return
         }
+
+        // IMPORTANT: Stop all other listeners immediately to avoid race conditions
+        stopDiscoveryListeners()
 
         serviceScope.launch {
             try {
@@ -344,6 +358,7 @@ class WirelessHelperService : Service() {
                 Log.i(TAG, "Verification FAILED: Headunit is still IDLE. Resuming search...")
                 isCurrentlyConnected.set(false)
                 updateNotification("Searching for Headunit...")
+                startLauncher() // Retry
             }
         }
     }

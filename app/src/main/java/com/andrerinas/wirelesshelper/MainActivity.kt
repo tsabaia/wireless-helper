@@ -22,6 +22,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var btnToggleService: Button
     
+    // Connection Mode
+    private lateinit var layoutConnectionMode: View
+    private lateinit var tvConnectionModeValue: TextView
+
     // Auto Start
     private lateinit var layoutAutoStart: View
     private lateinit var tvAutoStartValue: TextView
@@ -42,6 +46,14 @@ class MainActivity : AppCompatActivity() {
             updateButtonState(running)
             handler.postDelayed(this, 1000)
         }
+    }
+
+    private val connectionModes by lazy {
+        arrayOf(
+            getString(R.string.mode_auto),
+            getString(R.string.mode_nsd),
+            getString(R.string.mode_passive)
+        )
     }
 
     private val autoStartModes by lazy {
@@ -65,6 +77,9 @@ class MainActivity : AppCompatActivity() {
     private fun initializeViews() {
         btnToggleService = findViewById(R.id.btnToggleService)
         
+        layoutConnectionMode = findViewById(R.id.layoutConnectionMode)
+        tvConnectionModeValue = findViewById(R.id.tvConnectionModeValue)
+
         layoutAutoStart = findViewById(R.id.layoutAutoStart)
         tvAutoStartValue = findViewById(R.id.tvAutoStartValue)
 
@@ -81,13 +96,28 @@ class MainActivity : AppCompatActivity() {
         layoutAbout.setOnClickListener {
             MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
                 .setTitle(R.string.about)
-                .setMessage("Wireless Helper is a trigger app for Headunit Revived.\n\nYou need to set 'Wireless Helper' in 'Wireless Mode'-Setting at Headunit Revived for this to work.\n\nDeveloped by André Rinas\n© 2026")
+                .setMessage("Wireless Helper is a trigger app for Headunit Revived.\n\nDeveloped by André Rinas\n© 2026")
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         }
 
         btnToggleService.setOnClickListener {
             if (isServiceRunning) stopLauncherService() else checkPermissionsAndStart()
+        }
+
+        layoutConnectionMode.setOnClickListener {
+            val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+            val currentMode = prefs.getInt("connection_mode", 0)
+            
+            MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+                .setTitle(R.string.connection_mode_label)
+                .setSingleChoiceItems(connectionModes, currentMode) { dialog, which ->
+                    prefs.edit { putInt("connection_mode", which) }
+                    tvConnectionModeValue.text = connectionModes[which]
+                    dialog.dismiss()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         }
 
         layoutAutoStart.setOnClickListener {
@@ -146,6 +176,9 @@ class MainActivity : AppCompatActivity() {
     private fun restoreState() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
         
+        val connMode = prefs.getInt("connection_mode", 0)
+        tvConnectionModeValue.text = connectionModes.getOrElse(connMode) { connectionModes[0] }
+
         val autoMode = prefs.getInt("auto_start_mode", 0)
         updateAutoStartUI(autoMode)
         
@@ -160,11 +193,11 @@ class MainActivity : AppCompatActivity() {
         when (mode) {
             0 -> { // No
                 layoutBluetoothDevice.visibility = View.GONE
-                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_single)
+                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_bottom)
             }
             1 -> { // Bluetooth
                 layoutBluetoothDevice.visibility = View.VISIBLE
-                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_top)
+                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
                 layoutBluetoothDevice.setBackgroundResource(R.drawable.bg_item_bottom)
             }
         }

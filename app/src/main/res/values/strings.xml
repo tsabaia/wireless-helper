@@ -3,6 +3,11 @@
     <string name="start_service">Start Wireless Mode</string>
     <string name="stop_service">Stop Searching</string>
     
+    <string name="connection_mode_label">Connection Mode</string>
+    <string name="mode_auto">Automatic (All Triggers)</string>
+    <string name="mode_nsd">Shared WiFi / Phone Hotspot (NSD)</string>
+    <string name="mode_passive">Headunit Hotspot (Passive)</string>
+    
     <string name="auto_start_label">Auto Start Service</string>
     <string name="auto_start_no">No (Manual)</string>
     <string name="auto_start_bt">On Bluetooth Connection</string>
