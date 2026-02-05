@@ -12,10 +12,8 @@
     <string name="auto_start_label">Auto Start Service</string>
     <string name="auto_start_no">No (Manual)</string>
     <string name="auto_start_bt">On Bluetooth Connection</string>
-    <string name="auto_start_wifi">On Wifi Connection</string>
     
     <string name="bt_device_label">Bluetooth Device</string>
-    <string name="wifi_network_label">Wifi Network</string>
     <string name="not_set">Not set</string>
     
     <string name="logs_label">Logs:</string>

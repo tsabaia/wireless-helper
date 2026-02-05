@@ -1,5 +1,6 @@
 package com.andrerinas.wirelesshelper
 
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,7 +17,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.andrerinas.wirelesshelper.BuildConfig
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,8 +34,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var layoutBluetoothDevice: View
     private lateinit var tvBluetoothDeviceValue: TextView
 
-    private lateinit var layoutWifiNetwork: View
-    private lateinit var tvWifiNetworkValue: TextView
     private lateinit var tvVersionValue: TextView
     private lateinit var layoutAbout: View
 
@@ -62,8 +60,7 @@ class MainActivity : AppCompatActivity() {
     private val autoStartModes by lazy {
         arrayOf(
             getString(R.string.auto_start_no),
-            getString(R.string.auto_start_bt),
-            getString(R.string.auto_start_wifi)
+            getString(R.string.auto_start_bt)
         )
     }
 
@@ -90,8 +87,6 @@ class MainActivity : AppCompatActivity() {
         layoutBluetoothDevice = findViewById(R.id.layoutBluetoothDevice)
         tvBluetoothDeviceValue = findViewById(R.id.tvBluetoothDeviceValue)
 
-        layoutWifiNetwork = findViewById(R.id.layoutWifiNetwork)
-        tvWifiNetworkValue = findViewById(R.id.tvWifiNetworkValue)
         tvVersionValue = findViewById(R.id.tvVersionValue)
         layoutAbout = findViewById(R.id.layoutAbout)
         
@@ -106,6 +101,7 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         }
+
         btnToggleService.setOnClickListener {
             if (isServiceRunning) stopLauncherService() else checkPermissionsAndStart()
         }
@@ -143,37 +139,6 @@ class MainActivity : AppCompatActivity() {
         layoutBluetoothDevice.setOnClickListener {
             showBluetoothDeviceSelector()
         }
-
-        layoutWifiNetwork.setOnClickListener {
-            showWifiSelector()
-        }
-    }
-
-    private fun showWifiSelector() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 102)
-            return
-        }
-
-        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
-        val ssid = wifiManager.connectionInfo.ssid.removeSurrounding("\"")
-
-        if (ssid == "<unknown ssid>" || ssid.isEmpty()) {
-            Toast.makeText(this, "Connect to a WiFi network first", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-            .setTitle("Select WiFi Network")
-            .setMessage("Do you want to use '$ssid' as the auto-start trigger?")
-            .setPositiveButton("Use Current WiFi") { _, _ ->
-                val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-                prefs.edit { putString("auto_start_wifi_ssid", ssid) }
-                tvWifiNetworkValue.text = ssid
-                Toast.makeText(this, "Auto-start linked to $ssid", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
     }
 
     private fun showBluetoothDeviceSelector() {
@@ -219,7 +184,6 @@ class MainActivity : AppCompatActivity() {
         updateAutoStartUI(autoMode)
         
         tvBluetoothDeviceValue.text = prefs.getString("auto_start_bt_name", getString(R.string.not_set))
-        tvWifiNetworkValue.text = prefs.getString("auto_start_wifi_ssid", getString(R.string.not_set))
 
         updateButtonState(WirelessHelperService.isRunning)
     }
@@ -230,20 +194,12 @@ class MainActivity : AppCompatActivity() {
         when (mode) {
             0 -> { // No
                 layoutBluetoothDevice.visibility = View.GONE
-                layoutWifiNetwork.visibility = View.GONE
                 layoutAutoStart.setBackgroundResource(R.drawable.bg_item_bottom)
             }
             1 -> { // Bluetooth
                 layoutBluetoothDevice.visibility = View.VISIBLE
-                layoutWifiNetwork.visibility = View.GONE
                 layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
                 layoutBluetoothDevice.setBackgroundResource(R.drawable.bg_item_bottom)
-            }
-            2 -> { // Wifi
-                layoutBluetoothDevice.visibility = View.GONE
-                layoutWifiNetwork.visibility = View.VISIBLE
-                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
-                layoutWifiNetwork.setBackgroundResource(R.drawable.bg_item_bottom)
             }
         }
     }
@@ -256,8 +212,6 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= 31) {
             permissions.add("android.permission.BLUETOOTH_CONNECT")
         }
-        // Location is needed for WiFi SSID detection and general network tasks on some versions
-        permissions.add("android.permission.ACCESS_FINE_LOCATION")
         
         val missingPermissions = permissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
@@ -307,8 +261,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 100 && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-            startLauncherService()
+        if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+            if (requestCode == 100) startLauncherService()
+            if (requestCode == 101) showBluetoothDeviceSelector()
         }
     }
 }
