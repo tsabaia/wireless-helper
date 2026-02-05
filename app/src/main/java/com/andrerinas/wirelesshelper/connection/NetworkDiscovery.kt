@@ -79,6 +79,11 @@ class NetworkDiscovery(private val context: Context, private val listener: Liste
             // Always try heuristics (X.X.X.1) for all interfaces
             collectInterfaceSuspects(suspects)
 
+            if (isEmulator()) {
+                Log.i(TAG, "Emulator detected, adding 10.0.2.2 to suspects")
+                suspects.add("10.0.2.2")
+            }
+
             if (suspects.isNotEmpty()) {
                 Log.i(TAG, "Checking suspects: $suspects")
                 for (ip in suspects) {
@@ -213,5 +218,24 @@ class NetworkDiscovery(private val context: Context, private val listener: Liste
     fun stop() {
         scanJob?.cancel()
         scanJob = null
+    }
+
+    private fun isEmulator(): Boolean {
+        return (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.HARDWARE.contains("goldfish")
+                || Build.HARDWARE.contains("ranchu")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || Build.PRODUCT.contains("sdk_google")
+                || Build.PRODUCT.contains("google_sdk")
+                || Build.PRODUCT.contains("sdk")
+                || Build.PRODUCT.contains("sdk_x86")
+                || Build.PRODUCT.contains("vbox86p")
+                || Build.PRODUCT.contains("emulator")
+                || Build.PRODUCT.contains("simulator")
     }
 }

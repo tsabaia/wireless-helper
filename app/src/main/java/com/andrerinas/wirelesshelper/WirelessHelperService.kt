@@ -22,12 +22,13 @@ import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 import java.net.InetSocketAddress
 import java.net.ServerSocket
+import java.util.concurrent.atomic.AtomicBoolean
 
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
-import com.andrerinas.headunitrevived.utils.AppLog
 
 import com.andrerinas.wirelesshelper.connection.NetworkDiscovery
+import java.net.Socket
 
 class WirelessHelperService : Service() {
 
@@ -37,8 +38,7 @@ class WirelessHelperService : Service() {
     private var nsdManager: NsdManager? = null
     private var discoveryListener: NsdManager.DiscoveryListener? = null
     private var networkDiscovery: NetworkDiscovery? = null
-    private var isRunning = false
-    private var isCurrentlyConnected = false
+    private val isCurrentlyConnected = AtomicBoolean(false)
     private var monitoringJob: Job? = null
 
     // Car Connection Monitoring
@@ -61,10 +61,14 @@ class WirelessHelperService : Service() {
         const val ACTION_STOP = "ACTION_STOP"
         const val ACTION_LOG = "ACTION_LOG"
         const val EXTRA_LOG_MESSAGE = "EXTRA_LOG_MESSAGE"
+
+        var isRunning = false
+            internal set
     }
 
     override fun onCreate() {
         super.onCreate()
+        isRunning = true
         createNotificationChannel()
         nsdManager = getSystemService(Context.NSD_SERVICE) as NsdManager
         
@@ -87,19 +91,18 @@ class WirelessHelperService : Service() {
     private fun checkCarConnection() {
         serviceScope.launch {
             val status = getCarConnectionState()
-            // 0 = Disconnected, 1 = Projection, 2 = Native
             val connected = status > 0
             
-            if (connected != isCurrentlyConnected) {
-                isCurrentlyConnected = connected
+            if (connected != isCurrentlyConnected.get()) {
+                isCurrentlyConnected.set(connected)
                 if (connected) {
-                    AppLog.i("Android Auto connection detected (State: $status)")
+                    Log.i(TAG, "Android Auto connection detected (State: $status)")
                     updateNotification("Android Auto is active")
                 } else {
-                    AppLog.i("Android Auto disconnected")
+                    Log.i(TAG, "Android Auto disconnected")
                     updateNotification("Searching for Headunit...")
                     if (isRunning) {
-                        startLauncher() // Re-trigger discovery if service is supposed to be running
+                        startLauncher() 
                     }
                 }
             }
@@ -121,7 +124,6 @@ class WirelessHelperService : Service() {
     }
 
     private fun startLauncher() {
-        if (isRunning) return
         isRunning = true
         
         val notification = createNotification("Checking connection status...")
@@ -129,69 +131,61 @@ class WirelessHelperService : Service() {
         
         serviceScope.launch {
             val status = getCarConnectionState()
-            AppLog.i("State: $status");
-            isCurrentlyConnected = status > 0
+            isCurrentlyConnected.set(status > 0)
             
-            if (isCurrentlyConnected) {
-                AppLog.i("AA is already connected (State: $status). Skipping initial scan.")
+            if (isCurrentlyConnected.get()) {
+                Log.i(TAG, "AA is already connected. Skipping initial scan.")
                 updateNotification("Android Auto is active")
                 return@launch
             }
             
             updateNotification("Searching for Headunit...")
-            AppLog.i("Service started")
+            Log.i(TAG, "Service started")
 
             val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
             val mode = prefs.getInt("connection_mode", 0)
 
             when (mode) {
                 3 -> { // Hotspot on Headunit
-                    AppLog.i("Mode: Hotspot on Headunit (Passive Wait)")
-                    AppLog.i("Listening on TCP port $PORT_AA_WIFI_DISCOVERY")
+                    Log.i(TAG, "Mode: Hotspot on Headunit (Passive Wait)")
+                    Log.i(TAG, "Listening on TCP port $PORT_AA_WIFI_DISCOVERY")
                     startTcpServer()
                 }
                 else -> { // Network Discovery / Active Scan / Phone Hotspot
-                    AppLog.i("Mode: Active Discovery (Scanning)")
-                    
-                    AppLog.i("Starting NSD discovery for $SERVICE_TYPE")
+                    Log.i(TAG, "Mode: Active Discovery (Scanning)")
                     startNsdDiscovery()
                 }
             }
         }
     }
 
-
     private fun startTcpServer() {
         serviceScope.launch {
             try {
                 if (serverSocket != null) return@launch
                 
-                AppLog.i("Binding TCP server to port $PORT_AA_WIFI_DISCOVERY")
+                Log.i(TAG, "Binding TCP server to port $PORT_AA_WIFI_DISCOVERY")
                 serverSocket = ServerSocket().apply {
                     reuseAddress = true
                     bind(InetSocketAddress(PORT_AA_WIFI_DISCOVERY))
                     soTimeout = 0 
                 }
-                AppLog.i("TCP server bound successfully")
+                Log.i(TAG, "TCP server bound successfully")
 
                 while (isActive && isRunning) {
                     try {
                         val clientSocket = serverSocket?.accept()
+                        val remoteIp = clientSocket?.remoteSocketAddress?.let { (it as InetSocketAddress).address.hostAddress }
                         
-                        clientSocket?.use { socket ->
-                            val remoteIp = (socket.remoteSocketAddress as? InetSocketAddress)?.address?.hostAddress
-                            
-                            if (remoteIp != null) {
-                                if (isCurrentlyConnected) {
-                                    AppLog.i("Ignored connection from $remoteIp (already connected)")
-                                    return@use
-                                }
-
-                                AppLog.i("Headunit connected via TCP: $remoteIp. Launching...")
+                        try { clientSocket?.close() } catch (e: Exception) {}
+                        
+                        if (remoteIp != null) {
+                            if (isCurrentlyConnected.get()) {
+                                Log.i(TAG, "Ignored trigger from $remoteIp (already connected)")
+                            } else {
+                                Log.i(TAG, "Trigger received from $remoteIp. Launching...")
                                 launchAndroidAuto(remoteIp)
-                                
-                                // Short sleep to let the intent process
-                                delay(2000)
+                                delay(5000)
                             }
                         }
                     } catch (e: Exception) {
@@ -199,7 +193,7 @@ class WirelessHelperService : Service() {
                     }
                 }
             } catch (e: Exception) {
-                AppLog.i("Server error: ${e.message}")
+                Log.i(TAG, "Server error: ${e.message}")
             } finally {
                 serverSocket?.close()
                 serverSocket = null
@@ -218,11 +212,11 @@ class WirelessHelperService : Service() {
         
         discoveryListener = object : NsdManager.DiscoveryListener {
             override fun onDiscoveryStarted(regType: String) {
-                AppLog.i("NSD Discovery started")
+                Log.i(TAG, "NSD Discovery started")
             }
 
             override fun onServiceFound(service: NsdServiceInfo) {
-                if (isCurrentlyConnected) return
+                if (isCurrentlyConnected.get()) return
                 if (service.serviceType.contains("aawireless")) {
                     resolveService(service)
                 }
@@ -237,7 +231,7 @@ class WirelessHelperService : Service() {
         try {
             nsdManager?.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener)
         } catch (e: Exception) {
-            AppLog.i("Failed to start NSD: ${e.message}")
+            Log.i(TAG, "Failed to start NSD: ${e.message}")
         }
     }
 
@@ -246,10 +240,10 @@ class WirelessHelperService : Service() {
             override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {}
 
             override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
-                if (isCurrentlyConnected) return
+                if (isCurrentlyConnected.get()) return
                 val hostIp = serviceInfo.host.hostAddress
                 if (hostIp != null) {
-                    AppLog.i("NSD Resolved IP: $hostIp. Launching...")
+                    Log.i(TAG, "NSD Resolved IP: $hostIp. Launching...")
                     launchAndroidAuto(hostIp)
                 }
             }
@@ -258,6 +252,7 @@ class WirelessHelperService : Service() {
 
     private fun stopLauncher() {
         isRunning = false
+        isCurrentlyConnected.set(false)
         monitoringJob?.cancel()
         monitoringJob = null
         
@@ -272,7 +267,7 @@ class WirelessHelperService : Service() {
         stopNsdDiscovery()
         
         serviceJob.cancelChildren()
-        AppLog.i("Launcher stopped")
+        Log.i(TAG, "Launcher stopped")
         stopForeground(true)
     }
 
@@ -286,17 +281,28 @@ class WirelessHelperService : Service() {
     }
 
     private fun launchAndroidAuto(hostIp: String) {
+        var finalIp = hostIp
+        if ((finalIp == "127.0.0.1" || finalIp == "0:0:0:0:0:0:0:1") && isEmulator()) {
+            Log.i(TAG, "Emulator & localhost detected. Redirecting to 10.0.2.2")
+            finalIp = "10.0.2.2"
+        }
+
+        if (!isCurrentlyConnected.compareAndSet(false, true)) {
+            Log.i(TAG, "Already connected or launching. Ignoring request for $finalIp")
+            return
+        }
+
         serviceScope.launch {
             try {
                 val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                 val network: Network? = connectivityManager.activeNetwork
                 
                 if (network == null) {
-                    AppLog.i("Error: No active network found!")
+                    Log.i(TAG, "Error: No active network found!")
+                    isCurrentlyConnected.set(false)
                     return@launch
                 }
 
-                // Create minimal WifiInfo via reflection
                 val wifiInfo: WifiInfo? = try {
                     val clazz = Class.forName("android.net.wifi.WifiInfo")
                     val constructor = clazz.getDeclaredConstructor()
@@ -309,23 +315,76 @@ class WirelessHelperService : Service() {
                 val intent = Intent().apply {
                     setClassName("com.google.android.projection.gearhead", "com.google.android.apps.auto.wireless.setup.service.impl.WirelessStartupActivity")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    putExtra("PARAM_HOST_ADDRESS", hostIp)
+                    putExtra("PARAM_HOST_ADDRESS", finalIp)
                     putExtra("PARAM_SERVICE_PORT", PORT_AA_WIFI_SERVICE)
                     putExtra("PARAM_SERVICE_WIFI_NETWORK", network)
                     putExtra("wifi_info", wifiInfo)
                 }
 
-                AppLog.i("Sending Intent to Android Auto for $hostIp...")
+                Log.i(TAG, "Sending Intent to Android Auto for $finalIp...")
                 startActivity(intent)
                 
-                // Set connected state immediately to avoid double firing
-                isCurrentlyConnected = true
-                updateNotification("Android Auto is active")
+                verifyConnection(finalIp)
                 
             } catch (e: Exception) {
-                AppLog.i("Failed to start AA: ${e.message}")
+                Log.i(TAG, "Failed to start AA: ${e.message}")
+                isCurrentlyConnected.set(false)
             }
         }
+    }
+
+    private fun verifyConnection(ip: String) {
+        serviceScope.launch {
+            Log.i(TAG, "Verification: Waiting 10s for Android Auto to settle...")
+            delay(10000)
+            
+            if (!isRunning) return@launch
+
+            val isBusy = checkIfHeadunitIsBusy(ip)
+            if (isBusy) {
+                Log.i(TAG, "Verification SUCCESS: Headunit is busy, AA is running. Auto-stopping helper service.")
+                isCurrentlyConnected.set(true)
+                delay(2000)
+                stopLauncher() 
+            } else {
+                Log.i(TAG, "Verification FAILED: Headunit is still IDLE. Resuming search...")
+                isCurrentlyConnected.set(false)
+                updateNotification("Searching for Headunit...")
+            }
+        }
+    }
+
+    private fun checkIfHeadunitIsBusy(ip: String): Boolean {
+        return try {
+            val socket = Socket()
+            socket.connect(InetSocketAddress(ip, PORT_AA_WIFI_SERVICE), 2000)
+            socket.soTimeout = 500
+            val input = socket.getInputStream()
+            val byte = input.read()
+            socket.close()
+            byte == -1 
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun isEmulator(): Boolean {
+        return (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.HARDWARE.contains("goldfish")
+                || Build.HARDWARE.contains("ranchu")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || Build.PRODUCT.contains("sdk_google")
+                || Build.PRODUCT.contains("google_sdk")
+                || Build.PRODUCT.contains("sdk")
+                || Build.PRODUCT.contains("sdk_x86")
+                || Build.PRODUCT.contains("vbox86p")
+                || Build.PRODUCT.contains("emulator")
+                || Build.PRODUCT.contains("simulator")
     }
 
     private fun createNotification(content: String): Notification {
@@ -367,6 +426,7 @@ class WirelessHelperService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        isRunning = false
         contentResolver.unregisterContentObserver(carConnectionObserver)
         stopLauncher()
         super.onDestroy()

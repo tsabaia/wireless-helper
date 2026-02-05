@@ -8,6 +8,10 @@ android {
         version = release(36)
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.andrerinas.wirelesshelper"
         minSdk = 16

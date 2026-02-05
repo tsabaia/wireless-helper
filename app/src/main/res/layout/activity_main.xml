@@ -188,6 +188,84 @@
 
             </LinearLayout>
 
+            <!-- INFO Header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/category_info"
+                android:textColor="@color/brand_teal"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="8dp"/>
+
+            <!-- Info List -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp">
+
+                <LinearLayout
+                    android:id="@+id/layoutVersion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="@drawable/bg_item_top">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/version"
+                        android:textColor="@color/text_title"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvVersionValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="0.1.0"
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+
+                <!-- About & Support -->
+                <LinearLayout
+                    android:id="@+id/layoutAbout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp"
+                    android:background="@drawable/bg_item_bottom"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about"
+                        android:textColor="@color/text_title"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_description"
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

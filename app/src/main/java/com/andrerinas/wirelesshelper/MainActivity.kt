@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -12,8 +14,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.edit
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.andrerinas.wirelesshelper.BuildConfig
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,8 +36,19 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var layoutWifiNetwork: View
     private lateinit var tvWifiNetworkValue: TextView
+    private lateinit var tvVersionValue: TextView
+    private lateinit var layoutAbout: View
 
     private var isServiceRunning = false
+    private val handler = Handler(Looper.getMainLooper())
+    
+    private val statusPoller = object : Runnable {
+        override fun run() {
+            val running = WirelessHelperService.isRunning
+            updateButtonState(running)
+            handler.postDelayed(this, 1000)
+        }
+    }
 
     private val connectionModes by lazy {
         arrayOf(
@@ -78,9 +92,20 @@ class MainActivity : AppCompatActivity() {
 
         layoutWifiNetwork = findViewById(R.id.layoutWifiNetwork)
         tvWifiNetworkValue = findViewById(R.id.tvWifiNetworkValue)
+        tvVersionValue = findViewById(R.id.tvVersionValue)
+        layoutAbout = findViewById(R.id.layoutAbout)
+        
+        tvVersionValue.text = BuildConfig.VERSION_NAME
     }
 
     private fun setupListeners() {
+        layoutAbout.setOnClickListener {
+            MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+                .setTitle(R.string.about)
+                .setMessage("Wireless Helper is a trigger app for Headunit Revived.\n\nDeveloped by André Rinas\n© 2026")
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
         btnToggleService.setOnClickListener {
             if (isServiceRunning) stopLauncherService() else checkPermissionsAndStart()
         }
@@ -133,7 +158,7 @@ class MainActivity : AppCompatActivity() {
         val autoMode = prefs.getInt("auto_start_mode", 0)
         updateAutoStartUI(autoMode)
 
-        updateButtonState(false)
+        updateButtonState(WirelessHelperService.isRunning)
     }
 
     private fun updateAutoStartUI(mode: Int) {
@@ -204,18 +229,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        updateButtonState(isMyServiceRunning(WirelessHelperService::class.java))
+        handler.post(statusPoller)
     }
 
-    private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
-        val manager = getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager
-        @Suppress("DEPRECATION")
-        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacks(statusPoller)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
