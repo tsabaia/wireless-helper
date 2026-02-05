@@ -141,12 +141,72 @@ class MainActivity : AppCompatActivity() {
         }
 
         layoutBluetoothDevice.setOnClickListener {
-            Toast.makeText(this, "Select Bluetooth Device (Coming Soon)", Toast.LENGTH_SHORT).show()
+            showBluetoothDeviceSelector()
         }
 
         layoutWifiNetwork.setOnClickListener {
-            Toast.makeText(this, "Select Wifi Network (Coming Soon)", Toast.LENGTH_SHORT).show()
+            showWifiSelector()
         }
+    }
+
+    private fun showWifiSelector() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 102)
+            return
+        }
+
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+        val ssid = wifiManager.connectionInfo.ssid.removeSurrounding("\"")
+
+        if (ssid == "<unknown ssid>" || ssid.isEmpty()) {
+            Toast.makeText(this, "Connect to a WiFi network first", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle("Select WiFi Network")
+            .setMessage("Do you want to use '$ssid' as the auto-start trigger?")
+            .setPositiveButton("Use Current WiFi") { _, _ ->
+                val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+                prefs.edit { putString("auto_start_wifi_ssid", ssid) }
+                tvWifiNetworkValue.text = ssid
+                Toast.makeText(this, "Auto-start linked to $ssid", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showBluetoothDeviceSelector() {
+        if (Build.VERSION.SDK_INT >= 31 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT), 101)
+            return
+        }
+
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
+        val adapter = bluetoothManager.adapter
+        val bondedDevices = adapter.bondedDevices.toList()
+
+        if (bondedDevices.isEmpty()) {
+            Toast.makeText(this, "No paired Bluetooth devices found", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val deviceNames = bondedDevices.map { it.name ?: "Unknown Device" }.toTypedArray()
+        
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle("Select Bluetooth Device")
+            .setItems(deviceNames) { _, which ->
+                val device = bondedDevices[which]
+                val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+                prefs.edit { 
+                    putString("auto_start_bt_mac", device.address)
+                    putString("auto_start_bt_name", device.name)
+                }
+                tvBluetoothDeviceValue.text = device.name
+                Toast.makeText(this, "Auto-start linked to ${device.name}", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun restoreState() {
@@ -157,6 +217,9 @@ class MainActivity : AppCompatActivity() {
 
         val autoMode = prefs.getInt("auto_start_mode", 0)
         updateAutoStartUI(autoMode)
+        
+        tvBluetoothDeviceValue.text = prefs.getString("auto_start_bt_name", getString(R.string.not_set))
+        tvWifiNetworkValue.text = prefs.getString("auto_start_wifi_ssid", getString(R.string.not_set))
 
         updateButtonState(WirelessHelperService.isRunning)
     }
@@ -190,6 +253,11 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= 33) {
             permissions.add("android.permission.POST_NOTIFICATIONS")
         }
+        if (Build.VERSION.SDK_INT >= 31) {
+            permissions.add("android.permission.BLUETOOTH_CONNECT")
+        }
+        // Location is needed for WiFi SSID detection and general network tasks on some versions
+        permissions.add("android.permission.ACCESS_FINE_LOCATION")
         
         val missingPermissions = permissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED

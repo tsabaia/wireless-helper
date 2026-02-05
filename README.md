@@ -13,3 +13,9 @@ This app acts as a trigger to start Android Auto Wireless on your phone. It auto
 - **NSD Support:** Finds your tablet in the same WiFi network automatically.
 - **Passive Mode:** Waits for a trigger from the Headunit (ideal for Tablet-Hotspot setups).
 - **Zero-Config:** No manual IP entry required.
+
+## Auto-Start Setup
+To ensure reliable background auto-start (Bluetooth/WiFi):
+1. **Disable Battery Optimization:** Go to App Info -> Battery -> select **"Unrestricted"**.
+2. **Permissions:** Grant Bluetooth and Location permissions when prompted.
+3. **Paired Devices:** Select your car's Bluetooth or WiFi network in the settings.
