@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.ConnectivityManager
@@ -127,7 +128,11 @@ class WirelessHelperService : Service() {
         isRunning = true
         
         val notification = createNotification("Checking connection status...")
-        startForeground(NOTIFICATION_ID, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
         
         serviceScope.launch {
             val status = getCarConnectionState()
