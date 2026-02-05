@@ -140,22 +140,11 @@ class WirelessHelperService : Service() {
             }
             
             updateNotification("Searching for Headunit...")
-            Log.i(TAG, "Service started")
+            Log.i(TAG, "Service started (Auto-Discovery Mode)")
 
-            val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-            val mode = prefs.getInt("connection_mode", 0)
-
-            when (mode) {
-                3 -> { // Hotspot on Headunit
-                    Log.i(TAG, "Mode: Hotspot on Headunit (Passive Wait)")
-                    Log.i(TAG, "Listening on TCP port $PORT_AA_WIFI_DISCOVERY")
-                    startTcpServer()
-                }
-                else -> { // Network Discovery / Active Scan / Phone Hotspot
-                    Log.i(TAG, "Mode: Active Discovery (Scanning)")
-                    startNsdDiscovery()
-                }
-            }
+            // Always start both mechanisms: NSD (Client) and TCP 5289 (Server)
+            startNsdDiscovery()
+            startTcpServer()
         }
     }
 

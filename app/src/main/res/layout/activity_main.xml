@@ -60,37 +60,6 @@
                 android:orientation="vertical"
                 android:paddingHorizontal="16dp">
 
-                <!-- 1. Connection Mode -->
-                <LinearLayout
-                    android:id="@+id/layoutConnectionMode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="14dp"
-                    android:layout_marginBottom="2dp"
-                    android:background="@drawable/bg_item_top"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/connection_mode_label"
-                        android:textColor="@color/text_title"
-                        android:textSize="16sp"
-                        android:textStyle="normal"
-                        android:layout_marginBottom="2dp"/>
-
-                    <TextView
-                        android:id="@+id/tvConnectionModeValue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Network Discovery"
-                        android:textColor="@color/text_subtitle"
-                        android:textSize="14sp"/>
-                </LinearLayout>
-
                 <!-- 2. Auto Start -->
                 <LinearLayout
                     android:id="@+id/layoutAutoStart"
@@ -100,7 +69,7 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp"
                     android:layout_marginBottom="2dp"
-                    android:background="@drawable/bg_item_bottom"
+                    android:background="@drawable/bg_item_top"
                     android:clickable="true"
                     android:focusable="true">
 

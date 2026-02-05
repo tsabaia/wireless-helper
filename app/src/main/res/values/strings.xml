@@ -1,13 +1,7 @@
 <resources>
     <string name="app_name">Wireless Helper</string>
     <string name="start_service">Start Wireless Mode</string>
-    <string name="stop_service">Stop</string>
-    
-    <string name="connection_mode_label">Connection Mode</string>
-    <string name="mode_network_discovery">Network Discovery (Same WiFi)</string>
-    <string name="mode_wifi_direct">Wifi Direct</string>
-    <string name="mode_hotspot_phone">Hotspot on this device</string>
-    <string name="mode_hotspot_headunit">Hotspot on Headunit</string>
+    <string name="stop_service">Stop Searching</string>
     
     <string name="auto_start_label">Auto Start Service</string>
     <string name="auto_start_no">No (Manual)</string>
