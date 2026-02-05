@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    // Removed Kotlin plugin from here since it causes 'extension already registered' errors
 }
 
 android {
@@ -13,8 +12,8 @@ android {
 
     defaultConfig {
         applicationId = "com.andrerinas.wirelesshelper"
-        minSdk = 16
-        // minSdk = 21 // 21 only for google play console. App should work in minSDK 16
+//        minSdk = 16
+        minSdk = 21 // 21 only for google play console. App should work in minSDK 16
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
@@ -22,13 +21,31 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        getByName("debug") {
+            // Use defaults
+        }
+
+        create("release") {
+            // Path relative to the 'app' directory of WirelessHelper
+            storeFile = file("../wirelesshelper-release-key.jks")
+            storePassword = System.getenv("HEADUNIT_KEYSTORE_PASSWORD")
+            keyAlias = "headunit-revived" // Use the same alias as HURev
+            keyPassword = System.getenv("HEADUNIT_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true // Enable shrinking for release
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+        }
+        getByName("debug") {
+            isDebuggable = true
         }
     }
     
@@ -38,7 +55,7 @@ android {
     }
 }
 
-// Radical simple way to set APK name that works in all AGP versions
+// Set artifact name globally
 base {
     archivesName.set("com.andrerinas.wirelesshelper_${android.defaultConfig.versionName}")
 }
