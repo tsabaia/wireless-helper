@@ -50,9 +50,10 @@ class MainActivity : AppCompatActivity() {
 
     private val connectionModes by lazy {
         arrayOf(
-            getString(R.string.mode_auto),
             getString(R.string.mode_nsd),
-            getString(R.string.mode_passive)
+            getString(R.string.mode_hotspot_phone),
+            getString(R.string.mode_passive),
+            getString(R.string.mode_wifi_direct)
         )
     }
 

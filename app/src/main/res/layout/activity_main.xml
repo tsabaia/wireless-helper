@@ -86,7 +86,7 @@
                         android:id="@+id/tvConnectionModeValue"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/mode_auto"
+                        android:text="@string/mode_nsd"
                         android:textColor="@color/text_subtitle"
                         android:textSize="14sp"/>
                 </LinearLayout>
