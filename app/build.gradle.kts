@@ -12,8 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.andrerinas.wirelesshelper"
-        minSdk = 16
-//        minSdk = 21 // 21 only for google play console. App should work in minSDK 16
+        minSdk = 21
         targetSdk = 36
         versionCode = 3
         versionName = "0.3.0"
