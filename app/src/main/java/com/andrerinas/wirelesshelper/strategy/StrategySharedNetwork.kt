@@ -10,7 +10,7 @@ class StrategySharedNetwork(context: Context, scope: CoroutineScope) : BaseStrat
 
     private val nsdManager = context.getSystemService(Context.NSD_SERVICE) as NsdManager
     private var discoveryListener: NsdManager.DiscoveryListener? = null
-    private val SERVICE_TYPE = "_aawireless._tcp."
+    private val SERVICE_TYPE = "_aawireless._tcp" // Standard without dot
 
     override fun start() {
         Log.i(TAG, "Strategy: Shared Network (NSD)")

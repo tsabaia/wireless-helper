@@ -10,16 +10,18 @@ import android.content.Intent
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.andrerinas.wirelesshelper.strategy.*
 import kotlinx.coroutines.*
 
-class WirelessHelperService : Service() {
+class WirelessHelperService : Service(), BaseStrategy.StateListener {
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
     private var multicastLock: WifiManager.MulticastLock? = null
+    private var wakeLock: PowerManager.WakeLock? = null
     private var currentStrategy: ConnectionStrategy? = null
 
     companion object {
@@ -29,16 +31,37 @@ class WirelessHelperService : Service() {
         const val ACTION_STOP = "ACTION_STOP"
         var isRunning = false
             internal set
+        var isConnected = false
+            internal set
     }
 
     override fun onCreate() {
         super.onCreate()
         isRunning = true
-        setupMulticastLock()
+        isConnected = false
+        setupLocks()
         createNotificationChannel()
         startForeground(1, createNotification("Searching for Headunit..."))
         
-        // Pick Strategy based on settings
+        startSelectedStrategy()
+    }
+
+    private fun setupLocks() {
+        try {
+            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            multicastLock = wifi.createMulticastLock("WirelessHelperLock")
+            multicastLock?.setReferenceCounted(true)
+            multicastLock?.acquire()
+            
+            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WirelessHelper:WakeLock")
+            wakeLock?.acquire(3600000) // 1 hour max
+            
+            Log.i(TAG, "Locks acquired")
+        } catch (e: Exception) { Log.e(TAG, "Failed to acquire locks: ${e.message}") }
+    }
+
+    private fun startSelectedStrategy() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
         val mode = prefs.getInt("connection_mode", 0)
         
@@ -50,17 +73,30 @@ class WirelessHelperService : Service() {
             else -> StrategySharedNetwork(this, serviceScope)
         }
         
+        if (currentStrategy is BaseStrategy) {
+            (currentStrategy as BaseStrategy).stateListener = this
+        }
+        
         Log.i(TAG, "Starting strategy for mode $mode")
         currentStrategy?.start()
     }
 
-    private fun setupMulticastLock() {
-        try {
-            val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            multicastLock = wifi.createMulticastLock("WirelessHelperLock")
-            multicastLock?.setReferenceCounted(true)
-            multicastLock?.acquire()
-        } catch (e: Exception) { Log.e(TAG, "MulticastLock failed") }
+    override fun onProxyConnected() {
+        isConnected = true
+        updateNotification("Connected to Android Auto")
+    }
+
+    override fun onProxyDisconnected() {
+        isConnected = false
+        Log.i(TAG, "Proxy disconnected. Job done, stopping service.")
+        updateNotification("Android Auto disconnected")
+        
+        serviceScope.launch {
+            delay(3000)
+            if (isRunning) {
+                stopSelf()
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -70,10 +106,22 @@ class WirelessHelperService : Service() {
 
     override fun onDestroy() {
         isRunning = false
+        isConnected = false
         currentStrategy?.stop()
-        try { multicastLock?.release() } catch (e: Exception) {}
+        if (currentStrategy is BaseStrategy) {
+            (currentStrategy as BaseStrategy).cleanup()
+        }
+        try { 
+            multicastLock?.release()
+            if (wakeLock?.isHeld == true) wakeLock?.release()
+        } catch (e: Exception) { }
         serviceJob.cancel()
         super.onDestroy()
+    }
+
+    private fun updateNotification(content: String) {
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(1, createNotification(content))
     }
 
     private fun createNotification(content: String): Notification {
