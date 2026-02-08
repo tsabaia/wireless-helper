@@ -1,5 +1,8 @@
 package com.andrerinas.wirelesshelper
 
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.animation.ValueAnimator
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
@@ -39,20 +42,23 @@ class MainActivity : AppCompatActivity() {
 
     private var isServiceRunning = false
     private val handler = Handler(Looper.getMainLooper())
+    private var pulseAnimator: ObjectAnimator? = null
     
     private val statusPoller = object : Runnable {
         override fun run() {
             val running = WirelessHelperService.isRunning
-            updateButtonState(running)
+            val connected = WirelessHelperService.isConnected
+            updateButtonState(running, connected)
             handler.postDelayed(this, 1000)
         }
     }
 
     private val connectionModes by lazy {
         arrayOf(
-            getString(R.string.mode_auto),
             getString(R.string.mode_nsd),
-            getString(R.string.mode_passive)
+            getString(R.string.mode_hotspot_phone),
+            getString(R.string.mode_passive),
+            getString(R.string.mode_wifi_direct)
         )
     }
 
@@ -184,7 +190,7 @@ class MainActivity : AppCompatActivity() {
         
         tvBluetoothDeviceValue.text = prefs.getString("auto_start_bt_name", getString(R.string.not_set))
 
-        updateButtonState(WirelessHelperService.isRunning)
+        updateButtonState(WirelessHelperService.isRunning, WirelessHelperService.isConnected)
     }
 
     private fun updateAutoStartUI(mode: Int) {
@@ -232,7 +238,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             startService(intent)
         }
-        updateButtonState(true)
+        updateButtonState(true, false)
     }
 
     private fun stopLauncherService() {
@@ -240,12 +246,53 @@ class MainActivity : AppCompatActivity() {
             action = WirelessHelperService.ACTION_STOP
         }
         startService(intent)
-        updateButtonState(false)
+        updateButtonState(false, false)
     }
 
-    private fun updateButtonState(running: Boolean) {
+    private fun updateButtonState(running: Boolean, connected: Boolean = false) {
         isServiceRunning = running
-        btnToggleService.text = if (running) getString(R.string.stop_service) else getString(R.string.start_service)
+        
+        val colorTeal = ContextCompat.getColor(this, R.color.brand_teal)
+        val colorGreen = ContextCompat.getColor(this, android.R.color.holo_green_dark)
+        
+        if (connected) {
+            btnToggleService.text = "Connected"
+            btnToggleService.background.setTint(colorGreen)
+            startPulseAnimation(1500) // Slow pulse
+        } else if (running) {
+            btnToggleService.text = getString(R.string.stop_service)
+            btnToggleService.background.setTint(colorTeal)
+            startPulseAnimation(800) // Fast pulse
+        } else {
+            btnToggleService.text = getString(R.string.start_service)
+            btnToggleService.background.setTint(colorTeal)
+            stopPulseAnimation()
+        }
+    }
+
+    private fun startPulseAnimation(duration: Long) {
+        if (pulseAnimator != null && pulseAnimator!!.isRunning && pulseAnimator!!.duration == duration) {
+            return
+        }
+        stopPulseAnimation()
+        
+        pulseAnimator = ObjectAnimator.ofPropertyValuesHolder(
+            btnToggleService,
+            PropertyValuesHolder.ofFloat("scaleX", 1.0f, 1.05f, 1.0f),
+            PropertyValuesHolder.ofFloat("scaleY", 1.0f, 1.05f, 1.0f)
+        ).apply {
+            this.duration = duration
+            repeatCount = ObjectAnimator.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            start()
+        }
+    }
+
+    private fun stopPulseAnimation() {
+        pulseAnimator?.cancel()
+        pulseAnimator = null
+        btnToggleService.scaleX = 1.0f
+        btnToggleService.scaleY = 1.0f
     }
 
     override fun onResume() {

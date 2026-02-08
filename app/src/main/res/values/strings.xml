@@ -4,9 +4,10 @@
     <string name="stop_service">Stop Searching</string>
     
     <string name="connection_mode_label">Connection Mode</string>
-    <string name="mode_auto">Automatic (All Triggers)</string>
-    <string name="mode_nsd">Shared WiFi / Phone Hotspot (NSD)</string>
-    <string name="mode_passive">Headunit Hotspot (Passive)</string>
+    <string name="mode_nsd">Shared WiFi (NSD)</string>
+    <string name="mode_hotspot_phone">Phone Hotspot (NSD + Fake Network)</string>
+    <string name="mode_passive">Tablet Hotspot (Passive)</string>
+    <string name="mode_wifi_direct">Wifi Direct (Experimental)</string>
     
     <string name="auto_start_label">Auto Start Service</string>
     <string name="auto_start_no">No (Manual)</string>
