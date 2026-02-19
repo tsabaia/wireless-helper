@@ -16,10 +16,13 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.os.LocaleListCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,6 +39,9 @@ class MainActivity : AppCompatActivity() {
     // Conditional Options
     private lateinit var layoutBluetoothDevice: View
     private lateinit var tvBluetoothDeviceValue: TextView
+
+    private lateinit var layoutLanguage: View
+    private lateinit var tvLanguageValue: TextView
 
     private lateinit var tvVersionValue: TextView
     private lateinit var layoutAbout: View
@@ -92,6 +98,9 @@ class MainActivity : AppCompatActivity() {
         layoutBluetoothDevice = findViewById(R.id.layoutBluetoothDevice)
         tvBluetoothDeviceValue = findViewById(R.id.tvBluetoothDeviceValue)
 
+        layoutLanguage = findViewById(R.id.layoutLanguage)
+        tvLanguageValue = findViewById(R.id.tvLanguageValue)
+
         tvVersionValue = findViewById(R.id.tvVersionValue)
         layoutAbout = findViewById(R.id.layoutAbout)
         
@@ -102,9 +111,13 @@ class MainActivity : AppCompatActivity() {
         layoutAbout.setOnClickListener {
             MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
                 .setTitle(R.string.about)
-                .setMessage("Wireless Helper is a trigger app for Headunit Revived.\n\nDeveloped by André Rinas\n© 2026")
+                .setMessage(getString(R.string.about_dialog_body))
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
+        }
+
+        layoutLanguage.setOnClickListener {
+            showLanguageSelector()
         }
 
         btnToggleService.setOnClickListener {
@@ -146,6 +159,42 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val languageOptions by lazy {
+        arrayOf(
+            getString(R.string.language_system_default),
+            getString(R.string.language_english),
+            getString(R.string.language_russian)
+        )
+    }
+
+    private val languageTags = arrayOf("", "en", "ru")
+
+    private fun showLanguageSelector() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val currentTag = prefs.getString("app_language", "") ?: ""
+        val currentIndex = languageTags.indexOf(currentTag).coerceAtLeast(0)
+
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle(R.string.language_label)
+            .setSingleChoiceItems(languageOptions, currentIndex) { dialog, which ->
+                val tag = languageTags[which]
+                prefs.edit { putString("app_language", tag) }
+                applyLanguage(tag)
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun applyLanguage(tag: String) {
+        val localeList = if (tag.isEmpty()) {
+            LocaleListCompat.getEmptyLocaleList()
+        } else {
+            LocaleListCompat.forLanguageTags(tag)
+        }
+        AppCompatDelegate.setApplicationLocales(localeList)
+    }
+
     private fun showBluetoothDeviceSelector() {
         if (Build.VERSION.SDK_INT >= 31 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT), 101)
@@ -157,14 +206,14 @@ class MainActivity : AppCompatActivity() {
         val bondedDevices = adapter.bondedDevices.toList()
 
         if (bondedDevices.isEmpty()) {
-            Toast.makeText(this, "No paired Bluetooth devices found", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.no_paired_devices), Toast.LENGTH_LONG).show()
             return
         }
 
         val deviceNames = bondedDevices.map { it.name ?: "Unknown Device" }.toTypedArray()
         
         MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-            .setTitle("Select Bluetooth Device")
+            .setTitle(R.string.select_bt_device)
             .setItems(deviceNames) { _, which ->
                 val device = bondedDevices[which]
                 val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
@@ -173,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                     putString("auto_start_bt_name", device.name)
                 }
                 tvBluetoothDeviceValue.text = device.name
-                Toast.makeText(this, "Auto-start linked to ${device.name}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.auto_start_linked, device.name), Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -190,6 +239,11 @@ class MainActivity : AppCompatActivity() {
         
         tvBluetoothDeviceValue.text = prefs.getString("auto_start_bt_name", getString(R.string.not_set))
 
+        // Language
+        val langTag = prefs.getString("app_language", "") ?: ""
+        val langIndex = languageTags.indexOf(langTag).coerceAtLeast(0)
+        tvLanguageValue.text = languageOptions[langIndex]
+
         updateButtonState(WirelessHelperService.isRunning, WirelessHelperService.isConnected)
     }
 
@@ -199,12 +253,12 @@ class MainActivity : AppCompatActivity() {
         when (mode) {
             0 -> { // No
                 layoutBluetoothDevice.visibility = View.GONE
-                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_bottom)
+                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
             }
             1 -> { // Bluetooth
                 layoutBluetoothDevice.visibility = View.VISIBLE
                 layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
-                layoutBluetoothDevice.setBackgroundResource(R.drawable.bg_item_bottom)
+                layoutBluetoothDevice.setBackgroundResource(R.drawable.bg_item_middle)
             }
         }
     }
@@ -256,7 +310,7 @@ class MainActivity : AppCompatActivity() {
         val colorGreen = ContextCompat.getColor(this, android.R.color.holo_green_dark)
         
         if (connected) {
-            btnToggleService.text = "Connected"
+            btnToggleService.text = getString(R.string.connected)
             btnToggleService.background.setTint(colorGreen)
             startPulseAnimation(1500) // Slow pulse
         } else if (running) {
