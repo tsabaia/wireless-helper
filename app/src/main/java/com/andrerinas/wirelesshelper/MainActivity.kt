@@ -163,6 +163,7 @@ class MainActivity : AppCompatActivity() {
         arrayOf(
             getString(R.string.language_system_default),
             getString(R.string.language_english),
+            getString(R.string.language_portuguese),
             getString(R.string.language_russian)
         )
     }
