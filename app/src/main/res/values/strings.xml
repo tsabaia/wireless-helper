@@ -27,7 +27,7 @@
     <string name="language_label">Language</string>
     <string name="language_system_default">System Default</string>
     <string name="language_english">English</string>
-    <string name="language_ptbr">Portuguese (Brazil)</string>
+    <string name="language_portuguese">Portuguese (Brazil)</string>
     <string name="language_russian">Русский</string>
 
     <!-- Notifications & Service -->
