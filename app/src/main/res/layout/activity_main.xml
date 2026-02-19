@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -45,7 +46,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SETTINGS"
+                android:text="@string/settings_header"
                 android:textColor="@color/brand_teal"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -100,7 +101,7 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp"
                     android:layout_marginBottom="2dp"
-                    android:background="@drawable/bg_item_bottom"
+                    android:background="@drawable/bg_item_middle"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -131,7 +132,7 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp"
                     android:layout_marginBottom="2dp"
-                    android:background="@drawable/bg_item_bottom"
+                    android:background="@drawable/bg_item_middle"
                     android:clickable="true"
                     android:focusable="true"
                     android:visibility="gone">
@@ -150,6 +151,36 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/not_set"
+                        android:textColor="@color/text_subtitle"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+
+                <!-- 4. Language -->
+                <LinearLayout
+                    android:id="@+id/layoutLanguage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp"
+                    android:background="@drawable/bg_item_bottom"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/language_label"
+                        android:textColor="@color/text_title"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvLanguageValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/language_system_default"
                         android:textColor="@color/text_subtitle"
                         android:textSize="14sp"/>
                 </LinearLayout>
