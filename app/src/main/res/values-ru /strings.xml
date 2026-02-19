@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">Wireless Helper</string>
+    <string name="start_service">Запустить в беспроводном режиме</string>
+    <string name="stop_service">Остановить поиск</string>
+
+    <string name="connection_mode_label">Режим подключения</string>
+    <string name="mode_nsd">Общий Wi-Fi (NSD)</string>
+    <string name="mode_hotspot_phone">Точка доступа телефона (NSD + Fake Network)</string>
+    <string name="mode_passive">Точка доступа планшета (Пассивный)</string>
+    <string name="mode_wifi_direct">Wi-Fi Direct (Экспериментальный)</string>
+
+    <string name="auto_start_label">Автозапуск сервиса</string>
+    <string name="auto_start_no">Нет (вручную)</string>
+    <string name="auto_start_bt">При подключении Bluetooth</string>
+
+    <string name="bt_device_label">Устройство Bluetooth</string>
+    <string name="not_set">Не задано</string>
+
+    <string name="logs_label">Логи:</string>
+    <string name="category_info">ИНФО</string>
+    <string name="settings_header">НАСТРОЙКИ</string>
+    <string name="version">Версия</string>
+    <string name="about">О приложении</string>
+    <string name="about_description">Легковесный триггер для Headunit Revived</string>
+
+    <!-- Language -->
+    <string name="language_label">Язык</string>
+    <string name="language_system_default">Системный</string>
+    <string name="language_english">English</string>
+    <string name="language_russian">Русский</string>
+
+    <!-- Notifications & Service -->
+    <string name="notif_searching">Поиск Headunit…</string>
+    <string name="notif_connected">Подключено к Android Auto</string>
+    <string name="notif_disconnected">Android Auto отключён</string>
+    <string name="notif_stop">Остановить</string>
+    <string name="notif_channel_name">Wireless Helper</string>
+    <string name="connected">Подключено</string>
+
+    <!-- About Dialog -->
+    <string name="about_dialog_body">Wireless Helper — приложение-триггер для Headunit Revived.\n\nРазработчик: André Rinas\n© 2026</string>
+
+    <!-- Bluetooth -->
+    <string name="no_paired_devices">Сопряжённые Bluetooth-устройства не найдены</string>
+    <string name="select_bt_device">Выберите Bluetooth-устройство</string>
+    <string name="auto_start_linked">Автозапуск привязан к %s</string>
+</resources>
