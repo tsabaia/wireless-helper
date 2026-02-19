@@ -1,0 +1,55 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.WirelessHelper" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowNoTitle">true</item>
+        
+        <item name="colorPrimary">@color/brand_teal</item>
+        <item name="colorSecondary">@color/brand_teal</item>
+        <item name="colorAccent">@color/brand_teal</item>
+        <item name="android:colorAccent">@color/brand_teal</item>
+        
+        <item name="android:statusBarColor" tools:targetApi="21">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+
+        <!-- Use Custom Dialog Theme by default -->
+        <item name="android:dialogTheme">@style/DarkAlertDialog</item>
+        <item name="android:alertDialogTheme">@style/DarkAlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/DarkAlertDialog</item>
+    </style>
+
+    <style name="SplashTheme" parent="Theme.WirelessHelper">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+
+    <!-- Headunit Revived Dialog Theme -->
+    <style name="DarkAlertDialog" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="colorPrimary">@color/brand_teal</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/brand_teal</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+        <item name="android:colorAccent">@color/brand_teal</item>
+        
+        <!-- Background Color -->
+        <item name="colorSurface">@color/setting_background_color</item>
+        <item name="android:background">@color/setting_background_color</item>
+        
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        
+        <!-- Button Styles -->
+        <item name="buttonBarPositiveButtonStyle">@style/DialogButton.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/DialogButton.Negative</item>
+    </style>
+
+    <style name="DialogButton.Positive" parent="Widget.Material3.Button">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="backgroundTint">@color/brand_teal</item>
+    </style>
+
+    <style name="DialogButton.Negative" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/brand_teal</item>
+        <item name="colorSecondary">@color/brand_teal</item>
+    </style>
+
+</resources>
