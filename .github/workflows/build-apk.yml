@@ -1,0 +1,32 @@
+name: Build APK
+
+on:
+  workflow_dispatch: # É isso que permite o acionamento manual
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v4
+
+    - name: Configurar o Java (JDK 17)
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17' # A maioria dos projetos Android modernos usa o 17
+        distribution: 'temurin'
+
+    - name: Dar permissão de execução ao Gradle
+      run: chmod +x gradlew
+
+    - name: Gerar o APK (Debug)
+      run: ./gradlew assembleDebug
+
+    - name: Fazer Upload do APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: assistente
+        # Este caminho pega o APK gerado. Pode variar levemente dependendo do projeto, 
+        # mas este é o padrão para 99% dos apps Android.
+        path: app/build/outputs/apk/debug/**/*.apk
