@@ -4,10 +4,10 @@
     <string name="stop_service">Stop Searching</string>
     
     <string name="connection_mode_label">Connection Mode</string>
-    <string name="mode_nsd">Shared WiFi (NSD)</string>
+    <string name="mode_nsd">Shared Wi-Fi (NSD)</string>
     <string name="mode_hotspot_phone">Phone Hotspot (NSD + Fake Network)</string>
     <string name="mode_passive">Tablet Hotspot (Passive)</string>
-    <string name="mode_wifi_direct">Wifi Direct (Experimental)</string>
+    <string name="mode_wifi_direct">Wi-Fi Direct (Experimental)</string>
     
     <string name="auto_start_label">Auto Start Service</string>
     <string name="auto_start_no">No (Manual)</string>
@@ -18,7 +18,31 @@
     
     <string name="logs_label">Logs:</string>
     <string name="category_info">INFO</string>
+    <string name="settings_header">SETTINGS</string>
     <string name="version">Version</string>
     <string name="about">About &amp; Support</string>
     <string name="about_description">Lightweight trigger for Headunit Revived</string>
+
+    <!-- Language -->
+    <string name="language_label">Language</string>
+    <string name="language_system_default">System Default</string>
+    <string name="language_english">English</string>
+    <string name="language_ptbr">Portuguese (Brazil)</string>
+    <string name="language_russian">Русский</string>
+
+    <!-- Notifications & Service -->
+    <string name="notif_searching">Searching for Headunit…</string>
+    <string name="notif_connected">Connected to Android Auto</string>
+    <string name="notif_disconnected">Android Auto disconnected</string>
+    <string name="notif_stop">Stop</string>
+    <string name="notif_channel_name">Wireless Helper</string>
+    <string name="connected">Connected</string>
+
+    <!-- About Dialog -->
+    <string name="about_dialog_body">Wireless Helper is a trigger app for Headunit Revived.\n\nDeveloped by André Rinas\n© 2026</string>
+
+    <!-- Bluetooth -->
+    <string name="no_paired_devices">No paired Bluetooth devices found</string>
+    <string name="select_bt_device">Select Bluetooth Device</string>
+    <string name="auto_start_linked">Auto-start linked to %s</string>
 </resources>
