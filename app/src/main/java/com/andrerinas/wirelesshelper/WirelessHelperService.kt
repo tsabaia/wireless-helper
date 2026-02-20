@@ -41,7 +41,7 @@ class WirelessHelperService : Service(), BaseStrategy.StateListener {
         isConnected = false
         setupLocks()
         createNotificationChannel()
-        startForeground(1, createNotification(getString(R.string.notif_searching)))
+        startForeground(1, createNotification("Searching for Headunit..."))
         
         startSelectedStrategy()
     }
@@ -85,7 +85,7 @@ class WirelessHelperService : Service(), BaseStrategy.StateListener {
 
     override fun onProxyConnected() {
         isConnected = true
-        updateNotification(getString(R.string.notif_connected))
+        updateNotification("Connected to Android Auto")
     }
 
     override fun onProxyDisconnected() {
@@ -132,16 +132,16 @@ class WirelessHelperService : Service(), BaseStrategy.StateListener {
         val stopIntent = Intent(this, WirelessHelperService::class.java).apply { action = ACTION_STOP }
         val pendingStop = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE)
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.app_name)).setContentText(content)
+            .setContentTitle("Wireless Helper").setContentText(content)
             .setSmallIcon(android.R.drawable.ic_menu_compass).setOngoing(true)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.notif_stop), pendingStop)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", pendingStop)
             .build()
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(NotificationChannel(CHANNEL_ID, getString(R.string.notif_channel_name), NotificationManager.IMPORTANCE_LOW))
+            manager.createNotificationChannel(NotificationChannel(CHANNEL_ID, "Wireless Helper", NotificationManager.IMPORTANCE_LOW))
         }
     }
 

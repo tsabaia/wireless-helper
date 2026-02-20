@@ -45,7 +45,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_header"
+                android:text="SETTINGS"
                 android:textColor="@color/brand_teal"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -100,7 +100,7 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp"
                     android:layout_marginBottom="2dp"
-                    android:background="@drawable/bg_item_middle"
+                    android:background="@drawable/bg_item_bottom"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -131,7 +131,7 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp"
                     android:layout_marginBottom="2dp"
-                    android:background="@drawable/bg_item_middle"
+                    android:background="@drawable/bg_item_bottom"
                     android:clickable="true"
                     android:focusable="true"
                     android:visibility="gone">
@@ -154,9 +154,6 @@
                         android:textSize="14sp"/>
                 </LinearLayout>
 
-                <!-- 4. Language -->
-                <LinearLayout
-                    android:id="@+id/layoutLanguage"
                 <!-- 4. WiFi Network -->
                 <LinearLayout
                     android:id="@+id/layoutWifiNetwork"
@@ -165,9 +162,6 @@
                     android:orientation="vertical"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp"
-                    android:background="@drawable/bg_item_bottom"
-                    android:clickable="true"
-                    android:focusable="true">
                     android:layout_marginBottom="2dp"
                     android:background="@drawable/bg_item_bottom"
                     android:clickable="true"
@@ -177,7 +171,6 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/language_label"
                         android:text="Connected WiFi Network"
                         android:textColor="@color/text_title"
                         android:textSize="16sp"
@@ -185,10 +178,6 @@
                         android:layout_marginBottom="2dp"/>
 
                     <TextView
-                        android:id="@+id/tvLanguageValue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/language_system_default"
                         android:id="@+id/tvWifiNetworkValue"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
