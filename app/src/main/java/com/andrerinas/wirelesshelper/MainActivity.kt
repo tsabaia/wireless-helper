@@ -16,9 +16,13 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.os.LocaleListCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.andrerinas.wirelesshelper.WifiJobService
 
@@ -40,6 +44,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var layoutWifiNetwork: View
     private lateinit var tvWifiNetworkValue: TextView
+
+    private lateinit var layoutLanguage: View
+    private lateinit var tvLanguageValue: TextView
 
     private lateinit var tvVersionValue: TextView
     private lateinit var layoutAbout: View
@@ -70,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         arrayOf(
             getString(R.string.auto_start_no),
             getString(R.string.auto_start_bt),
-            "On Specific WiFi connection"
+            getString(R.string.auto_start_wifi)
         )
     }
 
@@ -83,6 +90,18 @@ class MainActivity : AppCompatActivity() {
         initializeViews()
         setupListeners()
         restoreState()
+
+        val scrollView = findViewById<View>(R.id.main_root).findViewWithTag<View>("scroll_view") ?: findViewById(R.id.main_root)
+        // Note: I'll use the root but ensure the ScrollView gets the padding if possible.
+        // Let's stick to the root for simplicity as it has the background.
+        
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_root)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Apply bottom padding for navigation bar and top for status bar
+            // We add the status bar height to the existing design padding
+            v.setPadding(v.paddingLeft, systemBars.top, v.paddingRight, systemBars.bottom)
+            insets
+        }
     }
 
     private fun initializeViews() {
@@ -100,6 +119,9 @@ class MainActivity : AppCompatActivity() {
         layoutWifiNetwork = findViewById(R.id.layoutWifiNetwork)
         tvWifiNetworkValue = findViewById(R.id.tvWifiNetworkValue)
 
+        layoutLanguage = findViewById(R.id.layoutLanguage)
+        tvLanguageValue = findViewById(R.id.tvLanguageValue)
+
         tvVersionValue = findViewById(R.id.tvVersionValue)
         layoutAbout = findViewById(R.id.layoutAbout)
         
@@ -110,9 +132,14 @@ class MainActivity : AppCompatActivity() {
         layoutAbout.setOnClickListener {
             MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
                 .setTitle(R.string.about)
-                .setMessage("Wireless Helper is a trigger app for Headunit Revived.\n\nDeveloped by André Rinas\n© 2026")
+//                .setMessage("Wireless Helper is a trigger app for Headunit Revived.\n\nDeveloped by André Rinas\n© 2026")
+                .setMessage(getString(R.string.about_dialog_body))
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
+        }
+
+        layoutLanguage.setOnClickListener {
+            showLanguageSelector()
         }
 
         btnToggleService.setOnClickListener {
@@ -165,6 +192,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val languageOptions by lazy {
+        arrayOf(
+            getString(R.string.language_system_default),
+            getString(R.string.language_english),
+            getString(R.string.language_german),
+            getString(R.string.language_russian)
+        )
+    }
+
+    private val languageTags = arrayOf("", "en", "de", "ru")
+
+    private fun showLanguageSelector() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val currentTag = prefs.getString("app_language", "") ?: ""
+        val currentIndex = languageTags.indexOf(currentTag).coerceAtLeast(0)
+
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle(R.string.language_label)
+            .setSingleChoiceItems(languageOptions, currentIndex) { dialog, which ->
+                val tag = languageTags[which]
+                prefs.edit { putString("app_language", tag) }
+                applyLanguage(tag)
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun applyLanguage(tag: String) {
+        val localeList = if (tag.isEmpty()) {
+            LocaleListCompat.getEmptyLocaleList()
+        } else {
+            LocaleListCompat.forLanguageTags(tag)
+        }
+        AppCompatDelegate.setApplicationLocales(localeList)
+    }
+
     private fun showWifiSelector() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
         val savedSsid = prefs.getString("auto_start_wifi_ssid", "")
@@ -176,7 +240,7 @@ class MainActivity : AppCompatActivity() {
         val displaySsid = if (currentSsid.isNotEmpty() && currentSsid != "<unknown ssid>") currentSsid else savedSsid
 
         val input = android.widget.EditText(this).apply {
-            setHint("Enter WiFi SSID")
+            setHint(R.string.wifi_ssid_hint)
             setText(displaySsid)
             setTextColor(ContextCompat.getColor(context, R.color.text_title))
             setHintTextColor(ContextCompat.getColor(context, R.color.text_subtitle))
@@ -191,10 +255,10 @@ class MainActivity : AppCompatActivity() {
         container.addView(input, params)
 
         MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-            .setTitle("Auto-start WiFi")
-            .setMessage("Service will start automatically when connected to this network:")
+            .setTitle(R.string.wifi_ssid_dialog_title)
+            .setMessage(R.string.wifi_ssid_dialog_msg)
             .setView(container)
-            .setPositiveButton("Save") { _, _ ->
+            .setPositiveButton(R.string.wifi_ssid_save) { _, _ ->
                 val newSsid = input.text.toString().trim()
                 if (newSsid.isNotEmpty()) {
                     prefs.edit { putString("auto_start_wifi_ssid", newSsid) }
@@ -203,9 +267,9 @@ class MainActivity : AppCompatActivity() {
                     
                     if (Build.VERSION.SDK_INT >= 29 && ContextCompat.checkSelfPermission(this@MainActivity, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         MaterialAlertDialogBuilder(this@MainActivity, R.style.DarkAlertDialog)
-                            .setTitle("Background Location Needed")
-                            .setMessage("To detect WiFi while the app is closed, please set Location permission to 'Allow all the time' in Android settings.")
-                            .setPositiveButton("Settings") { _, _ ->
+                            .setTitle(R.string.wifi_background_location_title)
+                            .setMessage(R.string.wifi_background_location_msg)
+                            .setPositiveButton(R.string.wifi_background_location_button) { _, _ ->
                                 val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                     data = android.net.Uri.parse("package:$packageName")
                                 }
@@ -213,11 +277,11 @@ class MainActivity : AppCompatActivity() {
                             }
                             .show()
                     } else {
-                        Toast.makeText(this@MainActivity, "Auto-start linked to $newSsid", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, getString(R.string.auto_start_linked, newSsid), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
-            .setNeutralButton("Request Permissions") { _, _ ->
+            .setNeutralButton(R.string.wifi_ssid_permissions_needed) { _, _ ->
                 ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 102)
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -235,14 +299,14 @@ class MainActivity : AppCompatActivity() {
         val bondedDevices = adapter.bondedDevices.toList()
 
         if (bondedDevices.isEmpty()) {
-            Toast.makeText(this, "No paired Bluetooth devices found", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.no_paired_devices), Toast.LENGTH_LONG).show()
             return
         }
 
         val deviceNames = bondedDevices.map { it.name ?: "Unknown Device" }.toTypedArray()
         
         MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-            .setTitle("Select Bluetooth Device")
+            .setTitle(R.string.select_bt_device)
             .setItems(deviceNames) { _, which ->
                 val device = bondedDevices[which]
                 val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
@@ -251,7 +315,7 @@ class MainActivity : AppCompatActivity() {
                     putString("auto_start_bt_name", device.name)
                 }
                 tvBluetoothDeviceValue.text = device.name
-                Toast.makeText(this, "Auto-start linked to ${device.name}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.auto_start_linked, device.name), Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -269,6 +333,11 @@ class MainActivity : AppCompatActivity() {
         tvBluetoothDeviceValue.text = prefs.getString("auto_start_bt_name", getString(R.string.not_set))
         tvWifiNetworkValue.text = prefs.getString("auto_start_wifi_ssid", getString(R.string.not_set))
 
+        // Language
+        val langTag = prefs.getString("app_language", "") ?: ""
+        val langIndex = languageTags.indexOf(langTag).coerceAtLeast(0)
+        tvLanguageValue.text = languageOptions[langIndex]
+
         updateButtonState(WirelessHelperService.isRunning, WirelessHelperService.isConnected)
     }
 
@@ -279,19 +348,19 @@ class MainActivity : AppCompatActivity() {
             0 -> { // No
                 layoutBluetoothDevice.visibility = View.GONE
                 layoutWifiNetwork.visibility = View.GONE
-                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_bottom)
+                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
             }
             1 -> { // Bluetooth
                 layoutBluetoothDevice.visibility = View.VISIBLE
                 layoutWifiNetwork.visibility = View.GONE
                 layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
-                layoutBluetoothDevice.setBackgroundResource(R.drawable.bg_item_bottom)
+                layoutBluetoothDevice.setBackgroundResource(R.drawable.bg_item_middle)
             }
             2 -> { // WiFi
                 layoutBluetoothDevice.visibility = View.GONE
                 layoutWifiNetwork.visibility = View.VISIBLE
                 layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
-                layoutWifiNetwork.setBackgroundResource(R.drawable.bg_item_bottom)
+                layoutWifiNetwork.setBackgroundResource(R.drawable.bg_item_middle)
             }
         }
     }

@@ -21,6 +21,13 @@ To ensure reliable background auto-start (Bluetooth/WiFi) and a stable connectio
 3. **Paired Devices:** Select your car's Bluetooth device in the settings.
 
 ## Changelog
+### v.0.4.0
+- Added experimental Auto-Start on Wi-Fi logic
+- Fixed connection hangs and improved discovery logic.
+- Notification now disappears correctly when the session ends or is closed from the headunit.
+- Added support for system navigation bar insets (no more cut-off content).
+- Added translation support, thanks to @saksonovdev with english, russian and german language
+
 ### v.0.3.0
 - Complete Rebuild of the functions. Now using a proxy server to establish the connections
 - Changed the UI a little bit

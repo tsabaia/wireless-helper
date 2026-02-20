@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">Wireless Helper</string>
+    <string name="start_service">Android Auto starten</string>
+    <string name="stop_service">Suche stoppen</string>
+    
+    <string name="connection_mode_label">Verbindungsmodus</string>
+    <string name="mode_nsd">Gemeinsames WLAN (NSD)</string>
+    <string name="mode_hotspot_phone">Handy-Hotspot (NSD + Fake Network)</string>
+    <string name="mode_passive">Tablet-Hotspot (Passiv)</string>
+    <string name="mode_wifi_direct">Wi-Fi Direct (Experimentell)</string>
+    
+    <string name="auto_start_label">Dienst automatisch starten</string>
+    <string name="auto_start_no">Nein (Manuell)</string>
+    <string name="auto_start_bt">Bei Bluetooth-Verbindung</string>
+    <string name="auto_start_wifi">Bei spezifischer WLAN-Verbindung</string>
+    
+    <string name="bt_device_label">Bluetooth-Gerät</string>
+    <string name="wifi_ssid_label">WLAN-Netzwerk (SSID)</string>
+    <string name="wifi_ssid_hint">WLAN SSID eingeben</string>
+    <string name="wifi_ssid_dialog_title">WLAN Auto-Start</string>
+    <string name="wifi_ssid_dialog_msg">Dienst startet automatisch bei Verbindung mit diesem Netzwerk:</string>
+    <string name="wifi_ssid_save">Speichern</string>
+    <string name="wifi_ssid_permissions_needed">Berechtigungen anfordern</string>
+    
+    <string name="wifi_background_location_title">Hintergrund-Standort benötigt</string>
+    <string name="wifi_background_location_msg">Um WLAN im Hintergrund zu erkennen, setzen Sie die Standortberechtigung in den Android-Einstellungen bitte auf \'Immer zulassen\'.</string>
+    <string name="wifi_background_location_button">Einstellungen</string>
+    
+    <string name="not_set">Nicht festgelegt</string>
+    
+    <string name="logs_label">Protokolle:</string>
+    <string name="category_info">INFO</string>
+    <string name="settings_header">EINSTELLUNGEN</string>
+    <string name="version">Version</string>
+    <string name="about">Über &amp; Support</string>
+    <string name="about_description">Leichter Trigger für Headunit Revived</string>
+
+    <!-- Language -->
+    <string name="language_label">Sprache</string>
+    <string name="language_system_default">Systemstandard</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_russian">Русский</string>
+
+    <!-- Notifications & Service -->
+    <string name="notif_searching">Suche nach Headunit…</string>
+    <string name="notif_connected">Mit Android Auto verbunden</string>
+    <string name="notif_disconnected">Android Auto getrennt</string>
+    <string name="notif_stop">Stoppen</string>
+    <string name="notif_channel_name">Wireless Helper</string>
+    <string name="connected">Verbunden</string>
+
+    <!-- About Dialog -->
+    <string name="about_dialog_body">Wireless Helper ist eine Trigger-App für Headunit Revived.
+
+Entwickelt von André Rinas
+© 2026</string>
+
+    <!-- Bluetooth -->
+    <string name="no_paired_devices">Keine gekoppelten Bluetooth-Geräte gefunden</string>
+    <string name="select_bt_device">Bluetooth-Gerät auswählen</string>
+    <string name="auto_start_linked">Auto-Start verknüpft mit %s</string>
+</resources>
