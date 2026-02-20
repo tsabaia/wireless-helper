@@ -157,6 +157,9 @@
                 <!-- 4. Language -->
                 <LinearLayout
                     android:id="@+id/layoutLanguage"
+                <!-- 4. WiFi Network -->
+                <LinearLayout
+                    android:id="@+id/layoutWifiNetwork"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -165,11 +168,17 @@
                     android:background="@drawable/bg_item_bottom"
                     android:clickable="true"
                     android:focusable="true">
+                    android:layout_marginBottom="2dp"
+                    android:background="@drawable/bg_item_bottom"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/language_label"
+                        android:text="Connected WiFi Network"
                         android:textColor="@color/text_title"
                         android:textSize="16sp"
                         android:textStyle="normal"
@@ -180,6 +189,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/language_system_default"
+                        android:id="@+id/tvWifiNetworkValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/not_set"
                         android:textColor="@color/text_subtitle"
                         android:textSize="14sp"/>
                 </LinearLayout>

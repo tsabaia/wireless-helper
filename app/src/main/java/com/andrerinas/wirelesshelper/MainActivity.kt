@@ -23,6 +23,7 @@ import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Locale
+import com.andrerinas.wirelesshelper.WifiJobService
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,6 +43,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var layoutLanguage: View
     private lateinit var tvLanguageValue: TextView
+    private lateinit var layoutWifiNetwork: View
+    private lateinit var tvWifiNetworkValue: TextView
 
     private lateinit var tvVersionValue: TextView
     private lateinit var layoutAbout: View
@@ -71,7 +74,8 @@ class MainActivity : AppCompatActivity() {
     private val autoStartModes by lazy {
         arrayOf(
             getString(R.string.auto_start_no),
-            getString(R.string.auto_start_bt)
+            getString(R.string.auto_start_bt),
+            "On Specific WiFi connection"
         )
     }
 
@@ -100,6 +104,8 @@ class MainActivity : AppCompatActivity() {
 
         layoutLanguage = findViewById(R.id.layoutLanguage)
         tvLanguageValue = findViewById(R.id.tvLanguageValue)
+        layoutWifiNetwork = findViewById(R.id.layoutWifiNetwork)
+        tvWifiNetworkValue = findViewById(R.id.tvWifiNetworkValue)
 
         tvVersionValue = findViewById(R.id.tvVersionValue)
         layoutAbout = findViewById(R.id.layoutAbout)
@@ -148,6 +154,13 @@ class MainActivity : AppCompatActivity() {
                 .setSingleChoiceItems(autoStartModes, currentMode) { dialog, which ->
                     prefs.edit { putInt("auto_start_mode", which) }
                     updateAutoStartUI(which)
+                    
+                    if (which == 2) {
+                        WifiJobService.schedule(this@MainActivity)
+                    } else {
+                        WifiJobService.cancel(this@MainActivity)
+                    }
+                    
                     dialog.dismiss()
                 }
                 .setNegativeButton(android.R.string.cancel, null)
@@ -157,6 +170,69 @@ class MainActivity : AppCompatActivity() {
         layoutBluetoothDevice.setOnClickListener {
             showBluetoothDeviceSelector()
         }
+
+        layoutWifiNetwork.setOnClickListener {
+            showWifiSelector()
+        }
+    }
+
+    private fun showWifiSelector() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val savedSsid = prefs.getString("auto_start_wifi_ssid", "")
+
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+        val ssid = wifiManager.connectionInfo.ssid
+        val currentSsid = ssid?.replace("\"", "") ?: ""
+        
+        val displaySsid = if (currentSsid.isNotEmpty() && currentSsid != "<unknown ssid>") currentSsid else savedSsid
+
+        val input = android.widget.EditText(this).apply {
+            setHint("Enter WiFi SSID")
+            setText(displaySsid)
+            setTextColor(ContextCompat.getColor(context, R.color.text_title))
+            setHintTextColor(ContextCompat.getColor(context, R.color.text_subtitle))
+        }
+
+        val container = android.widget.FrameLayout(this)
+        val params = android.widget.FrameLayout.LayoutParams(
+            android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+            android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.setMargins(64, 24, 64, 24)
+        container.addView(input, params)
+
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle("Auto-start WiFi")
+            .setMessage("Service will start automatically when connected to this network:")
+            .setView(container)
+            .setPositiveButton("Save") { _, _ ->
+                val newSsid = input.text.toString().trim()
+                if (newSsid.isNotEmpty()) {
+                    prefs.edit { putString("auto_start_wifi_ssid", newSsid) }
+                    tvWifiNetworkValue.text = newSsid
+                    WifiJobService.schedule(this@MainActivity)
+                    
+                    if (Build.VERSION.SDK_INT >= 29 && ContextCompat.checkSelfPermission(this@MainActivity, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        MaterialAlertDialogBuilder(this@MainActivity, R.style.DarkAlertDialog)
+                            .setTitle("Background Location Needed")
+                            .setMessage("To detect WiFi while the app is closed, please set Location permission to 'Allow all the time' in Android settings.")
+                            .setPositiveButton("Settings") { _, _ ->
+                                val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = android.net.Uri.parse("package:$packageName")
+                                }
+                                startActivity(intent)
+                            }
+                            .show()
+                    } else {
+                        Toast.makeText(this@MainActivity, "Auto-start linked to $newSsid", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNeutralButton("Request Permissions") { _, _ ->
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 102)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private val languageOptions by lazy {
@@ -238,6 +314,7 @@ class MainActivity : AppCompatActivity() {
         updateAutoStartUI(autoMode)
         
         tvBluetoothDeviceValue.text = prefs.getString("auto_start_bt_name", getString(R.string.not_set))
+        tvWifiNetworkValue.text = prefs.getString("auto_start_wifi_ssid", getString(R.string.not_set))
 
         // Language
         val langTag = prefs.getString("app_language", "") ?: ""
@@ -253,12 +330,20 @@ class MainActivity : AppCompatActivity() {
         when (mode) {
             0 -> { // No
                 layoutBluetoothDevice.visibility = View.GONE
-                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
+                layoutWifiNetwork.visibility = View.GONE
+                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_bottom)
             }
             1 -> { // Bluetooth
                 layoutBluetoothDevice.visibility = View.VISIBLE
+                layoutWifiNetwork.visibility = View.GONE
                 layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
                 layoutBluetoothDevice.setBackgroundResource(R.drawable.bg_item_middle)
+            }
+            2 -> { // WiFi
+                layoutBluetoothDevice.visibility = View.GONE
+                layoutWifiNetwork.visibility = View.VISIBLE
+                layoutAutoStart.setBackgroundResource(R.drawable.bg_item_middle)
+                layoutWifiNetwork.setBackgroundResource(R.drawable.bg_item_bottom)
             }
         }
     }
@@ -271,6 +356,9 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= 31) {
             permissions.add("android.permission.BLUETOOTH_CONNECT")
         }
+        
+        // Needed for WiFi SSID access
+        permissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
         
         val missingPermissions = permissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
@@ -352,6 +440,26 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         handler.post(statusPoller)
+        checkBatteryOptimization()
+    }
+
+    private fun checkBatteryOptimization() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val pm = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+                    .setTitle("Battery Optimization detected")
+                    .setMessage("To allow Auto-start on WiFi/Bluetooth, please set this app to 'Unrestricted' in battery settings.")
+                    .setPositiveButton("Settings") { _, _ ->
+                        val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = android.net.Uri.parse("package:$packageName")
+                        }
+                        startActivity(intent)
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+            }
+        }
     }
 
     override fun onPause() {
@@ -364,6 +472,7 @@ class MainActivity : AppCompatActivity() {
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
             if (requestCode == 100) startLauncherService()
             if (requestCode == 101) showBluetoothDeviceSelector()
+            if (requestCode == 102) showWifiSelector()
         }
     }
 }

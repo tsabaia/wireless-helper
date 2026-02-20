@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.Inet4Address
@@ -99,11 +100,11 @@ class NetworkDiscovery(private val context: Context, private val listener: Liste
         return foundAny
     }
 
-    private suspend fun scanSubnet() {
+    private suspend fun scanSubnet() = coroutineScope {
         val subnet = getSubnet()
         if (subnet == null) {
             Log.e(TAG, "Could not determine subnet for deep scan")
-            return
+            return@coroutineScope
         }
 
         val myIp = getLocalIpAddress()
@@ -116,7 +117,7 @@ class NetworkDiscovery(private val context: Context, private val listener: Liste
             val ip = "$subnet.$i"
             if (ip == myIp) continue // Skip self
             
-            tasks.add(CoroutineScope(Dispatchers.IO).async {
+            tasks.add(async(Dispatchers.IO) {
                 checkAndReport(ip)
             })
         }

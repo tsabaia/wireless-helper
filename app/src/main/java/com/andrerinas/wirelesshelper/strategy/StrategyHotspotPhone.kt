@@ -14,7 +14,7 @@ class StrategyHotspotPhone(context: Context, private val scope: CoroutineScope) 
     override fun start() {
         Log.i(TAG, "Strategy: Hotspot Phone (TCP 5289 Trigger Listener)")
         
-        scope.launch(Dispatchers.IO) {
+        getStrategyScope().launch(Dispatchers.IO) {
             try {
                 serverSocket = ServerSocket().apply {
                     reuseAddress = true

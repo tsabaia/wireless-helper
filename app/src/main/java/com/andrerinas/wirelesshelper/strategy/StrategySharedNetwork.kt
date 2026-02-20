@@ -48,6 +48,7 @@ class StrategySharedNetwork(context: Context, scope: CoroutineScope) : BaseStrat
     }
 
     override fun stop() {
+        super.stop()
         try { nsdManager.stopServiceDiscovery(discoveryListener) } catch (e: Exception) {}
         discoveryListener = null
     }

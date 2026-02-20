@@ -19,15 +19,21 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
     interface StateListener {
         fun onProxyConnected()
         fun onProxyDisconnected()
+        fun onLaunchTimeout()
     }
 
     protected val TAG = "HUREV_WIFI"
     private val carConnectionUri = Uri.Builder().scheme("content").authority("androidx.car.app.connection").build()
     private var activeProxy: AapProxy? = null
     var stateListener: StateListener? = null
+    protected val isLaunching = AtomicBoolean(false)
+    protected var connectionEstablished = AtomicBoolean(false)
+    protected var strategyJob: Job? = null
 
-    companion object {
-        val isLaunching = AtomicBoolean(false)
+    protected fun getStrategyScope(): CoroutineScope {
+        val job = Job(scope.coroutineContext[Job])
+        strategyJob = job
+        return CoroutineScope(scope.coroutineContext + job)
     }
 
     protected fun launchAndroidAuto(hostIp: String, forceFakeNetwork: Boolean = false) {
@@ -35,6 +41,7 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
         if (!isLaunching.compareAndSet(false, true)) return
         
         Log.i(TAG, "Strategy triggering PROXY launch for $hostIp")
+        connectionEstablished.set(false)
         
         stop()
 
@@ -44,6 +51,7 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
                 val proxy = AapProxy(hostIp, listener = object : AapProxy.Listener {
                     override fun onConnected() {
                         Log.i(TAG, "AA is now flowing through proxy")
+                        connectionEstablished.set(true)
                         stateListener?.onProxyConnected()
                     }
                     override fun onDisconnected() {
@@ -79,21 +87,32 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
 
                 // The lock stays active until proxy confirms connection or timeout
                 delay(15000) 
-                isLaunching.set(false)
+                
+                if (!connectionEstablished.get()) {
+                    Log.w(TAG, "Launch timed out without connection.")
+                    activeProxy?.stop()
+                    activeProxy = null
+                    stateListener?.onLaunchTimeout()
+                }
 
             } catch (e: Exception) {
                 Log.e(TAG, "Proxy Launch failed: ${e.message}")
                 activeProxy?.stop()
                 activeProxy = null
+            } finally {
                 isLaunching.set(false)
             }
         }
     }
 
-    override fun stop() {}
+    override fun stop() {
+        strategyJob?.cancel()
+        strategyJob = null
+    }
 
     fun cleanup() {
         activeProxy?.stop()
         activeProxy = null
+        isLaunching.set(false)
     }
 }

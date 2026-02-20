@@ -13,7 +13,7 @@ class StrategyHotspotTablet(context: Context, private val scope: CoroutineScope)
 
     override fun start() {
         Log.i(TAG, "Strategy: Hotspot Tablet (Passive TCP Listener)")
-        scope.launch(Dispatchers.IO) {
+        getStrategyScope().launch(Dispatchers.IO) {
             try {
                 serverSocket = ServerSocket().apply {
                     reuseAddress = true

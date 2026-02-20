@@ -41,6 +41,7 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
     }
 
     override fun stop() {
+        super.stop()
         try { nsdManager.stopServiceDiscovery(discoveryListener) } catch (e: Exception) {}
         discoveryListener = null
     }
