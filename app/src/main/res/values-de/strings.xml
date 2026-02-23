@@ -16,6 +16,7 @@
     
     <string name="bt_device_label">Bluetooth-Gerät</string>
     <string name="wifi_ssid_label">WLAN-Netzwerk (SSID)</string>
+    <string name="wifi_connected_network">Verbundenes WLAN-Netzwerk</string>
     <string name="wifi_ssid_hint">WLAN SSID eingeben</string>
     <string name="wifi_ssid_dialog_title">WLAN Auto-Start</string>
     <string name="wifi_ssid_dialog_msg">Dienst startet automatisch bei Verbindung mit diesem Netzwerk:</string>
@@ -25,6 +26,9 @@
     <string name="wifi_background_location_title">Hintergrund-Standort benötigt</string>
     <string name="wifi_background_location_msg">Um WLAN im Hintergrund zu erkennen, setzen Sie die Standortberechtigung in den Android-Einstellungen bitte auf \'Immer zulassen\'.</string>
     <string name="wifi_background_location_button">Einstellungen</string>
+
+    <string name="battery_opt_title">Akku-Optimierung erkannt</string>
+    <string name="battery_opt_msg">Um Autostart über WiFi/Bluetooth zu ermöglichen, stellen Sie diese App in den Akku-Einstellungen bitte auf \'Nicht eingeschränkt\'.</string>
     
     <string name="not_set">Nicht festgelegt</string>
     

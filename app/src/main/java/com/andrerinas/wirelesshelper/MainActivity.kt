@@ -419,7 +419,7 @@ class MainActivity : AppCompatActivity() {
         val colorGreen = ContextCompat.getColor(this, android.R.color.holo_green_dark)
         
         if (connected) {
-            btnToggleService.text = "Connected"
+            btnToggleService.text = getString(R.string.connected)
             btnToggleService.background.setTint(colorGreen)
             startPulseAnimation(1500) // Slow pulse
         } else if (running) {
@@ -469,9 +469,9 @@ class MainActivity : AppCompatActivity() {
             val pm = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                 MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-                    .setTitle("Battery Optimization detected")
-                    .setMessage("To allow Auto-start on WiFi/Bluetooth, please set this app to 'Unrestricted' in battery settings.")
-                    .setPositiveButton("Settings") { _, _ ->
+                    .setTitle(R.string.battery_opt_title)
+                    .setMessage(R.string.battery_opt_msg)
+                    .setPositiveButton(R.string.wifi_background_location_button) { _, _ ->
                         val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
                             data = android.net.Uri.parse("package:$packageName")
                         }
