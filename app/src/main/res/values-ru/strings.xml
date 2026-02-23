@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Wireless Helper</string>
-    <string name="start_service">Запустить в беспроводном режиме</string>
+    <string name="start_service">Запустить Android Auto</string>
     <string name="stop_service">Остановить поиск</string>
 
     <string name="connection_mode_label">Режим подключения</string>
@@ -12,19 +12,23 @@
     <string name="auto_start_label">Автозапуск сервиса</string>
     <string name="auto_start_no">Нет (вручную)</string>
     <string name="auto_start_bt">При подключении Bluetooth</string>
-    <string name="auto_start_wifi">On Specific Wi-Fi Connection</string>
+    <string name="auto_start_wifi">При подключении к определенному Wi-Fi</string>
 
     <string name="bt_device_label">Устройство Bluetooth</string>
-    <string name="wifi_ssid_label">Wi-Fi Network (SSID)</string>
-    <string name="wifi_ssid_hint">Enter Wi-Fi SSID</string>
-    <string name="wifi_ssid_dialog_title">Auto-start Wi-Fi</string>
-    <string name="wifi_ssid_dialog_msg">Service will start automatically when connected to this network:</string>
-    <string name="wifi_ssid_save">Save</string>
-    <string name="wifi_ssid_permissions_needed">Request Permissions</string>
+    <string name="wifi_ssid_label">Сеть Wi-Fi (SSID)</string>
+    <string name="wifi_connected_network">Подключенная сеть Wi-Fi</string>
+    <string name="wifi_ssid_hint">Введите SSID Wi-Fi</string>
+    <string name="wifi_ssid_dialog_title">Автозапуск по Wi-Fi</string>
+    <string name="wifi_ssid_dialog_msg">Сервис запустится автоматически при подключении к этой сети:</string>
+    <string name="wifi_ssid_save">Сохранить</string>
+    <string name="wifi_ssid_permissions_needed">Запросить разрешения</string>
 
-    <string name="wifi_background_location_title">Background Location Needed</string>
-    <string name="wifi_background_location_msg">To detect Wi-Fi while the app is closed, please set Location permission to \'Allow all the time\' in Android settings.</string>
-    <string name="wifi_background_location_button">Settings</string>
+    <string name="wifi_background_location_title">Требуется фоновое определение местоположения</string>
+    <string name="wifi_background_location_msg">Чтобы определять сеть Wi-Fi, когда приложение закрыто, установите разрешение для местоположения на \'Разрешать всегда\' в настройках Android.</string>
+    <string name="wifi_background_location_button">Настройки</string>
+
+    <string name="battery_opt_title">Обнаружена оптимизация батареи</string>
+    <string name="battery_opt_msg">Чтобы разрешить автозапуск по Wi-Fi/Bluetooth, установите для этого приложения значение \'Без ограничений\' в настройках батареи.</string>
 
     <string name="not_set">Не задано</string>
 
