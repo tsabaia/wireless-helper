@@ -68,6 +68,14 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
                             }
                         }
                     }
+                    WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
+                        val state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
+                        if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
+                            Log.d(TAG, "WiFi Direct is enabled")
+                        } else {
+                            Log.w(TAG, "WiFi Direct is disabled")
+                        }
+                    }
                 }
             }
         }

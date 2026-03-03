@@ -28,6 +28,13 @@ import com.andrerinas.wirelesshelper.WifiJobService
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val MODE_NSD = 0
+        const val MODE_HOTSPOT_PHONE = 1
+        const val MODE_PASSIVE = 2
+        const val MODE_WIFI_DIRECT = 3
+    }
+
     private lateinit var btnToggleService: Button
     
     // Connection Mode
@@ -398,8 +405,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateModeSpecificUI(mode: Int) {
-        // Mode 3 is WiFi Direct
-        if (mode == 3) {
+        if (mode == MODE_WIFI_DIRECT) {
             layoutWifiDirectName.visibility = View.VISIBLE
         } else {
             layoutWifiDirectName.visibility = View.GONE

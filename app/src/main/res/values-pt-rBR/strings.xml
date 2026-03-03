@@ -67,7 +67,7 @@
     <!-- Bluetooth -->
     <string name="no_paired_devices">Nenhum dispositivo pareado encontrado</string>
     <string name="select_bt_device">Selecionar Dispositivo Bluetooth</string>
-    <string name="auto_start_linked">O aplicativo irá iniciar automaticamente al se conectador com %s</string>
+    <string name="auto_start_linked">O aplicativo irá iniciar automaticamente ao se conectar com %s</string>
 
     <string name="shortcut_start_title">Iniciar Busca</string>
     <string name="shortcut_start_desc">Iniciar busca pelo Android Auto</string>
