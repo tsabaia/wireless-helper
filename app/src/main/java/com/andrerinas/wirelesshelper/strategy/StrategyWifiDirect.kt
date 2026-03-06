@@ -55,12 +55,24 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
                             val target = targetDeviceName ?: return@requestPeers
                             Log.d(TAG, "P2P Peers found: ${peers.deviceList.size}")
                             for (device in peers.deviceList) {
-                                Log.d(TAG, "  - Found: ${device.deviceName} (${device.deviceAddress}) Status: ${device.status}")
+                                val statusText = when(device.status) {
+                                    0 -> "AVAILABLE"
+                                    1 -> "INVITED"
+                                    2 -> "CONNECTED"
+                                    3 -> "FAILED"
+                                    4 -> "UNAVAILABLE"
+                                    else -> "UNKNOWN (${device.status})"
+                                }
+                                Log.d(TAG, "  - Found: ${device.deviceName} Status: $statusText")
                             }
 
                             val match = peers.deviceList.find { it.deviceName.contains(target, ignoreCase = true) }
-                            if (match != null && match.status == WifiP2pDevice.AVAILABLE && !isConnectingToPeer) {
-                                connectToPeer(match)
+                            if (match != null && !isConnectingToPeer) {
+                                if (match.status == WifiP2pDevice.AVAILABLE) {
+                                    connectToPeer(match)
+                                } else if (match.status == WifiP2pDevice.INVITED) {
+                                    Log.i(TAG, "Already invited to ${match.deviceName}, waiting for acceptance...")
+                                }
                             }
                         }
                     }
@@ -119,10 +131,11 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
     private fun connectToPeer(device: WifiP2pDevice) {
         val config = android.net.wifi.p2p.WifiP2pConfig().apply {
             deviceAddress = device.deviceAddress
+            wps.setup = android.net.wifi.WpsInfo.PBC
         }
         
         isConnectingToPeer = true
-        Log.i(TAG, "Attempting to connect to P2P device: ${device.deviceName}")
+        Log.i(TAG, "Attempting to connect to P2P device (PBC): ${device.deviceName}")
         p2pManager?.connect(p2pChannel, config, object : WifiP2pManager.ActionListener {
             override fun onSuccess() { Log.d(TAG, "P2P Connect initiated") }
             override fun onFailure(reason: Int) { 

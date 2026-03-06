@@ -60,6 +60,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var layoutAbout: View
 
     private var isServiceRunning = false
+    private var lastRunningState: Boolean? = null
+    private var lastConnectedState: Boolean? = null
     private val handler = Handler(Looper.getMainLooper())
     private var pulseAnimator: ObjectAnimator? = null
     
@@ -67,7 +69,12 @@ class MainActivity : AppCompatActivity() {
         override fun run() {
             val running = WirelessHelperService.isRunning
             val connected = WirelessHelperService.isConnected
-            updateButtonState(running, connected)
+            
+            if (running != lastRunningState || connected != lastConnectedState) {
+                updateButtonState(running, connected)
+                lastRunningState = running
+                lastConnectedState = connected
+            }
             handler.postDelayed(this, 1000)
         }
     }
@@ -492,7 +499,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startPulseAnimation(duration: Long) {
-        if (pulseAnimator != null && pulseAnimator!!.isRunning && pulseAnimator!!.duration == duration) {
+        if (pulseAnimator != null && pulseAnimator!!.duration == duration) {
             return
         }
         stopPulseAnimation()
