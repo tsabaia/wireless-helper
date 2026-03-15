@@ -1,13 +1,14 @@
 name: Build Android APK
 
-# Trigger the workflow on pushes and pull requests to any branch
+# Trigger the workflow on pushes, pull requests, AND manually
 on:
   push:
     branches:
-      - '**' # The double asterisk ensures it runs on all branches
+      - '**' # Runs automatically on push to any branch
   pull_request:
     branches:
-      - '**'
+      - '**' # Runs automatically on pull requests
+  workflow_dispatch: # This enables the "Run workflow" button in the GitHub UI
 
 jobs:
   build:
