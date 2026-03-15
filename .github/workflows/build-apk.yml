@@ -9,6 +9,10 @@ on:
       - '**'
   workflow_dispatch:
 
+# Esta é a linha nova que resolve o aviso do Node.js 20
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     name: Build APK
