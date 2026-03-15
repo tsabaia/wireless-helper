@@ -1,32 +1,38 @@
-name: Build APK (Native-AA)
+name: Build Android APK
 
 on:
-  workflow_dispatch: # É isso que permite o acionamento manual
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout do código
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Configurar o Java (JDK 17)
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17' # A maioria dos projetos Android modernos usa o 17
-        distribution: 'temurin'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
 
-    - name: Dar permissão de execução ao Gradle
-      run: chmod +x gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: Gerar o APK (Debug)
-      run: ./gradlew assembleDebug
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
-    - name: Fazer Upload do APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: headunit-native-aa-apk
-        # Este caminho pega o APK gerado. Pode variar levemente dependendo do projeto, 
-        # mas este é o padrão para 99% dos apps Android.
-        path: app/build/outputs/apk/debug/**/*.apk
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
