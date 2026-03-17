@@ -56,6 +56,7 @@
     <string name="language_german">Deutsch</string>
     <string name="language_russian">Русский</string>
     <string name="language_arabic">العربية</string>
+    <string name="language_spanish">Spanish</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">جار البحث عن Headunit…</string>

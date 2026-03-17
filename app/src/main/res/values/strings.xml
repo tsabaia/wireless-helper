@@ -60,6 +60,7 @@
     <string name="language_german">Deutsch</string>
     <string name="language_russian">Русский</string>
     <string name="language_arabic">Arabic</string>
+    <string name="language_spanish">Spanish</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Searching for Headunit…</string>

@@ -1,0 +1,86 @@
+<resources>
+    <string name="app_name">Wireless Helper</string>
+    <string name="start_service">Iniciar Android Auto</string>
+    <string name="stop_service">Detener búsqueda</string>
+    
+    <string name="connection_mode_label">Modo de conexión</string>
+    <string name="mode_nsd">Wi-Fi compartido (NSD)</string>
+    <string name="mode_hotspot_phone">Punto de acceso (NSD + Red falsa)</string>
+    <string name="mode_passive">Punto de acceso tablet (Pasivo)</string>
+    <string name="mode_wifi_direct">Wi-Fi Directo (Experimental)</string>
+    
+    <string name="auto_start_label">Inicio automático del servicio</string>
+    <string name="auto_start_no">No (Manual)</string>
+    <string name="auto_start_bt">Al conectar Bluetooth</string>
+    <string name="auto_start_wifi">Al conectar Wi-Fi específico</string>
+    
+    <string name="bt_device_label">Dispositivo Bluetooth</string>
+    <string name="bt_auto_reconnect_title">Reconectar automáticamente</string>
+    <string name="bt_auto_reconnect_desc">Intentar reiniciar la sesión si la conexión se cae mientras el Bluetooth sigue conectado.</string>
+    <string name="bt_disconnect_stop_title">Detener al desconectar BT</string>
+    <string name="bt_disconnect_stop_desc">Detener el servicio automáticamente cuando el Bluetooth del coche se desconecte.</string>
+    <string name="wifi_ssid_label">Red Wi-Fi (SSID)</string>
+    <string name="wifi_connected_network">Red Wi-Fi conectada</string>
+    <string name="wifi_ssid_hint">Ingrese el SSID de Wi-Fi</string>
+    <string name="wifi_ssid_dialog_title">Inicio automático Wi-Fi</string>
+    <string name="wifi_ssid_dialog_msg">El servicio se iniciará automáticamente al conectar a esta red:</string>
+    <string name="wifi_ssid_save">Guardar</string>
+    <string name="wifi_ssid_permissions_needed">Solicitar permisos</string>
+    
+    <string name="wifi_background_location_title">Ubicación en segundo plano necesaria</string>
+    <string name="wifi_background_location_msg">Para detectar Wi-Fi con la aplicación cerrada, configure el permiso de ubicación en \'Permitir todo el tiempo\' en los ajustes de Android.</string>
+    <string name="wifi_background_location_button">Ajustes</string>
+
+    <string name="wifi_direct_name_label">Nombre del dispositivo Wi-Fi Directo</string>
+    <string name="wifi_direct_name_hint">Ingrese el nombre (ej. AndroidAuto-Unit)</string>
+    <string name="wifi_direct_name_dialog_title">Conexión automática Wi-Fi Directo</string>
+    <string name="wifi_direct_name_dialog_msg">Ingrese el nombre del dispositivo Wi-Fi Directo al que desea conectarse. La aplicación se conectará automáticamente una vez encontrado.</string>
+
+    <string name="battery_opt_title">Optimización de batería detectada</string>
+    <string name="battery_opt_msg">Para permitir el inicio automático en Wi-Fi/Bluetooth, configure esta aplicación como \'Sin restricciones\' en los ajustes de batería.</string>
+    
+    <string name="overlay_perm_title">Inicio en segundo plano bloqueado</string>
+    <string name="overlay_perm_msg">Las versiones modernas de Android bloquean los inicios en segundo plano. Para habilitar la conexión automática, permita \'Mostrar sobre otras aplicaciones\' en los ajustes del sistema.</string>
+    <string name="overlay_perm_button">Conceder permiso</string>
+
+    <string name="not_set">No establecido</string>
+    
+    <string name="logs_label">Registros:</string>
+    <string name="category_info">INFO</string>
+    <string name="settings_header">AJUSTES</string>
+    <string name="version">Versión</string>
+    <string name="about">Acerca de y Soporte</string>
+    <string name="about_description">Activador ligero para Headunit Revived</string>
+
+    <string name="language_label">Idioma</string>
+    <string name="language_system_default">Predeterminado del sistema</string>
+    <string name="language_english">English</string>
+    <string name="language_portuguese">Português (Brasil)</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_arabic">العربية</string>
+    <string name="language_spanish">Español</string>
+
+    <string name="notif_searching">Buscando unidad principal…</string>
+    <string name="notif_connected">Conectado a Android Auto</string>
+    <string name="notif_disconnected">Android Auto desconectado</string>
+    <string name="notif_stop">Detener</string>
+    <string name="notif_channel_name">Wireless Helper</string>
+    <string name="connected">Conectado</string>
+
+    <string name="about_dialog_body">Wireless Helper es una aplicación de activación para Headunit Revived.\n\nDesarrollada por André Rinas\n© 2026</string>
+
+    <string name="no_paired_devices">No se encontraron dispositivos Bluetooth emparejados</string>
+    <string name="select_bt_device">Seleccionar dispositivo Bluetooth</string>
+    <string name="auto_start_linked">Inicio automático vinculado a %s</string>
+
+    <string name="shortcut_start_title">Iniciar búsqueda</string>
+    <string name="shortcut_start_desc">Iniciar búsqueda de Android Auto</string>
+    <string name="shortcut_stop_title">Detener búsqueda</string>
+    <string name="shortcut_stop_desc">Detener la búsqueda activa</string>
+
+    <string name="channel_name_alerts">Alertas de conexión</string>
+    <string name="notification_wifi_off_title">¡Wi-Fi desactivado!</string>
+    <string name="notification_wifi_off_text">Headunit Revived necesita Wi-Fi para conectarse.</string>
+    <string name="action_turn_on_wifi">ACTIVAR WI-FI</string>
+</resources>
