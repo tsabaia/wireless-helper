@@ -1,10 +1,12 @@
 package com.andrerinas.wirelesshelper
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.net.wifi.WifiManager
@@ -21,6 +23,8 @@ import com.andrerinas.wirelesshelper.strategy.StrategyWifiDirect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 class WirelessHelperService : Service(), BaseStrategy.StateListener {
 
@@ -93,9 +97,49 @@ class WirelessHelperService : Service(), BaseStrategy.StateListener {
 
     override fun onProxyDisconnected() {
         isConnected = false
-        Log.i(TAG, "Proxy disconnected. Stopping service.")
+        Log.i(TAG, "AA proxy connection lost.")
         updateAllUIs()
-        stopSelf()
+
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val autoReconnect = prefs.getBoolean("bt_auto_reconnect", false)
+        val targetMac = prefs.getString("auto_start_bt_mac", null)
+
+        if (autoReconnect && targetMac != null && isBluetoothDeviceConnected(targetMac)) {
+            Log.i(TAG, "Bluetooth still connected and auto-reconnect enabled. Restarting strategy...")
+            updateNotification(getString(R.string.notif_searching))
+            serviceScope.launch {
+                delay(3000) // Puffer vor Neustart
+                startSelectedStrategy()
+            }
+        } else {
+            Log.i(TAG, "Stopping service.")
+            stopSelf()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun isBluetoothDeviceConnected(mac: String): Boolean {
+        try {
+            val bm = getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
+            val adapter = bm.adapter ?: return false
+            
+            val device = adapter.getRemoteDevice(mac) ?: return false
+            
+            // Use reflection to access hidden 'isConnected' method for precise per-device status.
+            // Suggested by Gemini Code Assist to fix incorrect profile-based detection.
+            return try {
+                val isConnectedMethod = device.javaClass.getMethod("isConnected")
+                isConnectedMethod.invoke(device) as? Boolean ?: false
+            } catch (e: Exception) {
+                // Fallback: check profile connection if reflection fails
+                val a2dp = adapter.getProfileConnectionState(android.bluetooth.BluetoothProfile.A2DP)
+                val hfp = adapter.getProfileConnectionState(android.bluetooth.BluetoothProfile.HEADSET)
+                a2dp == android.bluetooth.BluetoothProfile.STATE_CONNECTED || 
+                hfp == android.bluetooth.BluetoothProfile.STATE_CONNECTED
+            }
+        } catch (e: Exception) {
+            return false
+        }
     }
 
     override fun onLaunchTimeout() {
@@ -109,7 +153,16 @@ class WirelessHelperService : Service(), BaseStrategy.StateListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
+        if (intent == null) {
+            // Service was restarted by the system
+            if (isRunning) {
+                Log.i(TAG, "Service restarted by system. Resuming strategy.")
+                startSelectedStrategy()
+            }
+            return START_STICKY
+        }
+
+        when (intent.action) {
             ACTION_STOP -> {
                 isRunning = false
                 updateAllUIs()

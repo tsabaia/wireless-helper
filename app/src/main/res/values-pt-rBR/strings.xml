@@ -15,6 +15,10 @@
     <string name="auto_start_wifi">Sim (WIFI)</string>
     
     <string name="bt_device_label">Dispositivo Bluetooth</string>
+    <string name="bt_auto_reconnect_title">Tentar reconexão automática</string>
+    <string name="bt_auto_reconnect_desc">Tenta reiniciar a sessão se a conexão cair enquanto o Bluetooth ainda estiver conectado.</string>
+    <string name="bt_disconnect_stop_title">Parar ao desconectar BT</string>
+    <string name="bt_disconnect_stop_desc">Interrompe automaticamente o serviço quando o Bluetooth do carro for desconectado.</string>
     <string name="wifi_ssid_label">Rede Wi-Fi</string>
     <string name="wifi_connected_network">Rede Wi-Fi Conectada</string>
     <string name="wifi_ssid_hint">Digite o SSID do Wi-Fi</string>
@@ -73,4 +77,9 @@
     <string name="shortcut_start_desc">Iniciar busca pelo Android Auto</string>
     <string name="shortcut_stop_title">Parar Busca</string>
     <string name="shortcut_stop_desc">Interromper a busca ativa</string>
+
+    <string name="channel_name_alerts">Alertas de Conexão</string>
+    <string name="notification_wifi_off_title">Wi-Fi Desligado!</string>
+    <string name="notification_wifi_off_text">O Headunit Revived precisa do Wi-Fi para conectar.</string>
+    <string name="action_turn_on_wifi">LIGAR WI-FI</string>
     </resources>

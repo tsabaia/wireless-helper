@@ -15,6 +15,10 @@
     <string name="auto_start_wifi">Bei spezifischer WLAN-Verbindung</string>
     
     <string name="bt_device_label">Bluetooth-Gerät</string>
+    <string name="bt_auto_reconnect_title">Autom. Wiederverbinden</string>
+    <string name="bt_auto_reconnect_desc">Versucht die Sitzung neu zu starten, wenn die Verbindung abbricht, aber Bluetooth noch verbunden ist.</string>
+    <string name="bt_disconnect_stop_title">Stoppen bei BT-Verlust</string>
+    <string name="bt_disconnect_stop_desc">Beendet den Suchdienst automatisch, wenn die Bluetooth-Verbindung zum Auto getrennt wird.</string>
     <string name="wifi_ssid_label">WLAN-Netzwerk (SSID)</string>
     <string name="wifi_connected_network">Verbundenes WLAN-Netzwerk</string>
     <string name="wifi_ssid_hint">WLAN SSID eingeben</string>
@@ -76,4 +80,9 @@ Entwickelt von André Rinas
     <string name="shortcut_start_desc">Suche nach Android Auto starten</string>
     <string name="shortcut_stop_title">Suche stoppen</string>
     <string name="shortcut_stop_desc">Aktive Suche beenden</string>
+
+    <string name="channel_name_alerts">Verbindungsalarme</string>
+    <string name="notification_wifi_off_title">WLAN ist deaktiviert!</string>
+    <string name="notification_wifi_off_text">Headunit Revived benötigt WLAN, um eine Verbindung herzustellen.</string>
+    <string name="action_turn_on_wifi">WLAN EINSCHALTEN</string>
 </resources>
