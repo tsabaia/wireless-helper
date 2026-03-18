@@ -26,8 +26,11 @@ class WirelessHelperTileService : TileService() {
             }
             startService(serviceIntent)
         } else {
+            val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+            val currentMode = prefs.getInt("connection_mode", 0)
+
             // Check if Wi-Fi is enabled before starting the service via Quick Settings Tile
-            WifiNotificationHelper.checkWifiAndConnect(this) {
+            WifiNotificationHelper.checkWifiAndConnect(this, connectionMode = currentMode) {
                 val triggerIntent = Intent(this, TransparentTriggerActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
