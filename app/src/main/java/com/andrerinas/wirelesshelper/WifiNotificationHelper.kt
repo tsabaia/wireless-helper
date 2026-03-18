@@ -14,21 +14,34 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 object WifiNotificationHelper {
 
     /**
-     * Checks if Wi-Fi is enabled. If it is, executes the normal connection flow.
+     * Checks if Wi-Fi is enabled based on the connection mode.
+     * If mode is Phone Hotspot (1), it skips the Wi-Fi check.
+     * If it is enabled (or skipped), executes the normal connection flow.
      * If not, shows either a UI Dialog or a System Notification.
-     * * @param context The application or service context.
+     *
+     * @param context The application or service context.
      * @param isFromUi Set to true if calling from an Activity to show a Popup Dialog instead of a Notification.
+     * @param connectionMode The current connection mode (0=NSD, 1=Hotspot, 2=Passive, 3=Direct).
      * @param onConnectReady A lambda function containing the normal connection logic.
      */
-    fun checkWifiAndConnect(context: Context, isFromUi: Boolean = false, onConnectReady: () -> Unit) {
+    fun checkWifiAndConnect(
+        context: Context, 
+        isFromUi: Boolean = false, 
+        connectionMode: Int = 0,
+        onConnectReady: () -> Unit
+    ) {
+        // If mode is Phone Hotspot (1), we don't need Wi-Fi to be enabled
+        if (connectionMode == 1) {
+            onConnectReady()
+            return
+        }
+
         val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         
         // Check if Wi-Fi is currently enabled
         if (wifiManager.isWifiEnabled) {
-            // Wi-Fi is on, trigger the callback to proceed
             onConnectReady() 
         } else {
-            // Wi-Fi is off, check the context to display the appropriate alert
             if (isFromUi) {
                 showWifiDialog(context)
             } else {
@@ -37,10 +50,6 @@ object WifiNotificationHelper {
         }
     }
 
-    /**
-     * Builds and displays an in-app Alert Dialog.
-     * Used when the user is actively interacting with the app's UI.
-     */
     private fun showWifiDialog(context: Context) {
         val title = context.getString(R.string.notification_wifi_off_title)
         val message = context.getString(R.string.notification_wifi_off_text)
@@ -50,7 +59,6 @@ object WifiNotificationHelper {
             .setTitle(title)
             .setMessage(message)
             .setPositiveButton(actionText) { _, _ ->
-                // Open the Wi-Fi settings panel
                 val intentAction = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     Intent(Settings.Panel.ACTION_WIFI)
                 } else {
@@ -62,15 +70,10 @@ object WifiNotificationHelper {
             .show()
     }
 
-    /**
-     * Builds and displays a high-priority system notification.
-     * Used when the app is triggered in the background (Bluetooth, Widget, Tile).
-     */
     private fun showWifiNotification(context: Context) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "wireless_helper_alerts"
 
-        // 1. Create Notification Channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelName = context.getString(R.string.channel_name_alerts)
             val channel = NotificationChannel(
@@ -81,7 +84,6 @@ object WifiNotificationHelper {
             notificationManager.createNotificationChannel(channel)
         }
 
-        // 2. Create Intent to open Wi-Fi settings
         val intentAction = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Intent(Settings.Panel.ACTION_WIFI)
         } else {
@@ -95,7 +97,6 @@ object WifiNotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // 3. Build Notification
         val title = context.getString(R.string.notification_wifi_off_title)
         val text = context.getString(R.string.notification_wifi_off_text)
         val actionText = context.getString(R.string.action_turn_on_wifi)
@@ -109,7 +110,14 @@ object WifiNotificationHelper {
             .addAction(android.R.drawable.ic_menu_preferences, actionText, pendingIntent)
             .build()
 
-        // 4. Show Notification
         notificationManager.notify(1001, notification)
+    }
+
+    /**
+     * Dismisses the Wi-Fi alert notification.
+     */
+    fun cancelNotification(context: Context) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(1001)
     }
 }
