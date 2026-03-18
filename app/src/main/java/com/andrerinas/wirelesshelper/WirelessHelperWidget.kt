@@ -30,8 +30,11 @@ class WirelessHelperWidget : AppWidgetProvider() {
                 serviceIntent.action = WirelessHelperService.ACTION_STOP
                 context.startService(serviceIntent)
             } else {
+                val prefs = context.getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+                val currentMode = prefs.getInt("connection_mode", 0)
+
                 // Check if Wi-Fi is enabled before starting the service via Widget
-                WifiNotificationHelper.checkWifiAndConnect(context) {
+                WifiNotificationHelper.checkWifiAndConnect(context, connectionMode = currentMode) {
                     serviceIntent.action = WirelessHelperService.ACTION_START
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         context.startForegroundService(serviceIntent)
