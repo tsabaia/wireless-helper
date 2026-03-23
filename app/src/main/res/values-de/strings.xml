@@ -7,10 +7,10 @@
 
     <!-- Connection Mode -->
     <string name="connection_mode_label">Verbindungsmodus</string>
-    <string name="mode_nsd">Gemeinsames WLAN (NSD)</string>
-    <string name="mode_hotspot_phone">Handy-Hotspot (NSD + Fake Network)</string>
-    <string name="mode_passive">Tablet-Hotspot (Passiv)</string>
-    <string name="mode_wifi_direct">Wi-Fi Direct (Experimentell)</string>
+    <string name="mode_nsd">Gemeinsames WLAN</string>
+    <string name="mode_hotspot_phone">Handy-Hotspot</string>
+    <string name="mode_passive">Tablet-Hotspot</string>
+    <string name="mode_wifi_direct">Wi-Fi Direct</string>
 
     <!-- Auto Start -->
     <string name="auto_start_label">Dienst automatisch starten</string>
@@ -20,6 +20,7 @@
 
     <!-- Bluetooth -->
     <string name="bt_device_label">Bluetooth-Gerät</string>
+    <string name="bt_devices_selected">Geräte ausgewählt</string>
     <string name="bt_auto_reconnect_title">Autom. Wiederverbinden</string>
     <string name="bt_auto_reconnect_desc">Versucht die Sitzung neu zu starten, wenn die Verbindung abbricht, aber Bluetooth noch verbunden ist.</string>
     <string name="bt_disconnect_stop_title">Stoppen bei BT-Verlust</string>
@@ -53,11 +54,25 @@
     <string name="overlay_perm_msg">Moderne Android-Versionen blockieren Hintergrundleistungen. Um automatische Verbindung zu ermöglichen, erlauben Sie bitte \"Anzeige über anderen Apps\" in den Systemeinstellungen.</string>
     <string name="overlay_perm_button">Berechtigung erteilen</string>
     <string name="not_set">Nicht festgelegt</string>
+    
+    <string name="logs_label">Logs exportieren</string>
+    <string name="export_log_description">Systemprotokolle zur Fehlerbehebung in einer Datei speichern</string>
+    <string name="export_log_title">Logs exportiert</string>
+    <string name="export_log_saved">Die Logs wurden hier gespeichert:\n\n%s</string>
+    <string name="share">Teilen</string>
 
     <!-- Language -->
     <string name="language_label">Sprache</string>
     <string name="language_system_default">Systemstandard</string>
     <string name="language_english">English</string>
+    <string name="language_czech">Čeština (Czech)</string>
+    <string name="language_spanish_spain">Español (España)</string>
+    <string name="language_hungarian">Magyar (Hungarian)</string>
+    <string name="language_dutch">Nederlands (Dutch)</string>
+    <string name="language_polish">Polski (Polish)</string>
+    <string name="language_romanian">Română (Romanian)</string>
+    <string name="language_ukrainian">Українська (Ukrainian)</string>
+    <string name="language_chinese">繁體中文 (Taiwan)</string>
     <string name="language_german">Deutsch</string>
     <string name="language_russian">Русский</string>
     <string name="language_portuguese">Portuguese (Brazil)</string>

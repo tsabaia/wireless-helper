@@ -31,12 +31,12 @@ Wireless Helper supports remote control via Android Intents and App Shortcuts.
 - **Stop Search:** `wirelesshelper://stop`
 
 ### Supported Modes
-| Mode ID | Description |
-| :--- | :--- |
-| `nsd` | Shared Wi-Fi (Auto-search) |
+| Mode ID | Description        |
+| :--- |:-------------------|
+| `nsd` | Shared Wi-Fi       |
 | `phone-hotspot` | Phone Hotspot mode |
-| `tablet-hotspot` | Tablet Hotspot (Passive) |
-| `wifi-direct` | Wi-Fi Direct (Experimental) |
+| `tablet-hotspot` | Tablet Hotspot     |
+| `wifi-direct` | Wi-Fi Direct       |
 
 ### ADB Examples
 ```bash
@@ -48,6 +48,12 @@ adb shell am start -a android.intent.action.VIEW -d "wirelesshelper://stop"
 ```
 
 ## Changelog
+### v.1.4.0-beta1
+- Added: Multiple Selection for Bluetooth Auto-Start Devices
+- Added: Try to auto enable Phone Hotspot. This will only work for older devices as Android restricted this on newer Android versions!
+- Added: Log-Export for debugging like in HeadUnit Revived
+- Enhancement: Try to save battery life with smarter code
+
 ### v.1.3.1
 - Added: Spanish translation 🇪🇸 thanks to @tsabaia
 - Fixed: Bug with Wi-Fi Popup on Hotspot mode

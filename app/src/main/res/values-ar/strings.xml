@@ -7,10 +7,10 @@
 
     <!-- Connection Mode -->
     <string name="connection_mode_label">وضع الاتصال</string>
-    <string name="mode_nsd">واي فاي مشترك (NSD)</string>
-    <string name="mode_hotspot_phone">نقطة اتصال الهاتف (NSD + شبكة وهمية)</string>
-    <string name="mode_passive">نقطة اتصال الجهاز اللوحي (سلبي)</string>
-    <string name="mode_wifi_direct">Wi-Fi Direct (تجريبي)</string>
+    <string name="mode_nsd">واي فاي مشترك</string>
+    <string name="mode_hotspot_phone">نقطة اتصال الهاتف</string>
+    <string name="mode_passive">نقطة اتصال الجهاز اللوحي</string>
+    <string name="mode_wifi_direct">Wi-Fi Direct</string>
 
     <!-- Auto Start -->
     <string name="auto_start_label">التشغيل التلقائي للخدمة</string>
@@ -20,6 +20,7 @@
 
     <!-- Bluetooth -->
     <string name="bt_device_label">جهاز بلوتوث</string>
+    <string name="bt_devices_selected">أجهزة مختارة</string>
     <string name="bt_auto_reconnect_title">محاولة إعادة الاتصال التلقائي</string>
     <string name="bt_auto_reconnect_desc">محاولة إعادة تشغيل الجلسة في حالة انقطاع الاتصال بينما لا يزال البلوتوث متصلاً.</string>
     <string name="bt_disconnect_stop_title">إيقاف عند فصل البلوتوث</string>
@@ -54,10 +55,24 @@
     <string name="overlay_perm_button">منح الإذن</string>
     <string name="not_set">غير محدد</string>
 
+    <string name="logs_label">تصدير السجلات</string>
+    <string name="export_log_description">حفظ سجلات النظام في ملف لاستكشاف الأخطاء وإصلاحها</string>
+    <string name="export_log_title">تم تصدير السجلات</string>
+    <string name="export_log_saved">تم حفظ السجلات في:\n\n%s</string>
+    <string name="share">مشاركة</string>
+
     <!-- Language -->
     <string name="language_label">اللغة</string>
     <string name="language_system_default">افتراضي النظام</string>
     <string name="language_english">English</string>
+    <string name="language_czech">Čeština (Czech)</string>
+    <string name="language_spanish_spain">Español (España)</string>
+    <string name="language_hungarian">Magyar (Hungarian)</string>
+    <string name="language_dutch">Nederlands (Dutch)</string>
+    <string name="language_polish">Polski (Polish)</string>
+    <string name="language_romanian">Română (Romanian)</string>
+    <string name="language_ukrainian">Українська (Ukrainian)</string>
+    <string name="language_chinese">繁體中文 (Taiwan)</string>
     <string name="language_german">Deutsch</string>
     <string name="language_russian">Русский</string>
     <string name="language_portuguese">Portuguese (Brazil)</string>

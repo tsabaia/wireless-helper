@@ -7,12 +7,16 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,11 +24,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,42 +42,28 @@ class MainActivity : AppCompatActivity() {
         const val MODE_WIFI_DIRECT = 3
     }
 
-    // Register the permissions callback to handle the notification permission request (Android 13+)
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (!isGranted) {
-            // Optional: Handle the case where the user denies the permission
-        }
-    }
+    ) { _: Boolean -> }
 
     private lateinit var btnToggleService: Button
-    
-    // Connection Mode
     private lateinit var layoutConnectionMode: View
     private lateinit var tvConnectionModeValue: TextView
-
-    // Auto Start
     private lateinit var layoutAutoStart: View
     private lateinit var tvAutoStartValue: TextView
-
-    // Conditional Options
     private lateinit var layoutBluetoothDevice: View
     private lateinit var tvBluetoothDeviceValue: TextView
     private lateinit var layoutBtAutoReconnect: View
     private lateinit var switchBtAutoReconnect: androidx.appcompat.widget.SwitchCompat
     private lateinit var layoutBtDisconnectStop: View
     private lateinit var switchBtDisconnectStop: androidx.appcompat.widget.SwitchCompat
-
     private lateinit var layoutWifiNetwork: View
     private lateinit var tvWifiNetworkValue: TextView
-
     private lateinit var layoutWifiDirectName: View
     private lateinit var tvWifiDirectNameValue: TextView
-
     private lateinit var layoutLanguage: View
     private lateinit var tvLanguageValue: TextView
-
+    private lateinit var layoutExportLog: View
     private lateinit var tvVersionValue: TextView
     private lateinit var layoutAbout: View
 
@@ -84,7 +77,6 @@ class MainActivity : AppCompatActivity() {
         override fun run() {
             val running = WirelessHelperService.isRunning
             val connected = WirelessHelperService.isConnected
-            
             if (running != lastRunningState || connected != lastConnectedState) {
                 updateButtonState(running, connected)
                 lastRunningState = running
@@ -92,10 +84,6 @@ class MainActivity : AppCompatActivity() {
             }
             handler.postDelayed(this, 1000)
         }
-    }
-
-    private fun isMyServiceRunning(): Boolean {
-        return WirelessHelperService.isRunning
     }
 
     private val connectionModes by lazy {
@@ -115,20 +103,36 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private val languageOptions by lazy {
+        arrayOf(
+            getString(R.string.language_system_default),
+            getString(R.string.language_english),
+            getString(R.string.language_arabic),
+            getString(R.string.language_czech),
+            getString(R.string.language_german),
+            getString(R.string.language_spanish),
+            getString(R.string.language_spanish_spain),
+            getString(R.string.language_hungarian),
+            getString(R.string.language_dutch),
+            getString(R.string.language_polish),
+            getString(R.string.language_portuguese),
+            getString(R.string.language_romanian),
+            getString(R.string.language_russian),
+            getString(R.string.language_ukrainian),
+            getString(R.string.language_chinese)
+        )
+    }
+
+    private val languageTags = arrayOf("", "en", "ar", "cs", "de", "es", "es-ES", "hu", "nl", "pl", "pt-BR", "ro", "ru", "uk", "zh-TW")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_WirelessHelper)
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        
         setContentView(R.layout.activity_main)
 
-        // Request notification permission for Android 13+ devices
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
@@ -149,34 +153,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun initializeViews() {
         btnToggleService = findViewById(R.id.btnToggleService)
-        
         layoutConnectionMode = findViewById(R.id.layoutConnectionMode)
         tvConnectionModeValue = findViewById(R.id.tvConnectionModeValue)
-
         layoutAutoStart = findViewById(R.id.layoutAutoStart)
         tvAutoStartValue = findViewById(R.id.tvAutoStartValue)
-
         layoutBluetoothDevice = findViewById(R.id.layoutBluetoothDevice)
         tvBluetoothDeviceValue = findViewById(R.id.tvBluetoothDeviceValue)
-
         layoutBtAutoReconnect = findViewById(R.id.layoutBtAutoReconnect)
         switchBtAutoReconnect = findViewById(R.id.switchBtAutoReconnect)
-
         layoutBtDisconnectStop = findViewById(R.id.layoutBtDisconnectStop)
         switchBtDisconnectStop = findViewById(R.id.switchBtDisconnectStop)
-
         layoutWifiNetwork = findViewById(R.id.layoutWifiNetwork)
         tvWifiNetworkValue = findViewById(R.id.tvWifiNetworkValue)
-
         layoutWifiDirectName = findViewById(R.id.layoutWifiDirectName)
         tvWifiDirectNameValue = findViewById(R.id.tvWifiDirectNameValue)
-
         layoutLanguage = findViewById(R.id.layoutLanguage)
         tvLanguageValue = findViewById(R.id.tvLanguageValue)
-
+        layoutExportLog = findViewById(R.id.layoutExportLog)
         tvVersionValue = findViewById(R.id.tvVersionValue)
         layoutAbout = findViewById(R.id.layoutAbout)
-        
         tvVersionValue.text = BuildConfig.VERSION_NAME
     }
 
@@ -184,26 +179,21 @@ class MainActivity : AppCompatActivity() {
         layoutAbout.setOnClickListener {
             MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
                 .setTitle(R.string.about)
-                // .setMessage("Wireless Helper is a trigger app for Headunit Revived.\n\nDeveloped by André Rinas\n© 2026")
                 .setMessage(getString(R.string.about_dialog_body))
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         }
 
-        layoutLanguage.setOnClickListener {
-            showLanguageSelector()
-        }
+        layoutLanguage.setOnClickListener { showLanguageSelector() }
+        
+        layoutExportLog.setOnClickListener { exportLogs() }
 
         btnToggleService.setOnClickListener {
             if (isServiceRunning) {
-                // Stop service if it's already running
                 stopLauncherService() 
             } else {
                 val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
                 val currentMode = prefs.getInt("connection_mode", 0)
-
-                // Check Wi-Fi state before starting. isFromUi = true will trigger a Dialog Popup.
-                // We pass currentMode to ignore the Wi-Fi check if it's Phone Hotspot (1)
                 WifiNotificationHelper.checkWifiAndConnect(this, isFromUi = true, connectionMode = currentMode) {
                     checkPermissionsAndStart()
                 }
@@ -213,7 +203,6 @@ class MainActivity : AppCompatActivity() {
         layoutConnectionMode.setOnClickListener {
             val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
             val currentMode = prefs.getInt("connection_mode", 0)
-            
             MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
                 .setTitle(R.string.connection_mode_label)
                 .setSingleChoiceItems(connectionModes, currentMode) { dialog, which ->
@@ -229,207 +218,23 @@ class MainActivity : AppCompatActivity() {
         layoutAutoStart.setOnClickListener {
             val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
             val currentMode = prefs.getInt("auto_start_mode", 0)
-
             MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
                 .setTitle(R.string.auto_start_label)
                 .setSingleChoiceItems(autoStartModes, currentMode) { dialog, which ->
                     prefs.edit { putInt("auto_start_mode", which) }
                     updateAutoStartUI(which)
-                    
-                    if (which == 2) {
-                        WifiJobService.schedule(this@MainActivity)
-                    } else {
-                        WifiJobService.cancel(this@MainActivity)
-                    }
-                    
+                    if (which == 2) WifiJobService.schedule(this) else WifiJobService.cancel(this)
                     dialog.dismiss()
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         }
 
-        layoutBluetoothDevice.setOnClickListener {
-            showBluetoothDeviceSelector()
-        }
-
+        layoutBluetoothDevice.setOnClickListener { showBluetoothDeviceSelector() }
         setupSwitchSetting(layoutBtAutoReconnect, switchBtAutoReconnect, "bt_auto_reconnect")
         setupSwitchSetting(layoutBtDisconnectStop, switchBtDisconnectStop, "bt_disconnect_stop")
-
-        layoutWifiNetwork.setOnClickListener {
-            showWifiSelector()
-        }
-
-        layoutWifiDirectName.setOnClickListener {
-            showWifiDirectNameSelector()
-        }
-    }
-
-    private val languageOptions by lazy {
-        arrayOf(
-            getString(R.string.language_system_default),
-            getString(R.string.language_english),
-            getString(R.string.language_german),
-            getString(R.string.language_russian),
-            getString(R.string.language_portuguese),
-            getString(R.string.language_arabic),
-            getString(R.string.language_spanish)
-        )
-    }
-
-    private val languageTags = arrayOf("", "en", "de", "ru", "pt-BR", "ar", "es")
-
-    private fun showLanguageSelector() {
-        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-        val currentTag = prefs.getString("app_language", "") ?: ""
-        val currentIndex = languageTags.indexOf(currentTag).coerceAtLeast(0)
-
-        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-            .setTitle(R.string.language_label)
-            .setSingleChoiceItems(languageOptions, currentIndex) { dialog, which ->
-                val tag = languageTags[which]
-                prefs.edit { putString("app_language", tag) }
-                applyLanguage(tag)
-                dialog.dismiss()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    private fun applyLanguage(tag: String) {
-        val localeList = if (tag.isEmpty()) {
-            LocaleListCompat.getEmptyLocaleList()
-        } else {
-            LocaleListCompat.forLanguageTags(tag)
-        }
-        AppCompatDelegate.setApplicationLocales(localeList)
-    }
-
-    private fun showWifiSelector() {
-        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-        val savedSsid = prefs.getString("auto_start_wifi_ssid", "")
-
-        @Suppress("DEPRECATION")
-        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
-        @Suppress("DEPRECATION")
-        val ssid = wifiManager.connectionInfo.ssid
-        val currentSsid = ssid?.replace("\"", "") ?: ""
-        
-        val displaySsid = if (currentSsid.isNotEmpty() && currentSsid != "<unknown ssid>") currentSsid else savedSsid
-
-        val input = android.widget.EditText(this).apply {
-            setHint(R.string.wifi_ssid_hint)
-            setText(displaySsid)
-            setTextColor(ContextCompat.getColor(context, R.color.text_title))
-            setHintTextColor(ContextCompat.getColor(context, R.color.text_subtitle))
-        }
-
-        val container = android.widget.FrameLayout(this)
-        val params = android.widget.FrameLayout.LayoutParams(
-            android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
-            android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
-        )
-        params.setMargins(64, 24, 64, 24)
-        container.addView(input, params)
-
-        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-            .setTitle(R.string.wifi_ssid_dialog_title)
-            .setMessage(R.string.wifi_ssid_dialog_msg)
-            .setView(container)
-            .setPositiveButton(R.string.wifi_ssid_save) { _, _ ->
-                val newSsid = input.text.toString().trim()
-                if (newSsid.isNotEmpty()) {
-                    prefs.edit { putString("auto_start_wifi_ssid", newSsid) }
-                    tvWifiNetworkValue.text = newSsid
-                    WifiJobService.schedule(this@MainActivity)
-                    
-                    if (Build.VERSION.SDK_INT >= 29 && ContextCompat.checkSelfPermission(this@MainActivity, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        MaterialAlertDialogBuilder(this@MainActivity, R.style.DarkAlertDialog)
-                            .setTitle(R.string.wifi_background_location_title)
-                            .setMessage(R.string.wifi_background_location_msg)
-                            .setPositiveButton(R.string.wifi_background_location_button) { _, _ ->
-                                val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data = android.net.Uri.parse("package:$packageName")
-                                }
-                                startActivity(intent)
-                            }
-                            .show()
-                    } else {
-                        Toast.makeText(this@MainActivity, getString(R.string.auto_start_linked, newSsid), Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            .setNeutralButton(R.string.wifi_ssid_permissions_needed) { _, _ ->
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 102)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    private fun showWifiDirectNameSelector() {
-        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-        val savedName = prefs.getString("wifi_direct_target_name", "")
-
-        val input = android.widget.EditText(this).apply {
-            setHint(R.string.wifi_direct_name_hint)
-            setText(savedName)
-            setTextColor(ContextCompat.getColor(context, R.color.text_title))
-            setHintTextColor(ContextCompat.getColor(context, R.color.text_subtitle))
-        }
-
-        val container = android.widget.FrameLayout(this)
-        val params = android.widget.FrameLayout.LayoutParams(
-            android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
-            android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
-        )
-        params.setMargins(64, 24, 64, 24)
-        container.addView(input, params)
-
-        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-            .setTitle(R.string.wifi_direct_name_dialog_title)
-            .setMessage(R.string.wifi_direct_name_dialog_msg)
-            .setView(container)
-            .setPositiveButton(R.string.wifi_ssid_save) { _, _ ->
-                val newName = input.text.toString().trim()
-                if (newName.isNotEmpty()) {
-                    prefs.edit { putString("wifi_direct_target_name", newName) }
-                    tvWifiDirectNameValue.text = newName
-                }
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    private fun showBluetoothDeviceSelector() {
-        if (Build.VERSION.SDK_INT >= 31 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT), 101)
-            return
-        }
-
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
-        val adapter = bluetoothManager.adapter
-        val bondedDevices = adapter.bondedDevices.toList()
-
-        if (bondedDevices.isEmpty()) {
-            Toast.makeText(this, getString(R.string.no_paired_devices), Toast.LENGTH_LONG).show()
-            return
-        }
-
-        val deviceNames = bondedDevices.map { it.name ?: "Unknown Device" }.toTypedArray()
-        
-        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-            .setTitle(R.string.select_bt_device)
-            .setItems(deviceNames) { _, which ->
-                val device = bondedDevices[which]
-                val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-                prefs.edit { 
-                    putString("auto_start_bt_mac", device.address)
-                    putString("auto_start_bt_name", device.name)
-                }
-                tvBluetoothDeviceValue.text = device.name
-                Toast.makeText(this, getString(R.string.auto_start_linked, device.name), Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        layoutWifiNetwork.setOnClickListener { showWifiSelector() }
+        layoutWifiDirectName.setOnClickListener { showWifiDirectNameSelector() }
     }
 
     private fun setupSwitchSetting(layout: View, switch: androidx.appcompat.widget.SwitchCompat, prefKey: String) {
@@ -441,121 +246,137 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun showBluetoothDeviceSelector() {
+        if (Build.VERSION.SDK_INT >= 31 && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 101)
+            return
+        }
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
+        val adapter = bluetoothManager.adapter
+        val bondedDevices = adapter.bondedDevices.toList()
+        if (bondedDevices.isEmpty()) {
+            Toast.makeText(this, getString(R.string.no_paired_devices), Toast.LENGTH_LONG).show()
+            return
+        }
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val selectedMacs = prefs.getStringSet("auto_start_bt_macs", emptySet())?.toMutableSet() ?: mutableSetOf()
+        val deviceNames = bondedDevices.map { it.name ?: "Unknown Device" }.toTypedArray()
+        val checkedItems = bondedDevices.map { selectedMacs.contains(it.address) }.toBooleanArray()
+
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle(R.string.select_bt_device)
+            .setMultiChoiceItems(deviceNames, checkedItems) { _, which, isChecked ->
+                val device = bondedDevices[which]
+                if (isChecked) selectedMacs.add(device.address) else selectedMacs.remove(device.address)
+            }
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                prefs.edit { putStringSet("auto_start_bt_macs", selectedMacs) }
+                updateBluetoothValueDisplay()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun updateBluetoothValueDisplay() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val selectedMacs = prefs.getStringSet("auto_start_bt_macs", emptySet()) ?: emptySet()
+        if (selectedMacs.isEmpty()) {
+            tvBluetoothDeviceValue.text = getString(R.string.not_set)
+        } else {
+            tvBluetoothDeviceValue.text = if (selectedMacs.size == 1) {
+                try {
+                    val bm = getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
+                    bm.adapter.getRemoteDevice(selectedMacs.first()).name ?: selectedMacs.first()
+                } catch (e: Exception) { selectedMacs.first() }
+            } else {
+                "${selectedMacs.size} ${getString(R.string.bt_devices_selected)}"
+            }
+        }
+    }
+
     private fun restoreState() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-        
+        migrateSettings(prefs)
         val connMode = prefs.getInt("connection_mode", 0)
         tvConnectionModeValue.text = connectionModes.getOrElse(connMode) { connectionModes[0] }
         updateModeSpecificUI(connMode)
-
         val autoMode = prefs.getInt("auto_start_mode", 0)
         updateAutoStartUI(autoMode)
-        
-        tvBluetoothDeviceValue.text = prefs.getString("auto_start_bt_name", getString(R.string.not_set))
+        updateBluetoothValueDisplay()
         switchBtAutoReconnect.isChecked = prefs.getBoolean("bt_auto_reconnect", false)
         switchBtDisconnectStop.isChecked = prefs.getBoolean("bt_disconnect_stop", false)
         tvWifiNetworkValue.text = prefs.getString("auto_start_wifi_ssid", getString(R.string.not_set))
         tvWifiDirectNameValue.text = prefs.getString("wifi_direct_target_name", getString(R.string.not_set))
-
-        // Language
         val langTag = prefs.getString("app_language", "") ?: ""
         val langIndex = languageTags.indexOf(langTag).coerceAtLeast(0)
         tvLanguageValue.text = languageOptions[langIndex]
-
         updateButtonState(WirelessHelperService.isRunning, WirelessHelperService.isConnected)
     }
 
-    private fun updateModeSpecificUI(mode: Int) {
-        if (mode == MODE_WIFI_DIRECT) {
-            layoutWifiDirectName.visibility = View.VISIBLE
-        } else {
-            layoutWifiDirectName.visibility = View.GONE
+    private fun migrateSettings(prefs: android.content.SharedPreferences) {
+        val oldMac = prefs.getString("auto_start_bt_mac", null)
+        if (!oldMac.isNullOrEmpty()) {
+            val currentSet = prefs.getStringSet("auto_start_bt_macs", emptySet())?.toMutableSet() ?: mutableSetOf()
+            if (!currentSet.contains(oldMac)) {
+                currentSet.add(oldMac)
+                prefs.edit { 
+                    putStringSet("auto_start_bt_macs", currentSet)
+                    remove("auto_start_bt_mac")
+                    remove("auto_start_bt_name")
+                }
+            }
         }
+    }
+
+    private fun updateModeSpecificUI(mode: Int) {
+        layoutWifiDirectName.visibility = if (mode == MODE_WIFI_DIRECT) View.VISIBLE else View.GONE
     }
 
     private fun updateAutoStartUI(mode: Int) {
         tvAutoStartValue.text = autoStartModes.getOrElse(mode) { autoStartModes[0] }
-        
-        when (mode) {
-            0 -> { // No
-                layoutBluetoothDevice.visibility = View.GONE
-                layoutBtAutoReconnect.visibility = View.GONE
-                layoutBtDisconnectStop.visibility = View.GONE
-                layoutWifiNetwork.visibility = View.GONE
-            }
-            1 -> { // Bluetooth
-                layoutBluetoothDevice.visibility = View.VISIBLE
-                layoutBtAutoReconnect.visibility = View.VISIBLE
-                layoutBtDisconnectStop.visibility = View.VISIBLE
-                layoutWifiNetwork.visibility = View.GONE
-            }
-            2 -> { // WiFi
-                layoutBluetoothDevice.visibility = View.GONE
-                layoutBtAutoReconnect.visibility = View.GONE
-                layoutBtDisconnectStop.visibility = View.GONE
-                layoutWifiNetwork.visibility = View.VISIBLE
-            }
-        }
+        val btVis = if (mode == 1) View.VISIBLE else View.GONE
+        layoutBluetoothDevice.visibility = btVis
+        layoutBtAutoReconnect.visibility = btVis
+        layoutBtDisconnectStop.visibility = btVis
+        layoutWifiNetwork.visibility = if (mode == 2) View.VISIBLE else View.GONE
     }
 
     private fun checkPermissionsAndStart() {
         val permissions = mutableListOf<String>()
         if (Build.VERSION.SDK_INT >= 33) {
-            permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
-            permissions.add(android.Manifest.permission.NEARBY_WIFI_DEVICES)
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+            permissions.add(Manifest.permission.NEARBY_WIFI_DEVICES)
         }
-        if (Build.VERSION.SDK_INT >= 31) {
-            permissions.add(android.Manifest.permission.BLUETOOTH_CONNECT)
-        }
-        
-        // Needed for WiFi SSID access
-        permissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
-        
-        val missingPermissions = permissions.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-
-        if (missingPermissions.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, missingPermissions.toTypedArray(), 100)
-        } else {
-            startLauncherService()
-        }
+        if (Build.VERSION.SDK_INT >= 31) permissions.add(Manifest.permission.BLUETOOTH_CONNECT)
+        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        val missing = permissions.filter { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }
+        if (missing.isNotEmpty()) ActivityCompat.requestPermissions(this, missing.toTypedArray(), 100) else startLauncherService()
     }
 
     private fun startLauncherService() {
-        val intent = Intent(this, WirelessHelperService::class.java).apply {
-            action = WirelessHelperService.ACTION_START
-        }
-        if (Build.VERSION.SDK_INT >= 26) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
+        val intent = Intent(this, WirelessHelperService::class.java).apply { action = WirelessHelperService.ACTION_START }
+        if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent) else startService(intent)
         updateButtonState(true, false)
     }
 
     private fun stopLauncherService() {
-        val intent = Intent(this, WirelessHelperService::class.java).apply {
-            action = WirelessHelperService.ACTION_STOP
-        }
+        val intent = Intent(this, WirelessHelperService::class.java).apply { action = WirelessHelperService.ACTION_STOP }
         startService(intent)
         updateButtonState(false, false)
     }
 
     private fun updateButtonState(running: Boolean, connected: Boolean = false) {
         isServiceRunning = running
-        
         val colorTeal = ContextCompat.getColor(this, R.color.brand_teal)
         val colorGreen = ContextCompat.getColor(this, android.R.color.holo_green_dark)
-        
         if (connected) {
             btnToggleService.text = getString(R.string.connected)
             btnToggleService.background.setTint(colorGreen)
-            startPulseAnimation(1500) // Slow pulse
+            startPulseAnimation(1500)
         } else if (running) {
             btnToggleService.text = getString(R.string.stop_service)
             btnToggleService.background.setTint(colorTeal)
-            startPulseAnimation(800) // Fast pulse
+            startPulseAnimation(800)
         } else {
             btnToggleService.text = getString(R.string.start_service)
             btnToggleService.background.setTint(colorTeal)
@@ -564,16 +385,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startPulseAnimation(duration: Long) {
-        if (pulseAnimator != null && pulseAnimator!!.duration == duration) {
-            return
-        }
+        if (pulseAnimator != null && pulseAnimator!!.duration == duration) return
         stopPulseAnimation()
-        
-        pulseAnimator = ObjectAnimator.ofPropertyValuesHolder(
-            btnToggleService,
-            PropertyValuesHolder.ofFloat("scaleX", 1.0f, 1.05f, 1.0f),
-            PropertyValuesHolder.ofFloat("scaleY", 1.0f, 1.05f, 1.0f)
-        ).apply {
+        pulseAnimator = ObjectAnimator.ofPropertyValuesHolder(btnToggleService, PropertyValuesHolder.ofFloat("scaleX", 1.0f, 1.05f, 1.0f), PropertyValuesHolder.ofFloat("scaleY", 1.0f, 1.05f, 1.0f)).apply {
             this.duration = duration
             repeatCount = ObjectAnimator.INFINITE
             repeatMode = ValueAnimator.REVERSE
@@ -588,6 +402,148 @@ class MainActivity : AppCompatActivity() {
         btnToggleService.scaleY = 1.0f
     }
 
+    private fun showLanguageSelector() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val currentTag = prefs.getString("app_language", "") ?: ""
+        val currentIndex = languageTags.indexOf(currentTag).coerceAtLeast(0)
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle(R.string.language_label)
+            .setSingleChoiceItems(languageOptions, currentIndex) { dialog, which ->
+                val tag = languageTags[which]
+                prefs.edit { putString("app_language", tag) }
+                applyLanguage(tag)
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun applyLanguage(tag: String) {
+        val localeList = if (tag.isEmpty()) LocaleListCompat.getEmptyLocaleList() else LocaleListCompat.forLanguageTags(tag)
+        AppCompatDelegate.setApplicationLocales(localeList)
+    }
+
+    private fun showWifiSelector() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val savedSsid = prefs.getString("auto_start_wifi_ssid", "")
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+        val ssid = wifiManager.connectionInfo.ssid
+        val currentSsid = ssid?.replace("\"", "") ?: ""
+        val displaySsid = if (currentSsid.isNotEmpty() && currentSsid != "<unknown ssid>") currentSsid else savedSsid
+        val input = EditText(this).apply {
+            setHint(R.string.wifi_ssid_hint)
+            setText(displaySsid)
+            setTextColor(ContextCompat.getColor(context, R.color.text_title))
+            setHintTextColor(ContextCompat.getColor(context, R.color.text_subtitle))
+        }
+        val container = android.widget.FrameLayout(this)
+        container.addView(input, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.WRAP_CONTENT).apply { setMargins(64, 24, 64, 24) })
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle(R.string.wifi_ssid_dialog_title)
+            .setMessage(R.string.wifi_ssid_dialog_msg)
+            .setView(container)
+            .setPositiveButton(R.string.wifi_ssid_save) { _, _ ->
+                val newSsid = input.text.toString().trim()
+                if (newSsid.isNotEmpty()) {
+                    prefs.edit { putString("auto_start_wifi_ssid", newSsid) }
+                    tvWifiNetworkValue.text = newSsid
+                    WifiJobService.schedule(this)
+                    if (Build.VERSION.SDK_INT >= 29 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog).setTitle(R.string.wifi_background_location_title).setMessage(R.string.wifi_background_location_msg).setPositiveButton(R.string.wifi_background_location_button) { _, _ ->
+                            startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply { data = android.net.Uri.parse("package:$packageName") })
+                        }.show()
+                    }
+                }
+            }
+            .setNeutralButton(R.string.wifi_ssid_permissions_needed) { _, _ -> ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 102) }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showWifiDirectNameSelector() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val savedName = prefs.getString("wifi_direct_target_name", "")
+        val input = EditText(this).apply {
+            setHint(R.string.wifi_direct_name_hint)
+            setText(savedName)
+            setTextColor(ContextCompat.getColor(context, R.color.text_title))
+            setHintTextColor(ContextCompat.getColor(context, R.color.text_subtitle))
+        }
+        val container = android.widget.FrameLayout(this)
+        container.addView(input, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.WRAP_CONTENT).apply { setMargins(64, 24, 64, 24) })
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog).setTitle(R.string.wifi_direct_name_dialog_title).setMessage(R.string.wifi_direct_name_dialog_msg).setView(container).setPositiveButton(R.string.wifi_ssid_save) { _, _ ->
+            val newName = input.text.toString().trim()
+            if (newName.isNotEmpty()) {
+                prefs.edit { putString("wifi_direct_target_name", newName) }
+                tvWifiDirectNameValue.text = newName
+            }
+        }.setNegativeButton(android.R.string.cancel, null).show()
+    }
+
+    private fun exportLogs() {
+        val timeStamp = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US).format(java.util.Date())
+        val fileName = "WirelessHelper_Log_$timeStamp.txt"
+        
+        try {
+            // Use -v threadtime to get timestamps and thread info, same as HURev
+            val process = Runtime.getRuntime().exec(arrayOf("logcat", "-d", "-v", "threadtime"))
+            val inputStream = process.inputStream
+            val outputStream: java.io.OutputStream?
+            val contentUri: Uri?
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 10+ (Scoped Storage) - Save to public Downloads via MediaStore
+                val resolver = contentResolver
+                val contentValues = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS)
+                }
+                contentUri = resolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                outputStream = contentUri?.let { resolver.openOutputStream(it) }
+            } else {
+                // Legacy Android - Save to public Downloads directory
+                @Suppress("DEPRECATION")
+                val logDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
+                logDir.mkdirs()
+                val logFile = File(logDir, fileName)
+                outputStream = FileOutputStream(logFile)
+                contentUri = FileProvider.getUriForFile(this, "${packageName}.fileprovider", logFile)
+            }
+
+            if (outputStream == null || contentUri == null) {
+                Toast.makeText(this, "Failed to create log file", Toast.LENGTH_LONG).show()
+                return
+            }
+
+            val buffer = ByteArray(8192)
+            var bytesRead: Int
+            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                outputStream.write(buffer, 0, bytesRead)
+            }
+            outputStream.close()
+            inputStream.close()
+
+            MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+                .setTitle(R.string.export_log_title)
+                .setMessage(getString(R.string.export_log_saved, "/Download/$fileName"))
+                .setPositiveButton(R.string.share) { _, _ ->
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_STREAM, contentUri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    startActivity(Intent.createChooser(intent, getString(R.string.share)))
+                }
+                .setNegativeButton(android.R.string.ok, null)
+                .show()
+
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Failed to export logs", e)
+            Toast.makeText(this, "Log export failed: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         handler.post(statusPoller)
@@ -596,20 +552,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkOverlayPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!android.provider.Settings.canDrawOverlays(this)) {
-                MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-                    .setTitle(R.string.overlay_perm_title)
-                    .setMessage(R.string.overlay_perm_msg)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.overlay_perm_button) { _, _ ->
-                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
-                            data = android.net.Uri.parse("package:$packageName")
-                        }
-                        startActivity(intent)
-                    }
-                    .show()
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !android.provider.Settings.canDrawOverlays(this)) {
+            MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog).setTitle(R.string.overlay_perm_title).setMessage(R.string.overlay_perm_msg).setCancelable(false).setPositiveButton(R.string.overlay_perm_button) { _, _ ->
+                startActivity(Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply { data = android.net.Uri.parse("package:$packageName") })
+            }.show()
         }
     }
 
@@ -617,17 +563,9 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val pm = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
-                    .setTitle(R.string.battery_opt_title)
-                    .setMessage(R.string.battery_opt_msg)
-                    .setPositiveButton(R.string.wifi_background_location_button) { _, _ ->
-                        val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                            data = android.net.Uri.parse("package:$packageName")
-                        }
-                        startActivity(intent)
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
+                MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog).setTitle(R.string.battery_opt_title).setMessage(R.string.battery_opt_msg).setPositiveButton(R.string.wifi_background_location_button) { _, _ ->
+                    startActivity(Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply { data = android.net.Uri.parse("package:$packageName") })
+                }.setNegativeButton(android.R.string.cancel, null).show()
             }
         }
     }
@@ -645,41 +583,23 @@ class MainActivity : AppCompatActivity() {
     private fun handleIntent(intent: Intent?) {
         if (intent == null) return
         val data = intent.data ?: return
-        
         if (data.scheme == "wirelesshelper") {
             when (data.host) {
                 "start" -> {
-                    // Handle optional mode parameter
                     val modeParam = data.getQueryParameter("mode")
                     if (!modeParam.isNullOrEmpty()) {
-                        val modeIdx = when (modeParam.lowercase()) {
-                            "nsd" -> 0
-                            "phone-hotspot" -> 1
-                            "tablet-hotspot" -> 2
-                            "wifi-direct" -> 3
-                            else -> -1
-                        }
+                        val modeIdx = when (modeParam.lowercase()) { "nsd" -> 0; "phone-hotspot" -> 1; "tablet-hotspot" -> 2; "wifi-direct" -> 3; else -> -1 }
                         if (modeIdx != -1) {
-                            getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE).edit {
-                                putInt("connection_mode", modeIdx)
-                            }
+                            getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE).edit { putInt("connection_mode", modeIdx) }
                             tvConnectionModeValue.text = connectionModes[modeIdx]
                         }
                     }
-                    
-                    // Wrapping deep-link trigger with Wi-Fi check (Background notification)
                     if (!isServiceRunning) {
-                        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-                        val currentMode = prefs.getInt("connection_mode", 0)
-
-                        WifiNotificationHelper.checkWifiAndConnect(this, isFromUi = false, connectionMode = currentMode) {
-                            checkPermissionsAndStart()
-                        }
+                        val currentMode = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE).getInt("connection_mode", 0)
+                        WifiNotificationHelper.checkWifiAndConnect(this, isFromUi = false, connectionMode = currentMode) { checkPermissionsAndStart() }
                     }
                 }
-                "stop" -> {
-                    if (isServiceRunning) stopLauncherService()
-                }
+                "stop" -> if (isServiceRunning) stopLauncherService()
             }
         }
     }
@@ -687,9 +607,11 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-            if (requestCode == 100) startLauncherService()
-            if (requestCode == 101) showBluetoothDeviceSelector()
-            if (requestCode == 102) showWifiSelector()
+            when (requestCode) {
+                100 -> startLauncherService()
+                101 -> showBluetoothDeviceSelector()
+                102 -> showWifiSelector()
+            }
         }
     }
 }

@@ -7,10 +7,10 @@
 
     <!-- Connection Mode -->
     <string name="connection_mode_label">Режим подключения</string>
-    <string name="mode_nsd">Общий Wi-Fi (NSD)</string>
-    <string name="mode_hotspot_phone">Точка доступа телефона (NSD + Fake Network)</string>
-    <string name="mode_passive">Точка доступа планшета (Пассивный)</string>
-    <string name="mode_wifi_direct">Wi-Fi Direct (Экспериментальный)</string>
+    <string name="mode_nsd">Общий Wi-Fi</string>
+    <string name="mode_hotspot_phone">Точка доступа телефона</string>
+    <string name="mode_passive">Точка доступа планшета</string>
+    <string name="mode_wifi_direct">Wi-Fi Direct</string>
 
     <!-- Auto Start -->
     <string name="auto_start_label">Автозапуск сервиса</string>
@@ -20,6 +20,7 @@
 
     <!-- Bluetooth -->
     <string name="bt_device_label">Устройство Bluetooth</string>
+    <string name="bt_devices_selected">устройств выбрано</string>
     <string name="bt_auto_reconnect_title">Автопереподключение</string>
     <string name="bt_auto_reconnect_desc">Попытаться перезапустить сессию, если соединение прервано, но Bluetooth все еще подключен.</string>
     <string name="bt_disconnect_stop_title">Остановка при потере BT</string>
@@ -54,10 +55,24 @@
     <string name="overlay_perm_button">Предоставить разрешение</string>
     <string name="not_set">Не задано</string>
 
+    <string name="logs_label">Экспорт логов</string>
+    <string name="export_log_description">Сохранить системные логи в файл для отладки</string>
+    <string name="export_log_title">Логи экспортированы</string>
+    <string name="export_log_saved">Логи были сохранены в:\n\n%s</string>
+    <string name="share">Поделиться</string>
+
     <!-- Language -->
     <string name="language_label">Язык</string>
-    <string name="language_system_default">Системный</string>
+    <string name="language_system_default">Системный по умолчанию</string>
     <string name="language_english">English</string>
+    <string name="language_czech">Čeština (Czech)</string>
+    <string name="language_spanish_spain">Español (España)</string>
+    <string name="language_hungarian">Magyar (Hungarian)</string>
+    <string name="language_dutch">Nederlands (Dutch)</string>
+    <string name="language_polish">Polski (Polish)</string>
+    <string name="language_romanian">Română (Romanian)</string>
+    <string name="language_ukrainian">Українська (Ukrainian)</string>
+    <string name="language_chinese">繁體中文 (Taiwan)</string>
     <string name="language_german">Deutsch</string>
     <string name="language_russian">Русский</string>
     <string name="language_portuguese">Portuguese (Brazil)</string>
