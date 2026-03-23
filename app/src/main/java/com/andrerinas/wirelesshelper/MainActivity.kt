@@ -485,7 +485,8 @@ class MainActivity : AppCompatActivity() {
         val fileName = "WirelessHelper_Log_$timeStamp.txt"
         
         try {
-            val process = Runtime.getRuntime().exec("logcat -d")
+            // Use -v threadtime to get timestamps and thread info, same as HURev
+            val process = Runtime.getRuntime().exec(arrayOf("logcat", "-d", "-v", "threadtime"))
             val inputStream = process.inputStream
             val outputStream: java.io.OutputStream?
             val contentUri: Uri?

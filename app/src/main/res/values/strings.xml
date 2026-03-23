@@ -8,7 +8,7 @@
     <!-- Connection Mode -->
     <string name="connection_mode_label">Connection Mode</string>
     <string name="mode_nsd">Shared Wi-Fi</string>
-    <string name="mode_hotspot_phone">Phone Hotspot </string>
+    <string name="mode_hotspot_phone">Phone Hotspot</string>
     <string name="mode_passive">Tablet Hotspot</string>
     <string name="mode_wifi_direct">Wi-Fi Direct</string>
 

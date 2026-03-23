@@ -72,7 +72,9 @@ class WirelessHelperService : Service(), BaseStrategy.StateListener {
                 wakeLock?.acquire(10 * 60 * 1000L) // 10 minutes max at a time
                 Log.d(TAG, "WakeLock acquired")
             }
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to acquire wake lock", e)
+        }
     }
 
     private fun releaseWakeLock() {
@@ -81,7 +83,9 @@ class WirelessHelperService : Service(), BaseStrategy.StateListener {
                 wakeLock?.release()
                 Log.d(TAG, "WakeLock released")
             }
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to release wake lock", e)
+        }
     }
 
     private fun startSelectedStrategy() {
