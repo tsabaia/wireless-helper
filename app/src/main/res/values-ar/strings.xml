@@ -82,6 +82,7 @@
     <!-- Notifications & Service -->
     <string name="notif_searching">جار البحث عن Headunit…</string>
     <string name="notif_connected">متصل بـ Android Auto</string>
+    <string name="notif_disconnected">انقطع اتصال Android Auto</string>
     <string name="notif_stop">إيقاف</string>
     <string name="notif_channel_name">Wireless Helper</string>
     <string name="state_off">متوقف</string>

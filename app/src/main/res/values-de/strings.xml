@@ -82,6 +82,7 @@
     <!-- Notifications & Service -->
     <string name="notif_searching">Suche nach Headunit…</string>
     <string name="notif_connected">Mit Android Auto verbunden</string>
+    <string name="notif_disconnected">Android Auto getrennt</string>
     <string name="notif_stop">Stoppen</string>
     <string name="notif_channel_name">Wireless Helper</string>
     <string name="state_off">Aus</string>

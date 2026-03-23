@@ -82,6 +82,7 @@
     <!-- Notifications & Service -->
     <string name="notif_searching">Procurando a multimidia…</string>
     <string name="notif_connected">Conectado ao Android Auto</string>
+    <string name="notif_disconnected">Android Auto desconectado</string>
     <string name="notif_stop">Parar</string>
     <string name="notif_channel_name">Wireless Helper</string>
     <string name="state_off">Desligado</string>

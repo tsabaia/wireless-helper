@@ -82,6 +82,7 @@
     <!-- Notifications & Service -->
     <string name="notif_searching">Buscando unidad principal…</string>
     <string name="notif_connected">Conectado a Android Auto</string>
+    <string name="notif_disconnected">Android Auto desconectado</string>
     <string name="notif_stop">Detener</string>
     <string name="notif_channel_name">Wireless Helper</string>
     <string name="state_off">Desactivado</string>
