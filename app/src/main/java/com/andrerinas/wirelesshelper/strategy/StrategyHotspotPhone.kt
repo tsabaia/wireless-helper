@@ -2,6 +2,7 @@ package com.andrerinas.wirelesshelper.strategy
 
 import android.content.Context
 import android.util.Log
+import com.andrerinas.wirelesshelper.utils.HotspotManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
@@ -16,6 +17,10 @@ class StrategyHotspotPhone(context: Context, private val scope: CoroutineScope) 
 
     override fun start() {
         Log.i(TAG, "Strategy: Hotspot Phone (TCP 5289 Trigger Listener)")
+        
+        // Attempt to auto-enable hotspot (best effort)
+        val success = HotspotManager.setHotspotEnabled(context, true)
+        Log.i(TAG, "Auto-enable hotspot attempt finished. Success: $success")
         
         getStrategyScope().launch(Dispatchers.IO) {
             try {

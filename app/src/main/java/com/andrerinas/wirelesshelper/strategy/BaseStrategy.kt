@@ -137,6 +137,7 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
     }
 
     override fun stop() {
+        Log.d(TAG, "Stopping discovery/strategy jobs")
         strategyJob?.cancel()
         strategyJob = null
     }
