@@ -1,24 +1,34 @@
 <resources>
+    <!-- App Name & Main Actions -->
     <string name="app_name">Wireless Helper</string>
     <string name="start_service">Запустить Android Auto</string>
     <string name="stop_service">Остановить поиск</string>
+    <string name="connected">Подключено</string>
 
+    <!-- Connection Mode -->
     <string name="connection_mode_label">Режим подключения</string>
     <string name="mode_nsd">Общий Wi-Fi (NSD)</string>
     <string name="mode_hotspot_phone">Точка доступа телефона (NSD + Fake Network)</string>
     <string name="mode_passive">Точка доступа планшета (Пассивный)</string>
     <string name="mode_wifi_direct">Wi-Fi Direct (Экспериментальный)</string>
 
+    <!-- Auto Start -->
     <string name="auto_start_label">Автозапуск сервиса</string>
     <string name="auto_start_no">Нет (вручную)</string>
     <string name="auto_start_bt">При подключении Bluetooth</string>
     <string name="auto_start_wifi">При подключении к определенному Wi-Fi</string>
 
+    <!-- Bluetooth -->
     <string name="bt_device_label">Устройство Bluetooth</string>
     <string name="bt_auto_reconnect_title">Автопереподключение</string>
     <string name="bt_auto_reconnect_desc">Попытаться перезапустить сессию, если соединение прервано, но Bluetooth все еще подключен.</string>
     <string name="bt_disconnect_stop_title">Остановка при потере BT</string>
     <string name="bt_disconnect_stop_desc">Автоматически останавливать сервис, когда Bluetooth автомобиля отключается.</string>
+    <string name="no_paired_devices">Сопряжённые Bluetooth-устройства не найдены</string>
+    <string name="select_bt_device">Выберите Bluetooth-устройство</string>
+    <string name="auto_start_linked">Автозапуск привязан к %s</string>
+
+    <!-- Wi-Fi -->
     <string name="wifi_ssid_label">Сеть Wi-Fi (SSID)</string>
     <string name="wifi_connected_network">Подключенная сеть Wi-Fi</string>
     <string name="wifi_ssid_hint">Введите SSID Wi-Fi</string>
@@ -26,59 +36,58 @@
     <string name="wifi_ssid_dialog_msg">Сервис запустится автоматически при подключении к этой сети:</string>
     <string name="wifi_ssid_save">Сохранить</string>
     <string name="wifi_ssid_permissions_needed">Запросить разрешения</string>
-
     <string name="wifi_background_location_title">Требуется фоновое определение местоположения</string>
-    <string name="wifi_background_location_msg">Чтобы определять сеть Wi-Fi, когда приложение закрыто, установите разрешение для местоположения на \'Разрешать всегда\' в настройках Android.</string>
+    <string name="wifi_background_location_msg">Чтобы определять сеть Wi-Fi, когда приложение закрыто, установите разрешение для местоположения на «Разрешать всегда» в настройках Android.</string>
     <string name="wifi_background_location_button">Настройки</string>
 
+    <!-- Wi-Fi Direct -->
     <string name="wifi_direct_name_label">Имя устройства Wi-Fi Direct</string>
     <string name="wifi_direct_name_hint">Введите имя (например, AndroidAuto-Unit)</string>
     <string name="wifi_direct_name_dialog_title">Wi-Fi Direct Автоподключение</string>
     <string name="wifi_direct_name_dialog_msg">Введите имя устройства Wi-Fi Direct для автоматического подключения при обнаружении.</string>
 
+    <!-- Permissions & System -->
     <string name="battery_opt_title">Обнаружена оптимизация батареи</string>
-    <string name="battery_opt_msg">Чтобы разрешить автозапуск по Wi-Fi/Bluetooth, установите для этого приложения значение \'Без ограничений\' в настройках батареи.</string>
-
+    <string name="battery_opt_msg">Чтобы разрешить автозапуск по Wi-Fi/Bluetooth, установите для этого приложения значение «Без ограничений» в настройках батареи.</string>
+    <string name="overlay_perm_title">Фоновый запуск заблокирован</string>
+    <string name="overlay_perm_msg">Современные версии Android блокируют фоновые запуски. Чтобы включить автоматическое подключение, разрешите «Отображение поверх других приложений» в настройках системы.</string>
+    <string name="overlay_perm_button">Предоставить разрешение</string>
     <string name="not_set">Не задано</string>
-
-    <string name="logs_label">Логи:</string>
-    <string name="category_info">ИНФО</string>
-    <string name="settings_header">НАСТРОЙКИ</string>
-    <string name="version">Версия</string>
-    <string name="about">О приложении</string>
-    <string name="about_description">Легковесный триггер для Headunit Revived</string>
 
     <!-- Language -->
     <string name="language_label">Язык</string>
     <string name="language_system_default">Системный</string>
     <string name="language_english">English</string>
-    <string name="language_portuguese">Portuguese (Brazil)</string>
     <string name="language_german">Deutsch</string>
     <string name="language_russian">Русский</string>
+    <string name="language_portuguese">Portuguese (Brazil)</string>
     <string name="language_arabic">Арабский</string>
-    <string name="language_spanish">Spanish</string>
+    <string name="language_spanish">Español</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Поиск Headunit…</string>
     <string name="notif_connected">Подключено к Android Auto</string>
-    <string name="notif_disconnected">Android Auto отключён</string>
     <string name="notif_stop">Остановить</string>
     <string name="notif_channel_name">Wireless Helper</string>
-    <string name="connected">Подключено</string>
+    <string name="state_off">Выключено</string>
 
     <!-- About Dialog -->
+    <string name="about">О приложении и поддержка</string>
+    <string name="about_description">Легковесный триггер для Headunit Revived</string>
     <string name="about_dialog_body">Wireless Helper — приложение-триггер для Headunit Revived.\n\nРазработчик: André Rinas\n© 2026</string>
 
-    <!-- Bluetooth -->
-    <string name="no_paired_devices">Сопряжённые Bluetooth-устройства не найдены</string>
-    <string name="select_bt_device">Выберите Bluetooth-устройство</string>
-    <string name="auto_start_linked">Автозапуск привязан к %s</string>
+    <!-- Info Section -->
+    <string name="category_info">ИНФО</string>
+    <string name="settings_header">НАСТРОЙКИ</string>
+    <string name="version">Версия</string>
 
+    <!-- Shortcuts -->
     <string name="shortcut_start_title">Начать поиск</string>
     <string name="shortcut_start_desc">Начать поиск Android Auto</string>
     <string name="shortcut_stop_title">Остановить поиск</string>
     <string name="shortcut_stop_desc">Остановить активный поиск</string>
 
+    <!-- Alerts -->
     <string name="channel_name_alerts">Оповещения о подключении</string>
     <string name="notification_wifi_off_title">Wi-Fi отключен!</string>
     <string name="notification_wifi_off_text">Для подключения Headunit Revived требуется Wi-Fi.</string>

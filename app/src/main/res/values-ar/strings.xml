@@ -1,24 +1,34 @@
 <resources>
+    <!-- App Name & Main Actions -->
     <string name="app_name">Wireless Helper</string>
     <string name="start_service">تشغيل Android Auto</string>
     <string name="stop_service">إيقاف البحث</string>
+    <string name="connected">متصل</string>
 
+    <!-- Connection Mode -->
     <string name="connection_mode_label">وضع الاتصال</string>
     <string name="mode_nsd">واي فاي مشترك (NSD)</string>
     <string name="mode_hotspot_phone">نقطة اتصال الهاتف (NSD + شبكة وهمية)</string>
     <string name="mode_passive">نقطة اتصال الجهاز اللوحي (سلبي)</string>
     <string name="mode_wifi_direct">Wi-Fi Direct (تجريبي)</string>
 
+    <!-- Auto Start -->
     <string name="auto_start_label">التشغيل التلقائي للخدمة</string>
     <string name="auto_start_no">لا (يدوي)</string>
     <string name="auto_start_bt">عند اتصال البلوتوث</string>
     <string name="auto_start_wifi">عند الاتصال بشبكة واي فاي محددة</string>
 
+    <!-- Bluetooth -->
     <string name="bt_device_label">جهاز بلوتوث</string>
     <string name="bt_auto_reconnect_title">محاولة إعادة الاتصال التلقائي</string>
     <string name="bt_auto_reconnect_desc">محاولة إعادة تشغيل الجلسة في حالة انقطاع الاتصال بينما لا يزال البلوتوث متصلاً.</string>
     <string name="bt_disconnect_stop_title">إيقاف عند فصل البلوتوث</string>
     <string name="bt_disconnect_stop_desc">إيقاف الخدمة تلقائيًا عند فصل بلوتوث السيارة.</string>
+    <string name="no_paired_devices">لا توجد أجهزة بلوتوث مقترنة</string>
+    <string name="select_bt_device">اختر جهاز البلوتوث</string>
+    <string name="auto_start_linked">التشغيل التلقائي مرتبط بـ %s</string>
+
+    <!-- Wi-Fi -->
     <string name="wifi_ssid_label">شبكة واي فاي (SSID)</string>
     <string name="wifi_connected_network">شبكة واي فاي المتصلة</string>
     <string name="wifi_ssid_hint">أدخل SSID الواي فاي</string>
@@ -26,59 +36,58 @@
     <string name="wifi_ssid_dialog_msg">ستبدأ الخدمة تلقائيا عند الاتصال بهذه الشبكة:</string>
     <string name="wifi_ssid_save">حفظ</string>
     <string name="wifi_ssid_permissions_needed">طلب الأذونات</string>
-
     <string name="wifi_background_location_title">يلزم الموقع في الخلفية</string>
-    <string name="wifi_background_location_msg">لاكتشاف الواي فاي أثناء إغلاق التطبيق، يرجى ضبط إذن الموقع على \'السماح في جميع الأوقات\' في إعدادات Android.</string>
+    <string name="wifi_background_location_msg">لاكتشاف الواي فاي أثناء إغلاق التطبيق، يرجى ضبط إذن الموقع على \"السماح في جميع الأوقات\" في إعدادات Android.</string>
     <string name="wifi_background_location_button">الإعدادات</string>
 
+    <!-- Wi-Fi Direct -->
     <string name="wifi_direct_name_label">اسم جهاز Wi-Fi Direct</string>
     <string name="wifi_direct_name_hint">أدخل اسم الجهاز (مثلاً AndroidAuto-Unit)</string>
     <string name="wifi_direct_name_dialog_title">اتصال تلقائي Wi-Fi Direct</string>
     <string name="wifi_direct_name_dialog_msg">أدخل اسم جهاز Wi-Fi Direct الذي تريد الاتصال به. سيتصل التطبيق تلقائيًا فور العثور عليه.</string>
 
+    <!-- Permissions & System -->
     <string name="battery_opt_title">تم اكتشاف تحسين البطارية</string>
-    <string name="battery_opt_msg">للسماح بالتشغيل التلقائي عبر الواي فاي/البلوتوث، يرجى ضبط هذا التطبيق على \'غير مقيد\' في إعدادات البطارية.</string>
-
+    <string name="battery_opt_msg">للسماح بالتشغيل التلقائي عبر الواي فاي/البلوتوث، يرجى ضبط هذا التطبيق على \"غير مقيد\" في إعدادات البطارية.</string>
+    <string name="overlay_perm_title">بدء الخلفية محظور</string>
+    <string name="overlay_perm_msg">تقوم إصدارات Android الحديثة بحظر عمليات البدء في الخلفية. لتمكين الاتصال التلقائي، يرجى السماح بـ \"العرض فوق التطبيقات الأخرى\" في إعدادات النظام.</string>
+    <string name="overlay_perm_button">منح الإذن</string>
     <string name="not_set">غير محدد</string>
-
-    <string name="logs_label">السجلات:</string>
-    <string name="category_info">معلومات</string>
-    <string name="settings_header">الإعدادات</string>
-    <string name="version">الإصدار</string>
-    <string name="about">حول &amp; الدعم</string>
-    <string name="about_description">أداة تشغيل خفيفة لـ Headunit Revived</string>
 
     <!-- Language -->
     <string name="language_label">اللغة</string>
     <string name="language_system_default">افتراضي النظام</string>
     <string name="language_english">English</string>
-    <string name="language_portuguese">Portuguese (Brazil)</string>
     <string name="language_german">Deutsch</string>
     <string name="language_russian">Русский</string>
+    <string name="language_portuguese">Portuguese (Brazil)</string>
     <string name="language_arabic">العربية</string>
-    <string name="language_spanish">Spanish</string>
+    <string name="language_spanish">Español</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">جار البحث عن Headunit…</string>
     <string name="notif_connected">متصل بـ Android Auto</string>
-    <string name="notif_disconnected">انقطع اتصال Android Auto</string>
     <string name="notif_stop">إيقاف</string>
     <string name="notif_channel_name">Wireless Helper</string>
-    <string name="connected">متصل</string>
+    <string name="state_off">متوقف</string>
 
     <!-- About Dialog -->
+    <string name="about">حول &amp; الدعم</string>
+    <string name="about_description">أداة تشغيل خفيفة لـ Headunit Revived</string>
     <string name="about_dialog_body">Wireless Helper هو تطبيق تشغيل لـ Headunit Revived.\n\nتطوير André Rinas\n© 2026</string>
 
-    <!-- Bluetooth -->
-    <string name="no_paired_devices">لا توجد أجهزة بلوتوث مقترنة</string>
-    <string name="select_bt_device">اختر جهاز البلوتوث</string>
-    <string name="auto_start_linked">التشغيل التلقائي مرتبط بـ %s</string>
+    <!-- Info Section -->
+    <string name="category_info">معلومات</string>
+    <string name="settings_header">الإعدادات</string>
+    <string name="version">الإصدار</string>
 
+    <!-- Shortcuts -->
     <string name="shortcut_start_title">بدء البحث</string>
     <string name="shortcut_start_desc">بدء البحث عن Android Auto</string>
     <string name="shortcut_stop_title">إيقاف البحث</string>
     <string name="shortcut_stop_desc">إيقاف البحث النشط</string>
 
+    <!-- Alerts -->
     <string name="channel_name_alerts">تنبيهات الاتصال</string>
     <string name="notification_wifi_off_title">واي فاي معطل!</string>
     <string name="notification_wifi_off_text">يحتاج Headunit Revived إلى واي فاي للاتصال.</string>

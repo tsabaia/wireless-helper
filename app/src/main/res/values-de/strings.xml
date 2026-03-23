@@ -1,24 +1,34 @@
 <resources>
+    <!-- App Name & Main Actions -->
     <string name="app_name">Wireless Helper</string>
     <string name="start_service">Android Auto starten</string>
     <string name="stop_service">Suche stoppen</string>
-    
+    <string name="connected">Verbunden</string>
+
+    <!-- Connection Mode -->
     <string name="connection_mode_label">Verbindungsmodus</string>
     <string name="mode_nsd">Gemeinsames WLAN (NSD)</string>
     <string name="mode_hotspot_phone">Handy-Hotspot (NSD + Fake Network)</string>
     <string name="mode_passive">Tablet-Hotspot (Passiv)</string>
     <string name="mode_wifi_direct">Wi-Fi Direct (Experimentell)</string>
-    
+
+    <!-- Auto Start -->
     <string name="auto_start_label">Dienst automatisch starten</string>
     <string name="auto_start_no">Nein (Manuell)</string>
     <string name="auto_start_bt">Bei Bluetooth-Verbindung</string>
     <string name="auto_start_wifi">Bei spezifischer WLAN-Verbindung</string>
-    
+
+    <!-- Bluetooth -->
     <string name="bt_device_label">Bluetooth-Gerät</string>
     <string name="bt_auto_reconnect_title">Autom. Wiederverbinden</string>
     <string name="bt_auto_reconnect_desc">Versucht die Sitzung neu zu starten, wenn die Verbindung abbricht, aber Bluetooth noch verbunden ist.</string>
     <string name="bt_disconnect_stop_title">Stoppen bei BT-Verlust</string>
     <string name="bt_disconnect_stop_desc">Beendet den Suchdienst automatisch, wenn die Bluetooth-Verbindung zum Auto getrennt wird.</string>
+    <string name="no_paired_devices">Keine gekoppelten Bluetooth-Geräte gefunden</string>
+    <string name="select_bt_device">Bluetooth-Gerät auswählen</string>
+    <string name="auto_start_linked">Auto-Start verknüpft mit %s</string>
+
+    <!-- Wi-Fi -->
     <string name="wifi_ssid_label">WLAN-Netzwerk (SSID)</string>
     <string name="wifi_connected_network">Verbundenes WLAN-Netzwerk</string>
     <string name="wifi_ssid_hint">WLAN SSID eingeben</string>
@@ -26,62 +36,58 @@
     <string name="wifi_ssid_dialog_msg">Dienst startet automatisch bei Verbindung mit diesem Netzwerk:</string>
     <string name="wifi_ssid_save">Speichern</string>
     <string name="wifi_ssid_permissions_needed">Berechtigungen anfordern</string>
-    
     <string name="wifi_background_location_title">Hintergrund-Standort benötigt</string>
-    <string name="wifi_background_location_msg">Um WLAN im Hintergrund zu erkennen, setzen Sie die Standortberechtigung in den Android-Einstellungen bitte auf \'Immer zulassen\'.</string>
+    <string name="wifi_background_location_msg">Um WLAN im Hintergrund zu erkennen, setzen Sie die Standortberechtigung in den Android-Einstellungen bitte auf \"Immer zulassen\".</string>
     <string name="wifi_background_location_button">Einstellungen</string>
 
+    <!-- Wi-Fi Direct -->
     <string name="wifi_direct_name_label">Wi-Fi Direct Gerätename</string>
     <string name="wifi_direct_name_hint">Gerätename eingeben (z.B. AndroidAuto-Unit)</string>
     <string name="wifi_direct_name_dialog_title">Wi-Fi Direct Auto-Connect</string>
     <string name="wifi_direct_name_dialog_msg">Geben Sie den Namen des Wi-Fi Direct-Geräts ein, mit dem Sie sich verbinden möchten. Die App verbindet sich automatisch, sobald es gefunden wird.</string>
 
+    <!-- Permissions & System -->
     <string name="battery_opt_title">Akku-Optimierung erkannt</string>
-    <string name="battery_opt_msg">Um Autostart über WiFi/Bluetooth zu ermöglichen, stellen Sie diese App in den Akku-Einstellungen bitte auf \'Nicht eingeschränkt\'.</string>
-    
+    <string name="battery_opt_msg">Um Autostart über WLAN/Bluetooth zu ermöglichen, stellen Sie diese App in den Akku-Einstellungen bitte auf \"Nicht eingeschränkt\".</string>
+    <string name="overlay_perm_title">Hintergrundstart blockiert</string>
+    <string name="overlay_perm_msg">Moderne Android-Versionen blockieren Hintergrundleistungen. Um automatische Verbindung zu ermöglichen, erlauben Sie bitte \"Anzeige über anderen Apps\" in den Systemeinstellungen.</string>
+    <string name="overlay_perm_button">Berechtigung erteilen</string>
     <string name="not_set">Nicht festgelegt</string>
-    
-    <string name="logs_label">Protokolle:</string>
-    <string name="category_info">INFO</string>
-    <string name="settings_header">EINSTELLUNGEN</string>
-    <string name="version">Version</string>
-    <string name="about">Über &amp; Support</string>
-    <string name="about_description">Leichter Trigger für Headunit Revived</string>
 
     <!-- Language -->
     <string name="language_label">Sprache</string>
     <string name="language_system_default">Systemstandard</string>
     <string name="language_english">English</string>
-    <string name="language_portuguese">Portuguese (Brazil)</string>
     <string name="language_german">Deutsch</string>
     <string name="language_russian">Русский</string>
+    <string name="language_portuguese">Portuguese (Brazil)</string>
     <string name="language_arabic">Arabisch</string>
-    <string name="language_spanish">Spanisch</string>
+    <string name="language_spanish">Español</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Suche nach Headunit…</string>
     <string name="notif_connected">Mit Android Auto verbunden</string>
-    <string name="notif_disconnected">Android Auto getrennt</string>
     <string name="notif_stop">Stoppen</string>
     <string name="notif_channel_name">Wireless Helper</string>
-    <string name="connected">Verbunden</string>
+    <string name="state_off">Aus</string>
 
     <!-- About Dialog -->
-    <string name="about_dialog_body">Wireless Helper ist eine Trigger-App für Headunit Revived.
+    <string name="about">Über &amp; Support</string>
+    <string name="about_description">Leichter Trigger für Headunit Revived</string>
+    <string name="about_dialog_body">Wireless Helper ist eine Trigger-App für Headunit Revived.\n\nEntwickelt von André Rinas\n© 2026</string>
 
-Entwickelt von André Rinas
-© 2026</string>
+    <!-- Info Section -->
+    <string name="category_info">INFO</string>
+    <string name="settings_header">EINSTELLUNGEN</string>
+    <string name="version">Version</string>
 
-    <!-- Bluetooth -->
-    <string name="no_paired_devices">Keine gekoppelten Bluetooth-Geräte gefunden</string>
-    <string name="select_bt_device">Bluetooth-Gerät auswählen</string>
-    <string name="auto_start_linked">Auto-Start verknüpft mit %s</string>
-
+    <!-- Shortcuts -->
     <string name="shortcut_start_title">Suche starten</string>
     <string name="shortcut_start_desc">Suche nach Android Auto starten</string>
     <string name="shortcut_stop_title">Suche stoppen</string>
     <string name="shortcut_stop_desc">Aktive Suche beenden</string>
 
+    <!-- Alerts -->
     <string name="channel_name_alerts">Verbindungsalarme</string>
     <string name="notification_wifi_off_title">WLAN ist deaktiviert!</string>
     <string name="notification_wifi_off_text">Headunit Revived benötigt WLAN, um eine Verbindung herzustellen.</string>
