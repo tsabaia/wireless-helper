@@ -33,22 +33,24 @@ class TransparentTriggerActivity : AppCompatActivity() {
             Log.i(TAG, "TransparentTriggerActivity in foreground. Launching AA intent...")
             try {
                 startActivity(targetIntent)
-            } catch (e: android.content.ActivityNotFoundException) {
-                Log.w(TAG, "Legacy activity not found. Trying minimal broadcast fallback for AA 16.4+.")
-                
-                // Read params from the failed intent to build the broadcast
-                val port = targetIntent.getIntExtra("PARAM_SERVICE_PORT", 5288)
-                
-                val receiverIntent = Intent().apply {
-                    setClassName("com.google.android.projection.gearhead", "com.google.android.apps.auto.wireless.setup.receiver.WirelessStartupReceiver")
-                    action = "com.google.android.apps.auto.wireless.setup.receiver.wirelessstartup.START"
-                    putExtra("ip_address", "127.0.0.1")
-                    putExtra("projection_port", port)
-                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-                }
-                sendBroadcast(receiverIntent)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to launch AA from foreground: ${e.message}")
+                if (e is android.content.ActivityNotFoundException || e is SecurityException) {
+                    Log.w(TAG, "Activity launch failed (${e.message}). Trying hybrid broadcast fallback for AA 16.4+.")
+                    
+                    // Read params from the failed intent to build the broadcast
+                    val port = targetIntent.getIntExtra("PARAM_SERVICE_PORT", 5288)
+                    
+                    val receiverIntent = Intent().apply {
+                        setClassName("com.google.android.projection.gearhead", "com.google.android.apps.auto.wireless.setup.receiver.WirelessStartupReceiver")
+                        action = "com.google.android.apps.auto.wireless.setup.receiver.wirelessstartup.START"
+                        putExtra("ip_address", "127.0.0.1")
+                        putExtra("projection_port", port)
+                        addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                    }
+                    sendBroadcast(receiverIntent)
+                } else {
+                    Log.e(TAG, "Failed to launch AA from foreground: ${e.message}")
+                }
             }
         } else {
             Log.w(TAG, "No target intent provided to TransparentTriggerActivity.")
