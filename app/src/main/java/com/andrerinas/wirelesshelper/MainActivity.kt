@@ -14,6 +14,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.InputType
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -294,6 +295,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateWifiValueDisplay() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val ssids = prefs.getStringSet("auto_start_wifi_ssids", emptySet()) ?: emptySet()
+        if (ssids.isEmpty()) {
+            tvWifiNetworkValue.text = getString(R.string.not_set)
+        } else {
+            tvWifiNetworkValue.text = if (ssids.size == 1) ssids.first() else "${ssids.size} ${getString(R.string.bt_devices_selected).replace(getString(R.string.auto_start_bt), "WiFi")}"
+        }
+    }
+
     private fun restoreState() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
         migrateSettings(prefs)
@@ -303,9 +314,9 @@ class MainActivity : AppCompatActivity() {
         val autoMode = prefs.getInt("auto_start_mode", 0)
         updateAutoStartUI(autoMode)
         updateBluetoothValueDisplay()
+        updateWifiValueDisplay()
         switchBtAutoReconnect.isChecked = prefs.getBoolean("bt_auto_reconnect", false)
         switchBtDisconnectStop.isChecked = prefs.getBoolean("bt_disconnect_stop", false)
-        tvWifiNetworkValue.text = prefs.getString("auto_start_wifi_ssid", getString(R.string.not_set))
         tvWifiDirectNameValue.text = prefs.getString("wifi_direct_target_name", getString(R.string.not_set))
         val langTag = prefs.getString("app_language", "") ?: ""
         val langIndex = languageTags.indexOf(langTag).coerceAtLeast(0)
@@ -314,6 +325,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun migrateSettings(prefs: android.content.SharedPreferences) {
+        // Bluetooth migration
         val oldMac = prefs.getString("auto_start_bt_mac", null)
         if (!oldMac.isNullOrEmpty()) {
             val currentSet = prefs.getStringSet("auto_start_bt_macs", emptySet())?.toMutableSet() ?: mutableSetOf()
@@ -323,6 +335,19 @@ class MainActivity : AppCompatActivity() {
                     putStringSet("auto_start_bt_macs", currentSet)
                     remove("auto_start_bt_mac")
                     remove("auto_start_bt_name")
+                }
+            }
+        }
+        
+        // WiFi migration
+        val oldSsid = prefs.getString("auto_start_wifi_ssid", null)
+        if (!oldSsid.isNullOrEmpty()) {
+            val currentSet = prefs.getStringSet("auto_start_wifi_ssids", emptySet())?.toMutableSet() ?: mutableSetOf()
+            if (!currentSet.contains(oldSsid)) {
+                currentSet.add(oldSsid)
+                prefs.edit {
+                    putStringSet("auto_start_wifi_ssids", currentSet)
+                    remove("auto_start_wifi_ssid")
                 }
             }
         }
@@ -425,39 +450,76 @@ class MainActivity : AppCompatActivity() {
 
     private fun showWifiSelector() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-        val savedSsid = prefs.getString("auto_start_wifi_ssid", "")
-        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
-        val ssid = wifiManager.connectionInfo.ssid
-        val currentSsid = ssid?.replace("\"", "") ?: ""
-        val displaySsid = if (currentSsid.isNotEmpty() && currentSsid != "<unknown ssid>") currentSsid else savedSsid
-        val input = EditText(this).apply {
-            setHint(R.string.wifi_ssid_hint)
-            setText(displaySsid)
-            setTextColor(ContextCompat.getColor(context, R.color.text_title))
-            setHintTextColor(ContextCompat.getColor(context, R.color.text_subtitle))
+        val ssids = prefs.getStringSet("auto_start_wifi_ssids", emptySet())?.toMutableSet() ?: mutableSetOf()
+        
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.layout_wifi_ssids_dialog, null)
+        val container = dialogView.findViewById<android.widget.LinearLayout>(R.id.container_ssids)
+        val etNewSsid = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_new_ssid)
+        val btnAdd = dialogView.findViewById<android.view.View>(R.id.btn_add_ssid)
+
+        fun refreshList() {
+            container.removeAllViews()
+            ssids.sorted().forEach { ssid ->
+                val itemView = LayoutInflater.from(this).inflate(R.layout.item_wifi_ssid, container, false)
+                itemView.findViewById<TextView>(R.id.tv_ssid).text = ssid
+                itemView.findViewById<android.view.View>(R.id.btn_remove).setOnClickListener {
+                    ssids.remove(ssid)
+                    refreshList()
+                }
+                container.addView(itemView)
+            }
         }
-        val container = android.widget.FrameLayout(this)
-        container.addView(input, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.WRAP_CONTENT).apply { setMargins(64, 24, 64, 24) })
+
+        refreshList()
+
+        // Try to pre-fill with current SSID if list is empty
+        if (ssids.isEmpty()) {
+            val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+            val current = wifiManager.connectionInfo.ssid?.replace("\"", "") ?: ""
+            if (current.isNotEmpty() && current != "<unknown ssid>") {
+                etNewSsid.setText(current)
+            }
+        }
+
+        btnAdd.setOnClickListener {
+            val newSsid = etNewSsid.text.toString().trim()
+            if (newSsid.isNotEmpty()) {
+                ssids.add(newSsid)
+                etNewSsid.setText("")
+                refreshList()
+            }
+        }
+
         MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
             .setTitle(R.string.wifi_ssid_dialog_title)
-            .setMessage(R.string.wifi_ssid_dialog_msg)
-            .setView(container)
-            .setPositiveButton(R.string.wifi_ssid_save) { _, _ ->
-                val newSsid = input.text.toString().trim()
-                if (newSsid.isNotEmpty()) {
-                    prefs.edit { putString("auto_start_wifi_ssid", newSsid) }
-                    tvWifiNetworkValue.text = newSsid
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                prefs.edit { putStringSet("auto_start_wifi_ssids", ssids) }
+                updateWifiValueDisplay()
+                if (ssids.isNotEmpty()) {
                     WifiJobService.schedule(this)
-                    if (Build.VERSION.SDK_INT >= 29 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog).setTitle(R.string.wifi_background_location_title).setMessage(R.string.wifi_background_location_msg).setPositiveButton(R.string.wifi_background_location_button) { _, _ ->
-                            startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply { data = android.net.Uri.parse("package:$packageName") })
-                        }.show()
-                    }
+                    checkBackgroundLocationPermission()
+                } else {
+                    WifiJobService.cancel(this)
                 }
             }
-            .setNeutralButton(R.string.wifi_ssid_permissions_needed) { _, _ -> ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 102) }
+            .setNeutralButton(R.string.wifi_ssid_permissions_needed) { _, _ -> 
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 102) 
+            }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun checkBackgroundLocationPermission() {
+        if (Build.VERSION.SDK_INT >= 29 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+                .setTitle(R.string.wifi_background_location_title)
+                .setMessage(R.string.wifi_background_location_msg)
+                .setPositiveButton(R.string.wifi_background_location_button) { _, _ ->
+                    startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply { data = android.net.Uri.parse("package:$packageName") })
+                }
+                .show()
+        }
     }
 
     private fun showWifiDirectNameSelector() {

@@ -30,13 +30,12 @@ class TransparentTriggerActivity : AppCompatActivity() {
         }
 
         if (targetIntent != null) {
-            Log.i(TAG, "TransparentTriggerActivity in foreground. Launching AA intent...")
+            Log.i(TAG, "TransparentTriggerActivity in foreground. Attempting AA launch via Activity...")
             try {
                 startActivity(targetIntent)
             } catch (e: Exception) {
-                if (e is android.content.ActivityNotFoundException || e is SecurityException) {
-                    Log.w(TAG, "Activity launch failed (${e.message}). Trying hybrid broadcast fallback for AA 16.4+.")
-                    
+                Log.w(TAG, "Activity launch failed (${e.message}). Attempting Broadcast fallback...")
+                try {
                     // Read params from the failed intent to build the broadcast
                     val port = targetIntent.getIntExtra("PARAM_SERVICE_PORT", 5288)
                     
@@ -48,8 +47,9 @@ class TransparentTriggerActivity : AppCompatActivity() {
                         addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
                     }
                     sendBroadcast(receiverIntent)
-                } else {
-                    Log.e(TAG, "Failed to launch AA from foreground: ${e.message}")
+                    Log.i(TAG, "Broadcast fallback sent successfully.")
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Both Activity and Broadcast triggers failed. Activity Error: ${e.message}, Broadcast Error: ${e2.message}")
                 }
             }
         } else {

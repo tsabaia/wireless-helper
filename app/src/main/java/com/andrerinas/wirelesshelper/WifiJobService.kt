@@ -38,15 +38,19 @@ class WifiJobService : JobService() {
             val mode = prefs.getInt("auto_start_mode", 0)
             if (mode != 2) return false
 
-            val targetSsid = prefs.getString("auto_start_wifi_ssid", null) ?: return false
+            val targetSsids = prefs.getStringSet("auto_start_wifi_ssids", emptySet()) ?: emptySet()
+            if (targetSsids.isEmpty()) return false
             
             val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             val ssid = wifiManager.connectionInfo.ssid?.replace("\"", "") ?: ""
             val currentSsid = if (ssid == "<unknown ssid>") "" else ssid
 
-            Log.d(TAG, "Checking SSID: Current='$currentSsid', Target='$targetSsid'")
+            Log.d(TAG, "Checking SSID: Current='$currentSsid' against $targetSsids")
 
-            if (currentSsid.equals(targetSsid, ignoreCase = true)) {
+            // Check if current SSID is in our allowed set
+            val isMatch = targetSsids.any { it.equals(currentSsid, ignoreCase = true) }
+
+            if (isMatch) {
                 Log.i(TAG, "Match! Starting Service.")
                 val startIntent = Intent(context, WirelessHelperService::class.java).apply {
                     action = WirelessHelperService.ACTION_START
