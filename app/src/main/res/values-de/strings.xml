@@ -42,7 +42,7 @@
     <string name="wifi_background_location_button">Einstellungen</string>
 
     <!-- Wi-Fi Direct -->
-    <string name="wifi_direct_name_label">Wi-Fi Direct Gerätename</string>
+    <string name="wifi_direct_name_label">Wi-Fi Direct Gerätename(n)</string>
     <string name="wifi_direct_name_hint">Gerätename eingeben (z.B. AndroidAuto-Unit)</string>
     <string name="wifi_direct_name_dialog_title">Wi-Fi Direct Auto-Connect</string>
     <string name="wifi_direct_name_dialog_msg">Geben Sie den Namen des Wi-Fi Direct-Geräts ein, mit dem Sie sich verbinden möchten. Die App verbindet sich automatisch, sobald es gefunden wird.</string>

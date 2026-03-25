@@ -305,6 +305,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateWifiDirectValueDisplay() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val names = prefs.getStringSet("wifi_direct_target_names", emptySet()) ?: emptySet()
+        if (names.isEmpty()) {
+            tvWifiDirectNameValue.text = getString(R.string.not_set)
+        } else {
+            tvWifiDirectNameValue.text = if (names.size == 1) names.first() else "${names.size} ${getString(R.string.bt_devices_selected).replace(getString(R.string.auto_start_bt), "P2P")}"
+        }
+    }
+
     private fun restoreState() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
         migrateSettings(prefs)
@@ -315,9 +325,9 @@ class MainActivity : AppCompatActivity() {
         updateAutoStartUI(autoMode)
         updateBluetoothValueDisplay()
         updateWifiValueDisplay()
+        updateWifiDirectValueDisplay()
         switchBtAutoReconnect.isChecked = prefs.getBoolean("bt_auto_reconnect", false)
         switchBtDisconnectStop.isChecked = prefs.getBoolean("bt_disconnect_stop", false)
-        tvWifiDirectNameValue.text = prefs.getString("wifi_direct_target_name", getString(R.string.not_set))
         val langTag = prefs.getString("app_language", "") ?: ""
         val langIndex = languageTags.indexOf(langTag).coerceAtLeast(0)
         tvLanguageValue.text = languageOptions[langIndex]
@@ -350,6 +360,24 @@ class MainActivity : AppCompatActivity() {
                     remove("auto_start_wifi_ssid")
                 }
             }
+        }
+
+        // WiFi Direct Name migration
+        val oldDirectName = prefs.getString("wifi_direct_target_name", null)
+        val currentDirectSet = prefs.getStringSet("wifi_direct_target_names", null)?.toMutableSet()
+        if (currentDirectSet == null) {
+            // Initial run or first time after update
+            val newSet = mutableSetOf("HURev") // Always default to HURev
+            if (!oldDirectName.isNullOrEmpty() && oldDirectName != "HURev") {
+                newSet.add(oldDirectName)
+            }
+            prefs.edit {
+                putStringSet("wifi_direct_target_names", newSet)
+                remove("wifi_direct_target_name")
+            }
+        } else if (!oldDirectName.isNullOrEmpty()) {
+            // Clean up old key if it still exists
+            prefs.edit { remove("wifi_direct_target_name") }
         }
     }
 
@@ -490,10 +518,34 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+        // Add support for "Enter" key on keyboard
+        etNewSsid.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE || 
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT) {
+                btnAdd.performClick()
+                true
+            } else false
+        }
+
+        val dialog = MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
             .setTitle(R.string.wifi_ssid_dialog_title)
             .setView(dialogView)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
+            .setPositiveButton(android.R.string.ok, null) // Listener set manually below
+            .setNeutralButton(R.string.wifi_ssid_permissions_needed) { _, _ -> 
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 102) 
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+
+        dialog.show()
+
+        // Override OK button to prevent closing if text is present
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val newSsid = etNewSsid.text.toString().trim()
+            if (newSsid.isNotEmpty()) {
+                btnAdd.performClick()
+            } else {
+                // Persistent save and close
                 prefs.edit { putStringSet("auto_start_wifi_ssids", ssids) }
                 updateWifiValueDisplay()
                 if (ssids.isNotEmpty()) {
@@ -502,12 +554,9 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     WifiJobService.cancel(this)
                 }
+                dialog.dismiss()
             }
-            .setNeutralButton(R.string.wifi_ssid_permissions_needed) { _, _ -> 
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 102) 
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        }
     }
 
     private fun checkBackgroundLocationPermission() {
@@ -524,22 +573,66 @@ class MainActivity : AppCompatActivity() {
 
     private fun showWifiDirectNameSelector() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-        val savedName = prefs.getString("wifi_direct_target_name", "")
-        val input = EditText(this).apply {
-            setHint(R.string.wifi_direct_name_hint)
-            setText(savedName)
-            setTextColor(ContextCompat.getColor(context, R.color.text_title))
-            setHintTextColor(ContextCompat.getColor(context, R.color.text_subtitle))
-        }
-        val container = android.widget.FrameLayout(this)
-        container.addView(input, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.WRAP_CONTENT).apply { setMargins(64, 24, 64, 24) })
-        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog).setTitle(R.string.wifi_direct_name_dialog_title).setMessage(R.string.wifi_direct_name_dialog_msg).setView(container).setPositiveButton(R.string.wifi_ssid_save) { _, _ ->
-            val newName = input.text.toString().trim()
-            if (newName.isNotEmpty()) {
-                prefs.edit { putString("wifi_direct_target_name", newName) }
-                tvWifiDirectNameValue.text = newName
+        val names = prefs.getStringSet("wifi_direct_target_names", mutableSetOf("HURev"))?.toMutableSet() ?: mutableSetOf("HURev")
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.layout_wifi_direct_names_dialog, null)
+        val container = dialogView.findViewById<android.widget.LinearLayout>(R.id.container_names)
+        val etNewName = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_new_name)
+        val btnAdd = dialogView.findViewById<android.view.View>(R.id.btn_add_name)
+
+        fun refreshList() {
+            container.removeAllViews()
+            names.sorted().forEach { name ->
+                val itemView = LayoutInflater.from(this).inflate(R.layout.item_wifi_direct_name, container, false)
+                itemView.findViewById<TextView>(R.id.tv_name).text = name
+                itemView.findViewById<android.view.View>(R.id.btn_remove).setOnClickListener {
+                    names.remove(name)
+                    refreshList()
+                }
+                container.addView(itemView)
             }
-        }.setNegativeButton(android.R.string.cancel, null).show()
+        }
+
+        refreshList()
+
+        btnAdd.setOnClickListener {
+            val newName = etNewName.text.toString().trim()
+            if (newName.isNotEmpty()) {
+                names.add(newName)
+                etNewName.setText("")
+                refreshList()
+            }
+        }
+
+        // Add support for "Enter" key on keyboard
+        etNewName.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE || 
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT) {
+                btnAdd.performClick()
+                true
+            } else false
+        }
+
+        val dialog = MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle(R.string.wifi_direct_name_dialog_title)
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+
+        dialog.show()
+
+        // Override OK button logic
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val newName = etNewName.text.toString().trim()
+            if (newName.isNotEmpty()) {
+                btnAdd.performClick()
+            } else {
+                prefs.edit { putStringSet("wifi_direct_target_names", names) }
+                updateWifiDirectValueDisplay()
+                dialog.dismiss()
+            }
+        }
     }
 
     private fun exportLogs() {

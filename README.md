@@ -48,6 +48,10 @@ adb shell am start -a android.intent.action.VIEW -d "wirelesshelper://stop"
 ```
 
 ## Changelog
+### v.1.4.1-beta1
+- Added: Multiple Wi-Fi Direct Names now possible
+- Enhanced: Auto-Enable Hotspot. As before. This will not work on very new devices, but should work until Android 13
+
 ### v.1.4.0
 - Added: Multiple Selection for Bluetooth Auto-Start Devices
 - Added: Multiple SSID's name for Wi-Fi Auto-Start Devices
