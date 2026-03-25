@@ -23,14 +23,14 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
     private val p2pManager: WifiP2pManager? = context.getSystemService(Context.WIFI_P2P_SERVICE) as? WifiP2pManager
     private var p2pChannel: WifiP2pManager.Channel? = null
     private var p2pReceiver: BroadcastReceiver? = null
-    private var targetDeviceName: String? = null
+    private var targetDeviceNames: Set<String> = emptySet()
     private var isConnectingToPeer = false
 
     override fun start() {
         val prefs = context.getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
-        targetDeviceName = prefs.getString("wifi_direct_target_name", null)
+        targetDeviceNames = prefs.getStringSet("wifi_direct_target_names", setOf("HURev")) ?: setOf("HURev")
 
-        Log.i(TAG, "Strategy: WiFi Direct (Target: $targetDeviceName)")
+        Log.i(TAG, "Strategy: WiFi Direct (Targets: $targetDeviceNames)")
         
         setupP2p()
         startNsdDiscovery()
@@ -53,7 +53,7 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
                 when (intent.action) {
                     WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
                         p2pManager.requestPeers(p2pChannel) { peers ->
-                            val target = targetDeviceName ?: return@requestPeers
+                            if (targetDeviceNames.isEmpty()) return@requestPeers
                             Log.d(TAG, "P2P Peers found: ${peers.deviceList.size}")
                             for (device in peers.deviceList) {
                                 val statusText = when(device.status) {
@@ -67,7 +67,11 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
                                 Log.d(TAG, "  - Found: ${device.deviceName} Status: $statusText")
                             }
 
-                            val match = peers.deviceList.find { it.deviceName.contains(target, ignoreCase = true) }
+                            // Match against any of the target names
+                            val match = peers.deviceList.find { device ->
+                                targetDeviceNames.any { target -> device.deviceName.contains(target, ignoreCase = true) }
+                            }
+
                             if (match != null && !isConnectingToPeer) {
                                 if (match.status == WifiP2pDevice.AVAILABLE) {
                                     connectToPeer(match)
