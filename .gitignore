@@ -11,3 +11,4 @@ todo.txt
 # Keystore files
 *.jks
 test_files
+.vscode

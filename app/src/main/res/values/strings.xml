@@ -108,4 +108,8 @@
     <string name="notification_wifi_off_title">Wi-Fi is Disabled!</string>
     <string name="notification_wifi_off_text">Headunit Revived needs Wi-Fi to connect.</string>
     <string name="action_turn_on_wifi">TURN ON WI-FI</string>
+
+    <string name="write_settings_title">Permission Needed</string>
+    <string name="write_settings_msg">To automatically enable the Hotspot, Wireless Helper needs permission to \'Modify system settings\'. Please enable this in the next screen.</string>
+    <string name="write_settings_button">Grant Permission</string>
 </resources>

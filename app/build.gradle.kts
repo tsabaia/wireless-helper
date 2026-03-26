@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation("com.google.android.material:material:1.6.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("com.linkedin.dexmaker:dexmaker:2.28.6")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

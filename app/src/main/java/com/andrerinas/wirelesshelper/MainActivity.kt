@@ -195,6 +195,12 @@ class MainActivity : AppCompatActivity() {
             } else {
                 val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
                 val currentMode = prefs.getInt("connection_mode", 0)
+                
+                // Extra check for Hotspot permission
+                if ((currentMode == 1 || currentMode == 2) && !checkWriteSettingsPermission()) {
+                    return@setOnClickListener
+                }
+
                 WifiNotificationHelper.checkWifiAndConnect(this, isFromUi = true, connectionMode = currentMode) {
                     checkPermissionsAndStart()
                 }
@@ -210,6 +216,11 @@ class MainActivity : AppCompatActivity() {
                     prefs.edit { putInt("connection_mode", which) }
                     tvConnectionModeValue.text = connectionModes[which]
                     updateModeSpecificUI(which)
+                    
+                    if (which == 1 || which == 2) { // Phone or Tablet Hotspot
+                        checkWriteSettingsPermission()
+                    }
+                    
                     dialog.dismiss()
                 }
                 .setNegativeButton(android.R.string.cancel, null)
@@ -704,6 +715,32 @@ class MainActivity : AppCompatActivity() {
         handler.post(statusPoller)
         checkBatteryOptimization()
         checkOverlayPermission()
+        
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val currentMode = prefs.getInt("connection_mode", 0)
+        if (currentMode == 1 || currentMode == 2) { // Phone or Tablet Hotspot
+            checkWriteSettingsPermission()
+        }
+    }
+
+    private fun checkWriteSettingsPermission(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!android.provider.Settings.System.canWrite(this)) {
+                MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+                    .setTitle(R.string.write_settings_title)
+                    .setMessage(R.string.write_settings_msg)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.write_settings_button) { _, _ ->
+                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+                            data = android.net.Uri.parse("package:$packageName")
+                        }
+                        startActivity(intent)
+                    }
+                    .show()
+                return false
+            }
+        }
+        return true
     }
 
     private fun checkOverlayPermission() {
