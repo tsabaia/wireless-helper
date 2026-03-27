@@ -101,4 +101,9 @@
     <string name="notification_wifi_off_title">Wi-Fi is uitgeschakeld!</string>
     <string name="notification_wifi_off_text">Headunit Revived heeft Wi-Fi nodig om verbinding te maken.</string>
     <string name="action_turn_on_wifi">ZET WI-FI AAN</string>
+    <string name="auto_start_on_app_start">Bij opstarten app</string>
+
+    <string name="write_settings_title">Toestemming vereist</string>
+    <string name="write_settings_msg">Om de hotspot automatisch in te schakelen, heeft de Wireless Helper toestemming nodig om \'Systeeminstellingen te wijzigen\'. Schakel dit in op het volgende scherm.</string>
+    <string name="write_settings_button">Toestemming verlenen</string>
 </resources>

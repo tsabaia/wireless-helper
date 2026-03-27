@@ -101,4 +101,9 @@
     <string name="notification_wifi_off_title">A Wi-Fi ki van kapcsolva!</string>
     <string name="notification_wifi_off_text">A Headunit Revived-nak Wi-Fi-re van szüksége a csatlakozáshoz.</string>
     <string name="action_turn_on_wifi">WI-FI BEKAPCSOLÁSA</string>
+    <string name="auto_start_on_app_start">Alkalmazás indításakor</string>
+
+    <string name="write_settings_title">Engedély szükséges</string>
+    <string name="write_settings_msg">A hotspot automatikus bekapcsolásához a Wireless Helpernek engedélyre van szüksége a „Rendszerbeállítások módosításához”. Kérjük, engedélyezze a következő képernyőn.</string>
+    <string name="write_settings_button">Engedély megadása</string>
 </resources>

@@ -17,6 +17,7 @@
     <string name="auto_start_no">No (Manual)</string>
     <string name="auto_start_bt">On Bluetooth Connection</string>
     <string name="auto_start_wifi">On Specific Wi-Fi Connection</string>
+    <string name="auto_start_on_app_start">On App Start</string>
 
     <!-- Bluetooth -->
     <string name="bt_device_label">Bluetooth Device</string>

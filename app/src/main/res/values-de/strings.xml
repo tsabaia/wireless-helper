@@ -108,4 +108,9 @@
     <string name="notification_wifi_off_title">WLAN ist deaktiviert!</string>
     <string name="notification_wifi_off_text">Headunit Revived benötigt WLAN, um eine Verbindung herzustellen.</string>
     <string name="action_turn_on_wifi">WLAN EINSCHALTEN</string>
+    <string name="auto_start_on_app_start">Beim App-Start</string>
+
+    <string name="write_settings_title">Berechtigung erforderlich</string>
+    <string name="write_settings_msg">Um den Hotspot automatisch zu aktivieren, benötigt der Wireless Helper die Berechtigung \'Systemeinstellungen ändern\'. Bitte aktiviere diese im nächsten Bildschirm.</string>
+    <string name="write_settings_button">Berechtigung erteilen</string>
 </resources>

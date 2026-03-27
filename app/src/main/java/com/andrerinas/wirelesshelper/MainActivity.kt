@@ -100,7 +100,8 @@ class MainActivity : AppCompatActivity() {
         arrayOf(
             getString(R.string.auto_start_no),
             getString(R.string.auto_start_bt),
-            getString(R.string.auto_start_wifi)
+            getString(R.string.auto_start_wifi),
+            getString(R.string.auto_start_on_app_start)
         )
     }
 
@@ -235,7 +236,21 @@ class MainActivity : AppCompatActivity() {
                 .setSingleChoiceItems(autoStartModes, currentMode) { dialog, which ->
                     prefs.edit { putInt("auto_start_mode", which) }
                     updateAutoStartUI(which)
-                    if (which == 2) WifiJobService.schedule(this) else WifiJobService.cancel(this)
+                    
+                    if (which == 2) {
+                        WifiJobService.schedule(this)
+                    } else {
+                        WifiJobService.cancel(this)
+                    }
+
+                    // Trigger immediately if "On App Start" is chosen
+                    if (which == 3 && !WirelessHelperService.isRunning) {
+                        val connMode = prefs.getInt("connection_mode", 0)
+                        WifiNotificationHelper.checkWifiAndConnect(this, isFromUi = true, connectionMode = connMode) {
+                            checkPermissionsAndStart()
+                        }
+                    }
+                    
                     dialog.dismiss()
                 }
                 .setNegativeButton(android.R.string.cancel, null)
@@ -720,6 +735,15 @@ class MainActivity : AppCompatActivity() {
         val currentMode = prefs.getInt("connection_mode", 0)
         if (currentMode == 1 || currentMode == 2) { // Phone or Tablet Hotspot
             checkWriteSettingsPermission()
+        }
+
+        // Handle 'On App Start' auto-start (mode index 3)
+        val autoStartMode = prefs.getInt("auto_start_mode", 0)
+        if (autoStartMode == 3 && !WirelessHelperService.isRunning) {
+            Log.i("HUREV_WIFI", "Auto-starting service because 'On App Start' is enabled")
+            WifiNotificationHelper.checkWifiAndConnect(this, isFromUi = true, connectionMode = currentMode) {
+                checkPermissionsAndStart()
+            }
         }
     }
 

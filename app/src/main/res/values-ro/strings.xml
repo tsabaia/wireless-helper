@@ -101,4 +101,9 @@
     <string name="notification_wifi_off_title">Wi-Fi este dezactivat!</string>
     <string name="notification_wifi_off_text">Headunit Revived are nevoie de Wi-Fi pentru conectare.</string>
     <string name="action_turn_on_wifi">PORNIRE WI-FI</string>
+    <string name="auto_start_on_app_start">La pornirea aplicației</string>
+
+    <string name="write_settings_title">Permisiune necesară</string>
+    <string name="write_settings_msg">Pentru a activa automat hotspot-ul, Wireless Helper are nevoie de permisiunea de a „Modifica setările sistemului”. Vă rugăm să o activați în ecranul următor.</string>
+    <string name="write_settings_button">Acordă permisiunea</string>
 </resources>

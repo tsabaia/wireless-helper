@@ -101,4 +101,9 @@
     <string name="notification_wifi_off_title">Wi-Fi je vypnutá!</string>
     <string name="notification_wifi_off_text">Headunit Revived potřebuje Wi-Fi k připojení.</string>
     <string name="action_turn_on_wifi">ZAPNOUT WI-FI</string>
+    <string name="auto_start_on_app_start">Při spuštění aplikace</string>
+
+    <string name="write_settings_title">Vyžadováno oprávnění</string>
+    <string name="write_settings_msg">K automatickému zapnutí hotspotu vyžaduje Wireless Helper oprávnění k \'Měníní systémových nastavení\'. Povolte jej prosím na další obrazovce.</string>
+    <string name="write_settings_button">Udělit oprávnění</string>
 </resources>

@@ -108,4 +108,9 @@
     <string name="notification_wifi_off_title">Wi-Fi отключен!</string>
     <string name="notification_wifi_off_text">Для подключения Headunit Revived требуется Wi-Fi.</string>
     <string name="action_turn_on_wifi">ВКЛЮЧИТЬ WI-FI</string>
+    <string name="auto_start_on_app_start">При запуске приложения</string>
+
+    <string name="write_settings_title">Требуется разрешение</string>
+    <string name="write_settings_msg">Для автоматического включения точки доступа Wireless Helper требуется разрешение на «Изменение системных настроек». Пожалуйста, включите его на следующем экране.</string>
+    <string name="write_settings_button">Предоставить разрешение</string>
 </resources>

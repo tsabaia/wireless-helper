@@ -101,4 +101,9 @@
     <string name="notification_wifi_off_title">Wi-Fi 已停用！</string>
     <string name="notification_wifi_off_text">Headunit Revived 需要 Wi-Fi 才能連接。</string>
     <string name="action_turn_on_wifi">開啟 WI-FI</string>
+    <string name="auto_start_on_app_start">應用程式啟動時</string>
+
+    <string name="write_settings_title">需要權限</string>
+    <string name="write_settings_msg">為了自動啟用熱點，Wireless Helper 需要「修改系統設定」權限。請在下一個畫面中啟用。</string>
+    <string name="write_settings_button">授予權限</string>
 </resources>
