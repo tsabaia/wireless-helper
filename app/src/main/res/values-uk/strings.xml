@@ -101,4 +101,9 @@
     <string name="notification_wifi_off_title">Wi-Fi вимкнено!</string>
     <string name="notification_wifi_off_text">Для підключення Headunit Revived потрібен Wi-Fi.</string>
     <string name="action_turn_on_wifi">УВІМКНУТИ WI-FI</string>
+    <string name="auto_start_on_app_start">При запуску додатка</string>
+
+    <string name="write_settings_title">Потрібен дозвіл</string>
+    <string name="write_settings_msg">Для автоматичного ввімкнення точки доступу Wireless Helper потребує дозволу на «Зміну системних налаштувань». Будь ласка, увімкніть його на наступному екрані.</string>
+    <string name="write_settings_button">Надати дозвіл</string>
 </resources>

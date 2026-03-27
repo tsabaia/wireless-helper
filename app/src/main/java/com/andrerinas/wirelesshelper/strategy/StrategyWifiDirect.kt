@@ -54,17 +54,21 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
                     WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
                         p2pManager.requestPeers(p2pChannel) { peers ->
                             if (targetDeviceNames.isEmpty()) return@requestPeers
-                            Log.d(TAG, "P2P Peers found: ${peers.deviceList.size}")
-                            for (device in peers.deviceList) {
-                                val statusText = when(device.status) {
-                                    0 -> "AVAILABLE"
-                                    1 -> "INVITED"
-                                    2 -> "CONNECTED"
-                                    3 -> "FAILED"
-                                    4 -> "UNAVAILABLE"
-                                    else -> "UNKNOWN (${device.status})"
+                            
+                            // Log found peers for debugging
+                            if (peers.deviceList.isNotEmpty()) {
+                                Log.d(TAG, "P2P Peers found: ${peers.deviceList.size}")
+                                for (device in peers.deviceList) {
+                                    val statusText = when(device.status) {
+                                        0 -> "AVAILABLE"
+                                        1 -> "INVITED"
+                                        2 -> "CONNECTED"
+                                        3 -> "FAILED"
+                                        4 -> "UNAVAILABLE"
+                                        else -> "UNKNOWN (${device.status})"
+                                    }
+                                    Log.d(TAG, "  - Found: ${device.deviceName} Status: $statusText")
                                 }
-                                Log.d(TAG, "  - Found: ${device.deviceName} Status: $statusText")
                             }
 
                             // Match against any of the target names
@@ -111,30 +115,43 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
 
         context.registerReceiver(p2pReceiver, intentFilter)
         
+        // Start the continuous discovery loop
+        startDiscoveryLoop()
+    }
+
+    private fun startDiscoveryLoop() {
         getStrategyScope().launch {
-            delay(1000)
-            discoverPeersWithRetry()
+            while (isActive) {
+                if (!isConnectingToPeer && !isLaunching.get()) {
+                    discoverPeers()
+                }
+                delay(30000) // Restart discovery every 30 seconds
+            }
         }
     }
 
     @SuppressLint("MissingPermission")
-    private fun discoverPeersWithRetry() {
+    private fun discoverPeers() {
         val channel = p2pChannel ?: return
         
-        // Reset framework state before discovery to avoid Error 0
-        p2pManager?.stopPeerDiscovery(channel, null)
-        p2pManager?.removeGroup(channel, null)
-
-        p2pManager?.discoverPeers(channel, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() { Log.d(TAG, "P2P Peer Discovery Started") }
-            override fun onFailure(reason: Int) { 
-                Log.e(TAG, "P2P Peer Discovery Failed: $reason. Retrying in 5s...")
-                getStrategyScope().launch {
-                    delay(5000)
-                    discoverPeersWithRetry()
-                }
+        // Always stop previous discovery to refresh the list
+        p2pManager?.stopPeerDiscovery(channel, object : WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                p2pManager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
+                    override fun onSuccess() { Log.d(TAG, "P2P Peer Discovery Started (Loop)") }
+                    override fun onFailure(reason: Int) { Log.e(TAG, "P2P Peer Discovery failed: $reason") }
+                })
+            }
+            override fun onFailure(reason: Int) {
+                // If stop fails, try start anyway
+                p2pManager.discoverPeers(channel, null)
             }
         })
+    }
+
+    @Deprecated("Use discoverPeers in loop", ReplaceWith("startDiscoveryLoop"))
+    private fun discoverPeersWithRetry() {
+        discoverPeers()
     }
 
     @SuppressLint("MissingPermission")

@@ -108,4 +108,9 @@
     <string name="notification_wifi_off_title">¡Wi-Fi desactivado!</string>
     <string name="notification_wifi_off_text">Headunit Revived necesita Wi-Fi para conectarse.</string>
     <string name="action_turn_on_wifi">ACTIVAR WI-FI</string>
+    <string name="auto_start_on_app_start">Al iniciar la app</string>
+
+    <string name="write_settings_title">Permiso necesario</string>
+    <string name="write_settings_msg">Para activar automáticamente el punto de acceso, Wireless Helper necesita permiso para \'Modificar ajustes del sistema\'. Por favor, actívelo en la siguiente pantalla.</string>
+    <string name="write_settings_button">Conceder permiso</string>
 </resources>

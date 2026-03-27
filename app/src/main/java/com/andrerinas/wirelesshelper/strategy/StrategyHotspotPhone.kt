@@ -14,12 +14,14 @@ class StrategyHotspotPhone(context: Context, private val scope: CoroutineScope) 
 
     private var serverSocket: ServerSocket? = null
     private val PORT_DISCOVERY = 5289
+    private var hotspotEnabledByUs = false
 
     override fun start() {
         Log.i(TAG, "Strategy: Hotspot Phone (TCP 5289 Trigger Listener)")
         
         // Attempt to auto-enable hotspot (best effort)
         val success = HotspotManager.setHotspotEnabled(context, true)
+        hotspotEnabledByUs = success
         Log.i(TAG, "Auto-enable hotspot attempt finished. Success: $success")
         
         getStrategyScope().launch(Dispatchers.IO) {
@@ -49,5 +51,12 @@ class StrategyHotspotPhone(context: Context, private val scope: CoroutineScope) 
         Log.d(TAG, "Stopping Hotspot TCP Listener")
         try { serverSocket?.close() } catch (e: Exception) {}
         serverSocket = null
+        
+        // Disable hotspot if we enabled it
+        if (hotspotEnabledByUs) {
+            Log.i(TAG, "Disabling hotspot (was enabled by us)")
+            HotspotManager.setHotspotEnabled(context, false)
+            hotspotEnabledByUs = false
+        }
     }
 }

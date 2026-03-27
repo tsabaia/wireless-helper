@@ -108,4 +108,9 @@
     <string name="notification_wifi_off_title">Wi-Fi Desligado!</string>
     <string name="notification_wifi_off_text">O Headunit Revived precisa do Wi-Fi para conectar.</string>
     <string name="action_turn_on_wifi">LIGAR WI-FI</string>
+    <string name="auto_start_on_app_start">Ao iniciar o app</string>
+
+    <string name="write_settings_title">Permissão necessária</string>
+    <string name="write_settings_msg">Para ativar automaticamente o ponto de acesso, o Wireless Helper precisa de permissão para \'Modificar configurações do sistema\'. Ative-a na próxima tela.</string>
+    <string name="write_settings_button">Conceder permissão</string>
 </resources>
