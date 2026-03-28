@@ -60,7 +60,7 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
         Log.i(TAG, "Strategy triggering PROXY launch for $hostIp")
         connectionEstablished.set(false)
         
-        stop()
+        stopForLaunch()
 
         scope.launch {
             try {
@@ -140,6 +140,14 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
         Log.d(TAG, "Stopping discovery/strategy jobs")
         strategyJob?.cancel()
         strategyJob = null
+    }
+
+    /**
+     * Stops discovery before launching AA. Strategies can override this to keep
+     * transport-specific state alive, for example a hotspot we turned on ourselves.
+     */
+    protected open fun stopForLaunch() {
+        stop()
     }
 
     fun cleanup() {
