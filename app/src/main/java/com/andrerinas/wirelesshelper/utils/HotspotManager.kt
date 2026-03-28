@@ -22,8 +22,32 @@ object HotspotManager {
     private const val TAG = "HUREV_WIFI"
     private const val CALLBACK_CLASS = "android.net.ConnectivityManager\$OnStartTetheringCallback"
 
+    /** AOSP [WifiManager] soft AP states (hidden API); used only via reflection. */
+    private const val WIFI_AP_STATE_ENABLING = 12
+    private const val WIFI_AP_STATE_ENABLED = 13
+
     // Cache the generated callback class so we only do bytecode generation once
     private var cachedCallbackClass: Class<*>? = null
+
+    /** Cached [WifiManager.getWifiApState] reflection; avoids repeated [Class.getMethod] lookups. */
+    private var getWifiApStateMethod: Method? = null
+
+    /**
+     * Whether Wi‑Fi hotspot (soft AP) is on or transitioning on, via [WifiManager.getWifiApState].
+     * Returns null if the method is missing or fails — callers should not assume we enabled hotspot.
+     */
+    fun isWifiHotspotActive(context: Context): Boolean? {
+        return try {
+            val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val method = getWifiApStateMethod
+                ?: wm.javaClass.getMethod("getWifiApState").also { getWifiApStateMethod = it }
+            val state = method.invoke(wm) as Int
+            state == WIFI_AP_STATE_ENABLED || state == WIFI_AP_STATE_ENABLING
+        } catch (e: Exception) {
+            Log.d(TAG, "[HotspotManager] getWifiApState unavailable: ${e.message}")
+            null
+        }
+    }
 
     fun setHotspotEnabled(context: Context, enabled: Boolean): Boolean {
         Log.i(TAG, "[HotspotManager] Setting hotspot: $enabled (API ${Build.VERSION.SDK_INT})")

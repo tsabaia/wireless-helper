@@ -19,10 +19,11 @@ class StrategyHotspotPhone(context: Context, private val scope: CoroutineScope) 
     override fun start() {
         Log.i(TAG, "Strategy: Hotspot Phone (TCP 5289 Trigger Listener)")
         
-        // Attempt to auto-enable hotspot (best effort)
+        // Only claim ownership if hotspot was known-off before we enabled it (see HotspotManager.isWifiHotspotActive).
+        val priorActive = HotspotManager.isWifiHotspotActive(context)
         val success = HotspotManager.setHotspotEnabled(context, true)
-        hotspotEnabledByUs = success
-        Log.i(TAG, "Auto-enable hotspot attempt finished. Success: $success")
+        hotspotEnabledByUs = success && (priorActive == false)
+        Log.i(TAG, "Auto-enable hotspot: priorActive=$priorActive success=$success hotspotEnabledByUs=$hotspotEnabledByUs")
         
         getStrategyScope().launch(Dispatchers.IO) {
             try {
