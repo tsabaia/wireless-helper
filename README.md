@@ -48,6 +48,9 @@ adb shell am start -a android.intent.action.VIEW -d "wirelesshelper://stop"
 ```
 
 ## Changelog
+### v.1.5.1 Bugfix Release
+- Merging several Merge Request with fixes for broken 1.5.0. Thanks to @dhanar10 and @mixalbl4-127
+
 ### v.1.5.0
 - Enhanced: Wi-Fi Direct now scans faster to find the headunit
 - Added: Option to auto-start the service on app-open

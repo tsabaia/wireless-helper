@@ -10,8 +10,15 @@ import android.os.Build
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object WifiNotificationHelper {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     /**
      * Checks if Wi-Fi is enabled based on the connection mode.
@@ -42,12 +49,45 @@ object WifiNotificationHelper {
         if (wifiManager.isWifiEnabled) {
             onConnectReady() 
         } else {
-            if (isFromUi) {
-                showWifiDialog(context)
-            } else {
-                showWifiNotification(context)
+            scope.launch {
+                val wifiEnabled = withContext(Dispatchers.IO) {
+                    tryEnableWifiWithRoot() && waitForWifiEnabled(wifiManager)
+                }
+
+                if (wifiEnabled) {
+                    cancelNotification(context)
+                    onConnectReady()
+                } else if (isFromUi) {
+                    showWifiDialog(context)
+                } else {
+                    showWifiNotification(context)
+                }
             }
         }
+    }
+
+    private fun tryEnableWifiWithRoot(): Boolean {
+        return runRootCommand("cmd wifi set-wifi-enabled enabled") ||
+            runRootCommand("svc wifi enable")
+    }
+
+    private fun runRootCommand(command: String): Boolean {
+        return try {
+            val process = ProcessBuilder("su", "-c", command)
+                .redirectErrorStream(true)
+                .start()
+            process.waitFor() == 0
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private suspend fun waitForWifiEnabled(wifiManager: WifiManager): Boolean {
+        repeat(10) {
+            if (wifiManager.isWifiEnabled) return true
+            delay(500)
+        }
+        return wifiManager.isWifiEnabled
     }
 
     private fun showWifiDialog(context: Context) {
