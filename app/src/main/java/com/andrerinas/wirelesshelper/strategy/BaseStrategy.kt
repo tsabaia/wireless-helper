@@ -19,12 +19,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 abstract class BaseStrategy(protected val context: Context, private val scope: CoroutineScope) : ConnectionStrategy {
 
     interface StateListener {
+        fun onConnecting()
         fun onProxyConnected()
         fun onProxyDisconnected()
         fun onLaunchTimeout()
     }
 
-    protected val TAG = "HUREV_WIFI"
+    protected open val TAG = "HUREV_WIFI"
     private var activeProxy: AapProxy? = null
     var stateListener: StateListener? = null
     protected val isLaunching = AtomicBoolean(false)
@@ -54,7 +55,7 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
         }
     }
 
-    protected fun launchAndroidAuto(hostIp: String, forceFakeNetwork: Boolean = false) {
+    protected fun launchAndroidAuto(hostIp: String, forceFakeNetwork: Boolean = false, preConnectedSocket: java.net.Socket? = null) {
         if (isLaunching.get()) return
         if (!isLaunching.compareAndSet(false, true)) return
         
@@ -67,8 +68,17 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
             try {
                 val boundWifi = if (!forceFakeNetwork) WifiNetworkBinding.currentNetwork else null
 
+                val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                
+                val targetNetwork = when {
+                    forceFakeNetwork -> createFakeNetwork(0)
+                    boundWifi != null -> boundWifi
+                    else -> (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) connectivityManager.activeNetwork else null)
+                        ?: createFakeNetwork(0)
+                }
+
                 // 1. Start the Proxy Server with a listener
-                val proxy = AapProxy(hostIp, listener = object : AapProxy.Listener {
+                val proxy = AapProxy(hostIp, network = targetNetwork, preConnectedSocket = preConnectedSocket, listener = object : AapProxy.Listener {
                     override fun onConnected() {
                         Log.i(TAG, "AA is now flowing through proxy")
                         connectionEstablished.set(true)
@@ -83,15 +93,6 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
                 activeProxy = proxy
                 val localPort = proxy.start()
 
-                val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                
-                val targetNetwork = when {
-                    forceFakeNetwork -> createFakeNetwork(0)
-                    boundWifi != null -> boundWifi
-                    else -> (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) connectivityManager.activeNetwork else null)
-                        ?: createFakeNetwork(0)
-                }
-
                 val wifiInfo: Parcelable? = try {
                     val clazz = Class.forName("android.net.wifi.WifiInfo")
                     val constructor = clazz.getDeclaredConstructor()
@@ -102,16 +103,30 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
                 val intent = Intent().apply {
                     setClassName("com.google.android.projection.gearhead", "com.google.android.apps.auto.wireless.setup.service.impl.WirelessStartupActivity")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    // Activity params
                     putExtra("PARAM_HOST_ADDRESS", "127.0.0.1")
                     putExtra("PARAM_SERVICE_PORT", localPort)
+                    
+                    // Receiver params (fallback/alternative trigger)
+                    putExtra("ip_address", "127.0.0.1")
+                    putExtra("projection_port", localPort)
+                    
                     targetNetwork?.let { putExtra("PARAM_SERVICE_WIFI_NETWORK", it) }
                     wifiInfo?.let { putExtra("wifi_info", it) }
                 }
 
-                Log.i(TAG, "Firing Intent. Host=127.0.0.1, Port=$localPort, Network=$targetNetwork")
+                Log.i(TAG, "Firing triggers for AA Localhost. Port=$localPort, Network=$targetNetwork")
                 
-                // Start our transparent activity to "surface" the app. 
-                // This allows us to bypass Background Activity Launch (BAL) restrictions on Android 14+.
+                // 1. Send Broadcast Trigger (more reliable on many devices)
+                val broadcastIntent = Intent("com.google.android.apps.auto.wireless.setup.receiver.wirelessstartup.START").apply {
+                    setClassName("com.google.android.projection.gearhead", "com.google.android.apps.auto.wireless.setup.receiver.WirelessStartupReceiver")
+                    putExtra("ip_address", "127.0.0.1")
+                    putExtra("projection_port", localPort)
+                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                }
+                context.sendBroadcast(broadcastIntent)
+
+                // 2. Start our transparent activity to "surface" the app for Activity-based trigger
                 val triggerIntent = Intent(context, TransparentTriggerActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     putExtra("intent", intent)

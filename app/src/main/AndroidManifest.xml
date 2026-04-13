@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -53,6 +54,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="wirelesshelper" android:host="start" />
                 <data android:scheme="wirelesshelper" android:host="stop" />
+                <data android:scheme="wirelesshelper" android:host="config" />
             </intent-filter>
 
             <meta-data

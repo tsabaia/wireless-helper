@@ -8,6 +8,7 @@
     <string name="mode_hotspot_phone">Точка доступу телефону</string>
     <string name="mode_passive">Точка доступу планшета</string>
     <string name="mode_wifi_direct">Wi-Fi Direct</string>
+    <string name="mode_nearby">Google Nearby (Beta)</string>
     
     <string name="auto_start_label">Автозапуск сервісу</string>
     <string name="auto_start_no">Ні (Вручну)</string>
@@ -65,6 +66,7 @@
     <string name="language_czech">Čeština (Czech)</string>
     <string name="language_german">Deutsch (German)</string>
     <string name="language_spanish">Español (Spanish)</string>
+    <string name="language_italian">Італійська</string>
     <string name="language_spanish_spain">Español (España)</string>
     <string name="language_hungarian">Magyar (Hungarian)</string>
     <string name="language_dutch">Nederlands (Dutch)</string>
@@ -77,6 +79,7 @@
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Пошук пристрою…</string>
+    <string name="notif_connecting">Знайдено…</string>
     <string name="notif_connected">Підключено до Android Auto</string>
     <string name="notif_disconnected">Android Auto відключено</string>
     <string name="notif_stop">Зупинити</string>
@@ -106,4 +109,9 @@
     <string name="write_settings_title">Потрібен дозвіл</string>
     <string name="write_settings_msg">Для автоматичного ввімкнення точки доступу Wireless Helper потребує дозволу на «Зміну системних налаштувань». Будь ласка, увімкніть його на наступному екрані.</string>
     <string name="write_settings_button">Надати дозвіл</string>
+    <string name="static_ip_label">Статична IP-адреса</string>
+    <string name="static_ip_hint">Введіть IP (наприклад, 192.168.43.1)</string>
+    <string name="static_ip_desc">Якщо встановлено, програма підключатиметься безпосередньо до цієї IP-адреси замість пошуку.</string>
+    <string name="static_ip_dialog_title">Налаштування статичного IP</string>
+    <string name="reset">Скинути</string>
 </resources>
