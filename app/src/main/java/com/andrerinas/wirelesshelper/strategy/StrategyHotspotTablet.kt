@@ -21,7 +21,7 @@ class StrategyHotspotTablet(context: Context, private val scope: CoroutineScope)
         if (staticIp.isNotEmpty()) {
             Log.i(TAG, "Strategy: Hotspot Tablet (Direct Connect to Static IP: $staticIp)")
             getStrategyScope().launch {
-                launchAndroidAuto(staticIp, forceFakeNetwork = false)
+                launchAndroidAuto(staticIp)
             }
             return
         }
@@ -41,7 +41,7 @@ class StrategyHotspotTablet(context: Context, private val scope: CoroutineScope)
                     if (remoteIp != null) {
                         Log.i(TAG, "Trigger from $remoteIp")
                         // In Tablet Hotspot mode, we use normal network routing (false for FakeNet)
-                        launchAndroidAuto(remoteIp, forceFakeNetwork = false)
+                        launchAndroidAuto(remoteIp)
                     }
                 }
             } catch (e: Exception) {

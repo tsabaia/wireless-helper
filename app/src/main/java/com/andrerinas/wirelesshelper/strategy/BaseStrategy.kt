@@ -42,20 +42,8 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
         const val ACTION_TRIGGER_INTENT = "com.andrerinas.wirelesshelper.ACTION_TRIGGER_INTENT"
     }
 
-    private fun createFakeNetwork(netId: Int): Network? {
-        val parcel = android.os.Parcel.obtain()
-        return try {
-            parcel.writeInt(netId)
-            parcel.setDataPosition(0)
-            Network.CREATOR.createFromParcel(parcel)
-        } catch (e: Exception) {
-            null
-        } finally {
-            parcel.recycle()
-        }
-    }
 
-    protected fun launchAndroidAuto(hostIp: String, forceFakeNetwork: Boolean = false, preConnectedSocket: java.net.Socket? = null) {
+    protected fun launchAndroidAuto(hostIp: String, preConnectedSocket: java.net.Socket? = null) {
         if (isLaunching.get()) return
         if (!isLaunching.compareAndSet(false, true)) return
         
@@ -66,15 +54,13 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
 
         scope.launch {
             try {
-                val boundWifi = if (!forceFakeNetwork) WifiNetworkBinding.currentNetwork else null
+                val boundWifi = WifiNetworkBinding.currentNetwork
 
                 val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                 
                 val targetNetwork = when {
-                    forceFakeNetwork -> createFakeNetwork(0)
                     boundWifi != null -> boundWifi
                     else -> (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) connectivityManager.activeNetwork else null)
-                        ?: createFakeNetwork(0)
                 }
 
                 // 1. Start the Proxy Server with a listener
@@ -117,15 +103,7 @@ abstract class BaseStrategy(protected val context: Context, private val scope: C
 
                 Log.i(TAG, "Firing triggers for AA Localhost. Port=$localPort, Network=$targetNetwork")
                 
-                // 1. Send Broadcast Trigger (more reliable on many devices)
-                val broadcastIntent = Intent("com.google.android.apps.auto.wireless.setup.receiver.wirelessstartup.START").apply {
-                    setClassName("com.google.android.projection.gearhead", "com.google.android.apps.auto.wireless.setup.receiver.WirelessStartupReceiver")
-                    putExtra("ip_address", "127.0.0.1")
-                    putExtra("projection_port", localPort)
-                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-                }
-                context.sendBroadcast(broadcastIntent)
-
+                // Sequential trigger: Activity first, then Broadcast fallback (handled in TransparentTriggerActivity)
                 // 2. Start our transparent activity to "surface" the app for Activity-based trigger
                 val triggerIntent = Intent(context, TransparentTriggerActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)

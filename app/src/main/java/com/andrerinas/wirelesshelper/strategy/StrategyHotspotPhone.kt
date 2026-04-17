@@ -14,7 +14,12 @@ class StrategyHotspotPhone(context: Context, private val scope: CoroutineScope) 
 
     private var serverSocket: ServerSocket? = null
     private val PORT_DISCOVERY = 5289
-    private var hotspotEnabledByUs = false
+    
+    private val prefs = context.getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+
+    private var hotspotEnabledByUs: Boolean
+        get() = prefs.getBoolean("hotspot_enabled_by_us", false)
+        set(value) = prefs.edit().putBoolean("hotspot_enabled_by_us", value).apply()
 
     override fun start() {
         Log.i(TAG, "Strategy: Hotspot Phone (TCP 5289 Trigger Listener)")
@@ -22,7 +27,12 @@ class StrategyHotspotPhone(context: Context, private val scope: CoroutineScope) 
         // Only claim ownership if hotspot was known-off before we enabled it (see HotspotManager.isWifiHotspotActive).
         val priorActive = HotspotManager.isWifiHotspotActive(context)
         val success = HotspotManager.setHotspotEnabled(context, true)
-        hotspotEnabledByUs = success && (priorActive == false)
+        
+        // Update persistent ownership
+        if (success && priorActive == false) {
+            hotspotEnabledByUs = true
+        }
+        
         Log.i(TAG, "Auto-enable hotspot: priorActive=$priorActive success=$success hotspotEnabledByUs=$hotspotEnabledByUs")
         
         getStrategyScope().launch(Dispatchers.IO) {
@@ -39,7 +49,7 @@ class StrategyHotspotPhone(context: Context, private val scope: CoroutineScope) 
                     if (remoteIp != null) {
                         Log.i(TAG, "TCP Trigger received from Tablet at $remoteIp")
                         // Use forceFakeNetwork = true to bypass cellular routing in hotspot mode
-                        launchAndroidAuto(remoteIp, forceFakeNetwork = true)
+                        launchAndroidAuto(remoteIp)
                     }
                 }
             } catch (e: Exception) {
@@ -62,9 +72,11 @@ class StrategyHotspotPhone(context: Context, private val scope: CoroutineScope) 
     override fun stop() {
         stopListener()
 
-        // Disable hotspot if we enabled it
-        if (hotspotEnabledByUs) {
-            Log.i(TAG, "Disabling hotspot (was enabled by us)")
+        val forceStop = prefs.getBoolean("force_stop_hotspot", false)
+
+        // Disable hotspot if we enabled it OR if force stop is enabled
+        if (hotspotEnabledByUs || forceStop) {
+            Log.i(TAG, "Disabling hotspot (enabledByUs=$hotspotEnabledByUs, forceStop=$forceStop)")
             HotspotManager.setHotspotEnabled(context, false)
             hotspotEnabledByUs = false
         }

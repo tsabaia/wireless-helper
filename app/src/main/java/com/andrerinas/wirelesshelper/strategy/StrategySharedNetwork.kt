@@ -29,7 +29,7 @@ class StrategySharedNetwork(context: Context, scope: CoroutineScope) : BaseStrat
                         val ip = si.host.hostAddress
                         Log.i(TAG, "NSD Resolved IP: $ip")
                         ip?.let { 
-                            launchAndroidAuto(it, forceFakeNetwork = false) 
+                            launchAndroidAuto(it) 
                         }
                     }
                 })

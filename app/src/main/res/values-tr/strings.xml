@@ -1,0 +1,115 @@
+<resources>
+    <string name="app_name">Wireless Helper</string>
+    <string name="start_service">Android Auto\'yu Başlat</string>
+    <string name="stop_service">Aramayı Durdur</string>
+    <string name="connected">Bağlı</string>
+
+    <string name="connection_mode_label">Bağlantı Modu</string>
+    <string name="mode_nsd">Ortak Wi-Fi (Paylaşılan)</string>
+    <string name="mode_hotspot_phone">Telefon Erişim Noktası</string>
+    <string name="mode_passive">Tablet Erişim Noktası</string>
+    <string name="mode_wifi_direct">Wi-Fi Direct</string>
+    <string name="mode_nearby">Google Yakındakiler (Beta)</string>
+    <string name="hotspot_force_stop_title">Hotspot\'u durdurmaya zorla</string>
+    <string name="hotspot_force_stop_desc">Servis durduğunda, bu uygulama tarafından başlatılmamış olsa bile her zaman hotspot\'u devre dışı bırakmaya çalışın.</string>
+    <string name="static_ip_label">Statik IP Adresi</string>
+    <string name="static_ip_hint">IP Adresi Girin (Örn: 192.168.43.1)</string>
+    <string name="static_ip_desc">Eğer ayarlanırsa, uygulama arama yapmak yerine doğrudan bu IP adresine bağlanır.</string>
+    <string name="static_ip_dialog_title">Statik IP Yapılandır</string>
+    <string name="reset">Sıfırla</string>
+
+    <string name="auto_start_label">Hizmeti Otomatik Başlat</string>
+    <string name="auto_start_no">Hayır (Manuel)</string>
+    <string name="auto_start_bt">Bluetooth Bağlantısında</string>
+    <string name="auto_start_wifi">Belirli Bir Wi-Fi Bağlantısında</string>
+    <string name="auto_start_on_app_start">Uygulama Açıldığında</string>
+
+    <string name="bt_device_label">Bluetooth Cihazı</string>
+    <string name="bt_devices_selected">Cihaz seçildi</string>
+    <string name="bt_auto_reconnect_title">Otomatik yeniden bağlanmayı dene</string>
+    <string name="bt_auto_reconnect_desc">Bluetooth hala bağlıyken bağlantı düşerse oturumu yeniden başlatmayı dener.</string>
+    <string name="bt_disconnect_stop_title">BT bağlantısı kesildiğinde durdur</string>
+    <string name="bt_disconnect_stop_desc">Aracın Bluetooth bağlantısı kesildiğinde hizmeti otomatik olarak durdurur.</string>
+    <string name="no_paired_devices">Eşleşmiş Bluetooth cihazı bulunamadı</string>
+    <string name="select_bt_device">Bluetooth Cihazı Seç</string>
+    <string name="auto_start_linked">Otomatik başlatma %s cihazı ile ilişkilendirildi</string>
+
+    <string name="wifi_ssid_label">Wi-Fi Ağı (SSID)</string>
+    <string name="wifi_connected_network">Bağlı Wi-Fi Ağı</string>
+    <string name="wifi_ssid_hint">Wi-Fi SSID Girin</string>
+    <string name="wifi_ssid_dialog_title">Wi-Fi Otomatik Başlat</string>
+    <string name="wifi_ssid_dialog_msg">Bu ağa bağlanıldığında hizmet otomatik olarak başlatılacaktır:</string>
+    <string name="wifi_ssid_save">Kaydet</string>
+    <string name="wifi_ssid_permissions_needed">İzinleri İste</string>
+    <string name="wifi_background_location_title">Arka Plan Konum İzni Gerekli</string>
+    <string name="wifi_background_location_msg">Uygulama kapalıyken Wi-Fi ağını tespit edebilmek için lütfen Android ayarlarından Konum iznini \'Her zaman izin ver\' olarak ayarlayın.</string>
+    <string name="wifi_background_location_button">Ayarlar</string>
+
+    <string name="wifi_direct_name_label">Wi-Fi Direct Cihaz Adı</string>
+    <string name="wifi_direct_name_hint">Cihaz Adı Girin (Örn: AndroidAuto-Unit)</string>
+    <string name="wifi_direct_name_dialog_title">Wi-Fi Direct Otomatik Bağlan</string>
+    <string name="wifi_direct_name_dialog_msg">Bağlanmak istediğiniz Wi-Fi Direct cihazının adını girin. Cihaz bulunduğunda uygulama otomatik olarak bağlanacaktır.</string>
+
+    <string name="battery_opt_title">Pil Optimizasyonu Tespit Edildi</string>
+    <string name="battery_opt_msg">Wi-Fi/Bluetooth ile otomatik başlatmaya izin vermek için lütfen pil ayarlarından bu uygulamayı \'Kısıtlanmamış\' olarak ayarlayın.</string>
+    <string name="overlay_perm_title">Arka Planda Başlatma Engellendi</string>
+    <string name="overlay_perm_msg">Modern Android sürümleri arka planda başlatmaları engeller. Otomatik bağlantıyı etkinleştirmek için lütfen sistem ayarlarından \'Diğer uygulamaların üzerinde görüntüleme\' iznini verin.</string>
+    <string name="overlay_perm_button">İzin Ver</string>
+    <string name="not_set">Ayarlanmadı</string>
+    
+    <string name="logs_label">Günlükleri Dışa Aktar</string>
+    <string name="export_log_description">Hata ayıklama için sistem günlüklerini bir dosyaya kaydeder</string>
+    <string name="export_log_title">Günlükler Dışa Aktarıldı</string>
+    <string name="export_log_saved">Günlükler şuraya kaydedildi:\n\n%s</string>
+    <string name="share">Paylaş</string>
+
+    <string name="language_label">Dil</string>
+    <string name="language_system_default">Sistem Varsayılanı</string>
+    <string name="language_english">English (İngilizce)</string>
+    <string name="language_czech">Čeština (Çekçe)</string>
+    <string name="language_spanish_spain">Español (İspanyolca)</string>
+    <string name="language_hungarian">Magyar (Macarca)</string>
+    <string name="language_dutch">Nederlands (Felemenkçe)</string>
+    <string name="language_polish">Polski (Polonyaca)</string>
+    <string name="language_romanian">Română (Romanca)</string>
+    <string name="language_ukrainian">Українська (Ukraynaca)</string>
+    <string name="language_chinese">繁體中文 (Tayvan)</string>
+    <string name="language_german">Deutsch (Almanca)</string>
+    <string name="language_russian">Русский (Rusça)</string>
+    <string name="language_portuguese">Português (Brezilya Portekizcesi)</string>
+    <string name="language_arabic">العربية (Arapça)</string>
+    <string name="language_spanish">Español (İspanyolca)</string>
+    <string name="language_italian">Italiano (İtalyanca)</string>
+    <string name="language_turkish">Türkçe</string>
+
+    <string name="notif_searching">Multimedya Sistemi aranıyor…</string>
+    <string name="notif_connecting">Bulundu…</string>
+    <string name="notif_connected">Android Auto\'ya Bağlanıldı</string>
+    <string name="notif_disconnected">Android Auto bağlantısı kesildi</string>
+    <string name="notif_stop">Durdur</string>
+    <string name="notif_channel_name">Wireless Helper</string>
+    <string name="state_off">Kapalı</string>
+
+    <string name="about">Hakkında &amp; Destek</string>
+    <string name="about_description">Headunit Revived için hafif tetikleyici uygulama</string>
+    <string name="about_dialog_body">Wireless Helper, Headunit Revived için yardımcı bir uygulamadır.\n\nAndré Rinas tarafından geliştirilmiştir\n© 2026</string>
+
+    <string name="category_info">BİLGİ</string>
+    <string name="settings_header">AYARLAR</string>
+    <string name="version">Sürüm</string>
+
+    <string name="shortcut_start_title">Aramayı Başlat</string>
+    <string name="shortcut_start_desc">Android Auto aramayı başlat</string>
+    <string name="shortcut_stop_title">Aramayı Durdur</string>
+    <string name="shortcut_stop_desc">Aktif aramayı durdur</string>
+
+    <string name="channel_name_alerts">Bağlantı Uyarıları</string>
+    <string name="notification_wifi_off_title">Wi-Fi Devre Dışı!</string>
+    <string name="notification_wifi_off_text">Bağlantı kurmak için Wi-Fi açık olmalıdır.</string>
+    <string name="action_turn_on_wifi">WI-FI\'I AÇ</string>
+
+    <string name="write_settings_title">İzin Gerekli</string>
+    <string name="write_settings_msg">Erişim noktasını otomatik etkinleştirmek için Wireless Helper\'ın \'Sistem ayarlarını değiştirme\' iznine ihtiyacı vardır. Lütfen sonraki ekranda bunu etkinleştirin.</string>
+    <string name="write_settings_button">İzin Ver</string>
+</resources>
+

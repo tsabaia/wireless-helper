@@ -9,6 +9,8 @@
     <string name="mode_passive">Hotspot tabletu</string>
     <string name="mode_wifi_direct">Wi-Fi Direct</string>
     <string name="mode_nearby">Google Nearby (Beta)</string>
+    <string name="hotspot_force_stop_title">Vynutit zastavení hotspotu</string>
+    <string name="hotspot_force_stop_desc">Vždy se pokusit vypnout hotspot při zastavení služby, i když nebyl spuštěn touto aplikací.</string>
     
     <string name="auto_start_label">Automatické spuštění služby</string>
     <string name="auto_start_no">Ne (Ručně)</string>

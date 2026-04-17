@@ -57,6 +57,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvAutoStartValue: TextView
     private lateinit var layoutBluetoothDevice: View
     private lateinit var tvBluetoothDeviceValue: TextView
+    private lateinit var layoutHotspotForceStop: View
+    private lateinit var switchHotspotForceStop: androidx.appcompat.widget.SwitchCompat
     private lateinit var layoutBtAutoReconnect: View
     private lateinit var switchBtAutoReconnect: androidx.appcompat.widget.SwitchCompat
     private lateinit var layoutBtDisconnectStop: View
@@ -118,6 +120,7 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.language_german),
             getString(R.string.language_spanish),
             getString(R.string.language_spanish_spain),
+            getString(R.string.language_turkish),
             getString(R.string.language_hungarian),
             getString(R.string.language_dutch),
             getString(R.string.language_polish),
@@ -129,7 +132,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private val languageTags = arrayOf("", "en", "ar", "cs", "de", "es", "es-ES", "hu", "nl", "pl", "pt-BR", "ro", "ru", "uk", "zh-TW")
+    private val languageTags = arrayOf("", "en", "ar", "cs", "de", "es", "es-ES", "hu", "nl", "pl", "pt-BR", "ro", "ru", "tr", "uk", "zh-TW")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_WirelessHelper)
@@ -167,6 +170,8 @@ class MainActivity : AppCompatActivity() {
         tvAutoStartValue = findViewById(R.id.tvAutoStartValue)
         layoutBluetoothDevice = findViewById(R.id.layoutBluetoothDevice)
         tvBluetoothDeviceValue = findViewById(R.id.tvBluetoothDeviceValue)
+        layoutHotspotForceStop = findViewById(R.id.layoutHotspotForceStop)
+        switchHotspotForceStop = findViewById(R.id.switchHotspotForceStop)
         layoutBtAutoReconnect = findViewById(R.id.layoutBtAutoReconnect)
         switchBtAutoReconnect = findViewById(R.id.switchBtAutoReconnect)
         layoutBtDisconnectStop = findViewById(R.id.layoutBtDisconnectStop)
@@ -266,6 +271,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         layoutBluetoothDevice.setOnClickListener { showBluetoothDeviceSelector() }
+        setupSwitchSetting(layoutHotspotForceStop, switchHotspotForceStop, "force_stop_hotspot")
         setupSwitchSetting(layoutBtAutoReconnect, switchBtAutoReconnect, "bt_auto_reconnect")
         setupSwitchSetting(layoutBtDisconnectStop, switchBtDisconnectStop, "bt_disconnect_stop")
         layoutWifiNetwork.setOnClickListener { showWifiSelector() }
@@ -401,6 +407,7 @@ class MainActivity : AppCompatActivity() {
         updateWifiValueDisplay()
         updateWifiDirectValueDisplay()
         switchBtAutoReconnect.isChecked = prefs.getBoolean("bt_auto_reconnect", false)
+        switchHotspotForceStop.isChecked = prefs.getBoolean("force_stop_hotspot", false)
         switchBtDisconnectStop.isChecked = prefs.getBoolean("bt_disconnect_stop", false)
         val langTag = prefs.getString("app_language", "") ?: ""
         val langIndex = languageTags.indexOf(langTag).coerceAtLeast(0)
@@ -456,6 +463,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateModeSpecificUI(mode: Int) {
+        layoutHotspotForceStop.visibility = if (mode == MODE_HOTSPOT_PHONE) View.VISIBLE else View.GONE
         layoutStaticIp.visibility = if (mode == MODE_PASSIVE) View.VISIBLE else View.GONE
         layoutWifiDirectName.visibility = if (mode == MODE_WIFI_DIRECT) View.VISIBLE else View.GONE
         // For nearby, we might want to hide other things or show a specific hint in the future.

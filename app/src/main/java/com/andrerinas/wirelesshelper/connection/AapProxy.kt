@@ -22,7 +22,7 @@ class AapProxy(
         fun onDisconnected()
     }
 
-    private val TAG = "HUREV_NEARBY"
+    private val TAG = "HUREV_PROXY"
     private var serverSocket: ServerSocket? = null
     private var isRunning = false
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -65,7 +65,7 @@ class AapProxy(
                     Log.i(TAG, "Bridge established: AA <-> Tablet (Pre-connected socket)")
                 } else {
                     tabletSocket = Socket()
-                    network?.bindSocket(tabletSocket)
+                    // network?.bindSocket(tabletSocket) // Removed to match 1.5.1 stability
                     tabletSocket.connect(InetSocketAddress(remoteIp, remotePort), 5000)
                     Log.i(TAG, "Bridge established: AA <-> Tablet ($remoteIp)")
                 }

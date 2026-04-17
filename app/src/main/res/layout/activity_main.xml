@@ -93,6 +93,48 @@
                         android:textSize="14sp"/>
                 </LinearLayout>
 
+                <!-- 1b. Force Stop Hotspot (Only shown if mode 1) -->
+                <LinearLayout
+                    android:id="@+id/layoutHotspotForceStop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="@drawable/bg_item_middle"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hotspot_force_stop_title"
+                            android:textColor="@color/text_title"
+                            android:textSize="16sp"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hotspot_force_stop_desc"
+                            android:textColor="@color/text_subtitle"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchHotspotForceStop"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false"/>
+                </LinearLayout>
+
                 <!-- 1a. Static IP (Hidden by default, shown if mode 2) -->
                 <LinearLayout
                     android:id="@+id/layoutStaticIp"

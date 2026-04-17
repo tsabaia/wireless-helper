@@ -12,6 +12,8 @@
     <string name="mode_passive">Punto de acceso tablet (Pasivo)</string>
     <string name="mode_wifi_direct">Wi-Fi Direct</string>
     <string name="mode_nearby">Google Nearby (Beta)</string>
+    <string name="hotspot_force_stop_title">Forzar detención del punto de acceso</string>
+    <string name="hotspot_force_stop_desc">Intentar siempre desactivar el punto de acceso cuando el servicio se detenga, incluso si no fue iniciado por esta aplicación.</string>
 
     <!-- Auto Start -->
     <string name="auto_start_label">Inicio automático del servicio</string>

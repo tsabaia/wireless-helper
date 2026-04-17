@@ -94,7 +94,7 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
                                     Log.i(TAG, "WiFi Direct connected. Group Owner: $host")
                                     isConnectingToPeer = false
                                     // FORCE FAKE NETWORK 0 for correct P2P routing
-                                    launchAndroidAuto(host, forceFakeNetwork = true)
+                                    launchAndroidAuto(host)
                                 }
                             }
                         } else {
@@ -181,7 +181,7 @@ class StrategyWifiDirect(context: Context, scope: CoroutineScope) : BaseStrategy
                     override fun onResolveFailed(si: NsdServiceInfo, err: Int) {}
                     override fun onServiceResolved(si: NsdServiceInfo) {
                         si.host.hostAddress?.let { 
-                            launchAndroidAuto(it, forceFakeNetwork = false) 
+                            launchAndroidAuto(it) 
                         }
                     }
                 })

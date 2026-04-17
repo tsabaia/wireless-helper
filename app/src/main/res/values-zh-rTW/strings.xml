@@ -9,6 +9,8 @@
     <string name="mode_passive">平板熱點 (被動模式)</string>
     <string name="mode_wifi_direct">Wi-Fi 直連 (實驗性)</string>
     <string name="mode_nearby">Google Nearby (Beta)</string>
+    <string name="hotspot_force_stop_title">強制停止熱點</string>
+    <string name="hotspot_force_stop_desc">當服務停止時，始終嘗試停用熱點，即使它不是由此應用程式啟動的。</string>
     
     <string name="auto_start_label">自動啟動服務</string>
     <string name="auto_start_no">否 (手動)</string>

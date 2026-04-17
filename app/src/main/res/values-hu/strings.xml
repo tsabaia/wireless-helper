@@ -9,6 +9,8 @@
     <string name="mode_passive">Tablet Hotspot (Passzív)</string>
     <string name="mode_wifi_direct">Wi-Fi Direct (Kísérleti)</string>
     <string name="mode_nearby">Google Nearby (Beta)</string>
+    <string name="hotspot_force_stop_title">Hotspot leállításának kényszerítése</string>
+    <string name="hotspot_force_stop_desc">A szolgáltatás leállításakor mindig kísérelje meg a hotspot kikapcsolását, még akkor is, ha azt nem ez az alkalmazás indította el.</string>
     
     <string name="auto_start_label">Szolgáltatás automatikus indítása</string>
     <string name="auto_start_no">Nem (Kézi)</string>
