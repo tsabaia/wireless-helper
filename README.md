@@ -52,7 +52,10 @@ adb shell am start -a android.intent.action.VIEW -d "wirelesshelper://stop"
 ```
 
 ## Changelog
-### v.1.6.2
+### v1.6.3
+- Added: Click on Notification brings you to the App
+
+### v1.6.2
 - Bugfix Release: Fixed wrong handling in searching. It is now fast again
 - Added: Force Hotspot disable (in combination with bluetooth disconnects)
 

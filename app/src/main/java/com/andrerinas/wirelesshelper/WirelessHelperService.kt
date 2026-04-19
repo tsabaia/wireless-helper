@@ -254,9 +254,14 @@ class WirelessHelperService : Service(), BaseStrategy.StateListener {
     private fun createNotification(content: String): Notification {
         val stopIntent = Intent(this, WirelessHelperService::class.java).apply { action = ACTION_STOP }
         val pendingStop = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE)
+
+        val mainIntent = Intent(this, MainActivity::class.java)
+        val pendingContent = PendingIntent.getActivity(this, 0, mainIntent, PendingIntent.FLAG_IMMUTABLE)
+
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.app_name)).setContentText(content)
             .setSmallIcon(R.drawable.ic_wireless_helper).setOngoing(true)
+            .setContentIntent(pendingContent)
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.notif_stop), pendingStop)
             .build()
     }
