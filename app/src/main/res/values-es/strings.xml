@@ -28,6 +28,7 @@
     <string name="bt_auto_reconnect_desc">Intentar reiniciar la sesión si la conexión se cae mientras el Bluetooth sigue conectado.</string>
     <string name="bt_disconnect_stop_title">Detener al desconectar BT</string>
     <string name="bt_disconnect_stop_desc">Detener el servicio automáticamente cuando el Bluetooth del coche se desconecte.</string>
+    <string name="bt_disabled">Bluetooth está desactivado. Por favor, actívelo para seleccionar dispositivos.</string>
     <string name="no_paired_devices">No se encontraron dispositivos Bluetooth emparejados</string>
     <string name="select_bt_device">Seleccionar dispositivo Bluetooth</string>
     <string name="auto_start_linked">Inicio automático vinculado a %s</string>
@@ -82,6 +83,8 @@
     <string name="language_arabic">العربية</string>
     <string name="language_spanish">Español</string>
     <string name="language_italian">Italiano</string>
+    <string name="language_korean">한국어 (Korean)</string>
+    <string name="language_turkish">Turkish (Türkçe)</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Buscando unidad principal…</string>

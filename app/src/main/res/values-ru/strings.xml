@@ -28,6 +28,7 @@
     <string name="bt_auto_reconnect_desc">Попытаться перезапустить сессию, если соединение прервано, но Bluetooth все еще подключен.</string>
     <string name="bt_disconnect_stop_title">Остановка при потере BT</string>
     <string name="bt_disconnect_stop_desc">Автоматически останавливать сервис, когда Bluetooth автомобиля отключается.</string>
+    <string name="bt_disabled">Bluetooth выключен. Пожалуйста, включите его, чтобы выбрать устройства.</string>
     <string name="no_paired_devices">Сопряжённые Bluetooth-устройства не найдены</string>
     <string name="select_bt_device">Выберите Bluetooth-устройство</string>
     <string name="auto_start_linked">Автозапуск привязан к %s</string>
@@ -82,6 +83,8 @@
     <string name="language_arabic">Арабский</string>
     <string name="language_spanish">Español</string>
     <string name="language_italian">Итальянский</string>
+    <string name="language_korean">한국어 (Korean)</string>
+    <string name="language_turkish">Turkish (Türkçe)</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Поиск Headunit…</string>

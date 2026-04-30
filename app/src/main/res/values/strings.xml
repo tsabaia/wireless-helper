@@ -34,6 +34,7 @@
     <string name="bt_auto_reconnect_desc">Attempt to restart the session if the connection drops while Bluetooth is still connected.</string>
     <string name="bt_disconnect_stop_title">Stop on BT disconnect</string>
     <string name="bt_disconnect_stop_desc">Automatically stop the service when the car\'s Bluetooth is disconnected.</string>
+    <string name="bt_disabled">Bluetooth is disabled. Please turn it on to select devices.</string>
     <string name="no_paired_devices">No paired Bluetooth devices found</string>
     <string name="select_bt_device">Select Bluetooth Device</string>
     <string name="auto_start_linked">Auto-start linked to %s</string>
@@ -87,7 +88,8 @@
     <string name="language_portuguese">Portuguese (Brazil)</string>
     <string name="language_arabic">Arabic</string>
     <string name="language_spanish">Spanish</string>
-    <string name="language_italian">Italian</string>
+    <string name="language_italian">Italiano (Italian)</string>
+    <string name="language_korean">한국어 (Korean)</string>
     <string name="language_turkish">Turkish (Türkçe)</string>
 
 

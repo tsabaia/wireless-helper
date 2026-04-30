@@ -78,6 +78,8 @@
     <string name="language_russian">Русский (Russian)</string>
     <string name="language_ukrainian">Українська (Ukrainian)</string>
     <string name="language_chinese">繁體中文 (Taiwan)</string>
+    <string name="language_korean">한국어 (Korean)</string>
+    <string name="language_turkish">Turkish (Türkçe)</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">正在搜尋主機…</string>
@@ -93,6 +95,7 @@
     <string name="about_dialog_body">Wireless Helper 是 Headunit Revived 的觸發應用程式。\n\n由 André Rinas 開發\n© 2026</string>
 
     <!-- Bluetooth -->
+    <string name="bt_disabled">藍牙已停用。請開啟藍牙以選擇裝置。</string>
     <string name="no_paired_devices">找不到已配對的藍牙裝置</string>
     <string name="select_bt_device">選取藍牙裝置</string>
     <string name="auto_start_linked">自動啟動已連結至 %s</string>

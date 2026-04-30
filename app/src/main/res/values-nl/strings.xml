@@ -78,6 +78,8 @@
     <string name="language_russian">Русский (Russian)</string>
     <string name="language_ukrainian">Українська (Ukrainian)</string>
     <string name="language_chinese">繁體中文 (Taiwan)</string>
+    <string name="language_korean">한국어 (Korean)</string>
+    <string name="language_turkish">Turkish (Türkçe)</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Zoeken naar Headunit…</string>
@@ -93,6 +95,7 @@
     <string name="about_dialog_body">Wireless Helper is een trigger-app voor Headunit Revived.\n\nOntwikkeld door André Rinas\n© 2026</string>
 
     <!-- Bluetooth -->
+    <string name="bt_disabled">Bluetooth is uitgeschakeld. Zet het aan om apparaten te selecteren.</string>
     <string name="no_paired_devices">Geen gekoppelde Bluetooth-apparaten gevonden</string>
     <string name="select_bt_device">Bluetooth-apparaat selecteren</string>
     <string name="auto_start_linked">Automatische start gekoppeld aan %s</string>

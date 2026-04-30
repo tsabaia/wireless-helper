@@ -154,6 +154,57 @@ object WifiNotificationHelper {
     }
 
     /**
+     * Checks if there was a pending start request that couldn't proceed because Wi-Fi was off.
+     * If Wi-Fi is now on and the trigger BT device is still connected, starts the service.
+     */
+    fun handlePendingWifiStart(context: Context) {
+        val prefs = context.getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("pending_wifi_start", false)) return
+
+        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        if (!wifiManager.isWifiEnabled) return
+
+        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
+        val adapter = bluetoothManager.adapter ?: return
+        
+        val targetMacs = prefs.getStringSet("auto_start_bt_macs", emptySet()) ?: emptySet()
+        if (targetMacs.isEmpty()) {
+            prefs.edit().remove("pending_wifi_start").apply()
+            return
+        }
+
+        // Check if any of the target devices are currently connected
+        // We check A2DP and HEADSET profiles as they are typical for cars
+        adapter.getProfileProxy(context, object : android.bluetooth.BluetoothProfile.ServiceListener {
+            override fun onServiceConnected(profile: Int, proxy: android.bluetooth.BluetoothProfile) {
+                val connectedDevices = try {
+                    proxy.connectedDevices
+                } catch (e: SecurityException) {
+                    emptyList()
+                }
+                val isStillConnected = connectedDevices.any { targetMacs.contains(it.address) }
+                
+                if (isStillConnected) {
+                    android.util.Log.i("HUREV_WIFI", "Pending WiFi start: Target BT device is still connected. Starting service.")
+                    prefs.edit().remove("pending_wifi_start").apply()
+                    cancelNotification(context)
+                    
+                    val serviceIntent = Intent(context, WirelessHelperService::class.java).apply {
+                        action = WirelessHelperService.ACTION_START
+                    }
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        context.startForegroundService(serviceIntent)
+                    } else {
+                        context.startService(serviceIntent)
+                    }
+                }
+                adapter.closeProfileProxy(profile, proxy)
+            }
+            override fun onServiceDisconnected(profile: Int) {}
+        }, android.bluetooth.BluetoothProfile.A2DP)
+    }
+
+    /**
      * Dismisses the Wi-Fi alert notification.
      */
     fun cancelNotification(context: Context) {

@@ -34,8 +34,18 @@ class AutoStartReceiver : BroadcastReceiver() {
         val deviceAddress = device?.address ?: return
         val isTarget = targetMacs.contains(deviceAddress) || deviceAddress == legacyTargetMac
 
+        val deviceDisplayName = try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                device.alias ?: device.name ?: "Unknown"
+            } else {
+                device.name ?: "Unknown"
+            }
+        } catch (e: SecurityException) {
+            deviceAddress
+        }
+
         if (action == BluetoothDevice.ACTION_ACL_CONNECTED) {
-            Log.i(TAG, "BT Device connected: ${device.name} ($deviceAddress)")
+            Log.i(TAG, "BT Device connected: $deviceDisplayName ($deviceAddress)")
 
             if (isTarget) {
                 // Precise check if the device is actually fully connected (not just ACL)
@@ -57,13 +67,25 @@ class AutoStartReceiver : BroadcastReceiver() {
 
                 // Wrap the service start logic to ensure Wi-Fi is enabled
                 WifiNotificationHelper.checkWifiAndConnect(context, connectionMode = connectionMode) {
+                    // If we reach this lambda, WiFi is ready or check was skipped (Hotspot mode)
+                    prefs.edit().remove("pending_wifi_start").apply()
                     startService(context)
+                }
+                
+                // If we didn't start the service yet and it's not Phone Hotspot mode, set the pending flag
+                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+                if (connectionMode != 1 && !wifiManager.isWifiEnabled) {
+                    Log.i(TAG, "WiFi is disabled. Setting pending_wifi_start flag.")
+                    prefs.edit().putBoolean("pending_wifi_start", true).apply()
                 }
             }
         } else if (action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
-            Log.i(TAG, "BT Device disconnected: ${device.name} ($deviceAddress)")
+            Log.i(TAG, "BT Device disconnected: $deviceDisplayName ($deviceAddress)")
 
             if (isTarget) {
+                // Clear pending start on disconnect
+                prefs.edit().remove("pending_wifi_start").apply()
+                
                 val stopOnDisconnect = prefs.getBoolean("bt_disconnect_stop", false)
                 if (stopOnDisconnect) {
                     Log.i(TAG, "MATCH! Stopping service as requested by settings...")

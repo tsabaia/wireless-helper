@@ -28,6 +28,7 @@
     <string name="bt_auto_reconnect_desc">محاولة إعادة تشغيل الجلسة في حالة انقطاع الاتصال بينما لا يزال البلوتوث متصلاً.</string>
     <string name="bt_disconnect_stop_title">إيقاف عند فصل البلوتوث</string>
     <string name="bt_disconnect_stop_desc">إيقاف الخدمة تلقائيًا عند فصل بلوتوث السيارة.</string>
+    <string name="bt_disabled">البلوتوث معطل. يرجى تفعيله لاختيار الأجهزة.</string>
     <string name="no_paired_devices">لا توجد أجهزة بلوتوث مقترنة</string>
     <string name="select_bt_device">اختر جهاز البلوتوث</string>
     <string name="auto_start_linked">التشغيل التلقائي مرتبط بـ %s</string>
@@ -82,6 +83,8 @@
     <string name="language_arabic">العربية</string>
     <string name="language_spanish">Español</string>
     <string name="language_italian">الإيطالية</string>
+    <string name="language_korean">한국어 (Korean)</string>
+    <string name="language_turkish">Turkish (Türkçe)</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">جار البحث عن Headunit…</string>

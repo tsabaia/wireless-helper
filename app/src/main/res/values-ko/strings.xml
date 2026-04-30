@@ -1,0 +1,129 @@
+<resources>
+    <!-- App Name & Main Actions -->
+    <string name="app_name">Wireless Helper</string>
+    <string name="start_service">안드로이드 오토 시작</string>
+    <string name="stop_service">검색 중지</string>
+    <string name="connected">연결됨</string>
+
+    <!-- Connection Mode -->
+    <string name="connection_mode_label">연결 모드</string>
+    <string name="mode_nsd">범용 Wi-Fi</string>
+    <string name="mode_hotspot_phone">휴대폰 핫스팟</string>
+    <string name="mode_passive">태블릿(디스플레이) 핫스팟</string>
+    <string name="mode_wifi_direct">Wi-Fi Direct (테스트중)</string>
+    <string name="mode_nearby">Google Nearby (테스트중)</string>
+    <string name="hotspot_force_stop_title">핫스팟 강제 중지</string>
+    <string name="hotspot_force_stop_desc">서비스가 중지될 때마다 핫스팟을 비활성화하려고 시도합니다. 이 앱에서 시작되지 않은 경우에도 마찬가지입니다.</string>
+    <string name="static_ip_label">정적 IP 주소</string>
+    <string name="static_ip_hint">IP 주소 입력 (예: 192.168.43.1)</string>
+    <string name="static_ip_desc">설정된 경우, 앱은 검색 대신 이 IP 주소에 직접 연결됩니다.</string>
+    <string name="static_ip_dialog_title">정적 IP 설정</string>
+    <string name="reset">초기화</string>
+
+    <!-- Auto Start -->
+    <string name="auto_start_label">서비스 자동 시작</string>
+    <string name="auto_start_no">수동</string>
+    <string name="auto_start_bt">Bluetooth 연결 시</string>
+    <string name="auto_start_wifi">특정 Wi-Fi 연결 시</string>
+    <string name="auto_start_on_app_start">앱 시작 시</string>
+
+    <!-- Bluetooth -->
+    <string name="bt_device_label">감지할 블루투스 기기</string>
+    <string name="bt_devices_selected">기기 선택</string>
+    <string name="bt_auto_reconnect_title">자동 재연결 시도</string>
+    <string name="bt_auto_reconnect_desc">Bluetooth 연결이 끊어지면 세션을 재시작하려고 시도합니다.</string>
+    <string name="bt_disconnect_stop_title">블루투스 연결이 끊어지면 서비스 중지</string>
+    <string name="bt_disconnect_stop_desc">자동으로 서비스를 중지합니다. 차량의 Bluetooth 연결이 끊어질때도 마찬가지입니다.</string>
+    <string name="bt_disabled">블루투스가 비활성화되었습니다. 장치를 선택하려면 블루투스를 켜십시오.</string>
+    <string name="no_paired_devices">페어링된 블루투스 기기를 찾을 수 없습니다</string>
+    <string name="select_bt_device">블루투스 기기 선택</string>
+    <string name="auto_start_linked">%s에 연결되어 자동으로 시작됨</string>
+
+    <!-- Wi-Fi -->
+    <string name="wifi_ssid_label">Wi-Fi 네트워크 (SSID)</string>
+    <string name="wifi_connected_network">연결된 Wi-Fi 네트워크</string>
+    <string name="wifi_ssid_hint">Wi-Fi SSID 입력</string>
+    <string name="wifi_ssid_dialog_title">Wi-Fi 연결시 자동시작</string>
+    <string name="wifi_ssid_dialog_msg">이 네트워크에 연결되면 서비스가 자동으로 시작됩니다.</string>
+    <string name="wifi_ssid_save">저장</string>
+    <string name="wifi_ssid_permissions_needed">권한 요청</string>
+    <string name="wifi_background_location_title">백그라운드 위치 필요</string>
+    <string name="wifi_background_location_msg">앱이 닫혀있을 때 Wi-Fi를 감지하려면, Android 설정에서 위치 권한을 \'항상 허용\'으로 설정하세요.</string>
+    <string name="wifi_background_location_button">설정</string>
+
+    <!-- Wi-Fi Direct -->
+    <string name="wifi_direct_name_label">Wi-Fi Direct 장치 이름(들)</string>
+    <string name="wifi_direct_name_hint">장치 이름 입력 (예: AndroidAuto-Unit)</string>
+    <string name="wifi_direct_name_dialog_title">Wi-Fi Direct 자동 연결</string>
+    <string name="wifi_direct_name_dialog_msg">연결하려는 Wi-Fi Direct 장치의 이름을 입력하세요. 앱은 장치를 찾으면 자동으로 연결됩니다.</string>
+
+    <!-- Permissions & System -->
+    <string name="battery_opt_title">배터리 최적화 감지</string>
+    <string name="battery_opt_msg">Wi-Fi/Bluetooth 자동 시작을 허용하려면, 배터리 설정에서 이 앱을 \'제한 없음\'으로 설정하세요.</string>
+    <string name="overlay_perm_title">백그라운드 시작 차단</string>
+    <string name="overlay_perm_msg">최신 Android 버전은 백그라운드 시작을 차단합니다. 자동 연결을 허용하려면, 시스템 설정에서 \'다른 앱 위에 표시\'를 허용하세요.</string>
+    <string name="overlay_perm_button">권한 부여</string>
+    <string name="not_set">설정되지 않음</string>
+    
+    <string name="logs_label">로그 내보내기</string>
+    <string name="export_log_description">시스템 로그를 파일로 저장하여 디버깅</string>
+    <string name="export_log_title">로그 내보내기</string>
+    <string name="export_log_saved">로그가 저장되었습니다:\n\n%s</string>
+    <string name="share">공유</string>
+
+    <!-- Language -->
+    <string name="language_label">언어</string>
+    <string name="language_system_default">시스템 기본값</string>
+    <string name="language_english">영어</string>
+    <string name="language_czech">체코어</string>
+    <string name="language_spanish_spain">Español (España)</string>
+    <string name="language_hungarian">헝가리어</string>
+    <string name="language_dutch">Nederlands (Dutch)</string>
+    <string name="language_polish">폴란드어</string>
+    <string name="language_romanian">루마니아어</string>
+    <string name="language_ukrainian">Українська (Ukrainian)</string>
+    <string name="language_chinese">중국어 (타이완)</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_russian">러시아어</string>
+    <string name="language_portuguese">포르투갈어 (브라질)</string>
+    <string name="language_arabic">아랍어</string>
+    <string name="language_spanish">스페인어</string>
+    <string name="language_italian">이탈리아어</string>
+    <string name="language_turkish">터키어 (Türkçe)</string>
+    <string name="language_korean">한국어 (Korean)</string>
+
+    <!-- Notifications & Service -->
+    <string name="notif_searching">헤드유닛 검색 중…</string>
+    <string name="notif_connecting">검색됨...</string>
+    <string name="notif_connected">Android Auto에 연결됨</string>
+    <string name="notif_disconnected">Android Auto 연결 끊김</string>
+    <string name="notif_stop">중지</string>
+    <string name="notif_channel_name">Wireless Helper</string>
+    <string name="state_off">중지</string>
+
+    <!-- About Dialog -->
+    <string name="about">About &amp; Support</string>
+    <string name="about_description">Lightweight trigger for Headunit Revived</string>
+    <string name="about_dialog_body">Wireless Helper is a trigger app for Headunit Revived.\n\nDeveloped by André Rinas\n© 2026</string>
+
+    <!-- Info Section -->
+    <string name="category_info">정보</string>
+    <string name="settings_header">설정</string>
+    <string name="version">버전</string>
+
+    <!-- Shortcuts -->
+    <string name="shortcut_start_title">검색 시작</string>
+    <string name="shortcut_start_desc">Android Auto 검색 시작</string>
+    <string name="shortcut_stop_title">검색 중지</string>
+    <string name="shortcut_stop_desc">현재 진행중인 검색 중지</string>
+
+    <!-- Alerts -->
+    <string name="channel_name_alerts">연결 알림</string>
+    <string name="notification_wifi_off_title">Wi-Fi 비활성화!</string>
+    <string name="notification_wifi_off_text">Headunit Revived는 Wi-Fi 연결이 필요합니다.</string>
+    <string name="action_turn_on_wifi">Wi-Fi 활성화</string>
+
+    <string name="write_settings_title">권한 필요</string>
+    <string name="write_settings_msg">핫스팟을 자동으로 활성화하려면, Wireless Helper는 \'시스템 설정 수정\' 권한이 필요합니다. 다음 화면에서 활성화하세요.</string>
+    <string name="write_settings_button">권한 부여</string>
+</resources>

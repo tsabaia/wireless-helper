@@ -78,6 +78,8 @@
     <string name="language_russian">Русский (Russian)</string>
     <string name="language_ukrainian">Українська (Ukrainian)</string>
     <string name="language_chinese">繁體中文 (Taiwan)</string>
+    <string name="language_korean">한국어 (Korean)</string>
+    <string name="language_turkish">Turkish (Türkçe)</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Vyhledávání jednotky…</string>
@@ -93,6 +95,7 @@
     <string name="about_dialog_body">Wireless Helper je spouštěcí aplikace pro Headunit Revived.\n\nVyvinul André Rinas\n© 2026</string>
 
     <!-- Bluetooth -->
+    <string name="bt_disabled">Bluetooth je vypnuté. Pro výběr zařízení jej prosím zapněte.</string>
     <string name="no_paired_devices">Nebyla nalezena žádná spárovaná zařízení Bluetooth</string>
     <string name="select_bt_device">Vyberte zařízení Bluetooth</string>
     <string name="auto_start_linked">Automatické spuštění propojeno s %s</string>

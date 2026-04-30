@@ -120,19 +120,21 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.language_german),
             getString(R.string.language_spanish),
             getString(R.string.language_spanish_spain),
-            getString(R.string.language_turkish),
             getString(R.string.language_hungarian),
+            getString(R.string.language_italian),
+            getString(R.string.language_korean),
             getString(R.string.language_dutch),
             getString(R.string.language_polish),
             getString(R.string.language_portuguese),
             getString(R.string.language_romanian),
             getString(R.string.language_russian),
+            getString(R.string.language_turkish),
             getString(R.string.language_ukrainian),
             getString(R.string.language_chinese)
         )
     }
 
-    private val languageTags = arrayOf("", "en", "ar", "cs", "de", "es", "es-ES", "hu", "nl", "pl", "pt-BR", "ro", "ru", "tr", "uk", "zh-TW")
+    private val languageTags = arrayOf("", "en", "ar", "cs", "de", "es", "es-ES", "hu", "it", "ko", "nl", "pl", "pt-BR", "ro", "ru", "tr", "uk", "zh-TW")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_WirelessHelper)
@@ -327,20 +329,66 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showBluetoothDeviceSelector() {
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
+        val adapter = bluetoothManager.adapter
+
+        if (adapter == null) {
+            Toast.makeText(this, "Bluetooth not supported on this device", Toast.LENGTH_LONG).show()
+            return
+        }
+
         if (Build.VERSION.SDK_INT >= 31 && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 101)
             return
         }
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
-        val adapter = bluetoothManager.adapter
-        val bondedDevices = adapter.bondedDevices.toList()
-        if (bondedDevices.isEmpty()) {
-            Toast.makeText(this, getString(R.string.no_paired_devices), Toast.LENGTH_LONG).show()
+
+        if (!adapter.isEnabled) {
+            Toast.makeText(this, getString(R.string.bt_disabled), Toast.LENGTH_LONG).show()
             return
         }
+
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
         val selectedMacs = prefs.getStringSet("auto_start_bt_macs", emptySet())?.toMutableSet() ?: mutableSetOf()
-        val deviceNames = bondedDevices.map { it.name ?: "Unknown Device" }.toTypedArray()
+
+        // Safely retrieve bonded devices
+        val bondedDevices = try {
+            adapter.bondedDevices?.toList() ?: emptyList()
+        } catch (e: SecurityException) {
+            Log.e("WirelessHelper", "Permission missing for bondedDevices", e)
+            emptyList()
+        }
+
+        // Only purge non-bonded devices if we actually got a list of bonded devices.
+        // This prevents wiping the selection if the BT adapter is busy or returning empty temporarily.
+        if (bondedDevices.isNotEmpty()) {
+            val bondedAddresses = bondedDevices.map { it.address }.toSet()
+            val initialSize = selectedMacs.size
+            selectedMacs.retainAll { bondedAddresses.contains(it) }
+            
+            if (selectedMacs.size != initialSize) {
+                prefs.edit { putStringSet("auto_start_bt_macs", selectedMacs) }
+            }
+        }
+
+        if (bondedDevices.isEmpty()) {
+            Toast.makeText(this, getString(R.string.no_paired_devices), Toast.LENGTH_LONG).show()
+            updateBluetoothValueDisplay()
+            return
+        }
+        
+        val deviceNames = bondedDevices.map { device ->
+            val hardwareName = device.name ?: "Unknown Device"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val alias = device.alias
+                if (!alias.isNullOrEmpty() && alias != hardwareName) {
+                    "$alias ($hardwareName)"
+                } else {
+                    alias ?: hardwareName
+                }
+            } else {
+                hardwareName
+            }
+        }.toTypedArray()
         val checkedItems = bondedDevices.map { selectedMacs.contains(it.address) }.toBooleanArray()
 
         MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
@@ -360,16 +408,47 @@ class MainActivity : AppCompatActivity() {
     private fun updateBluetoothValueDisplay() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
         val selectedMacs = prefs.getStringSet("auto_start_bt_macs", emptySet()) ?: emptySet()
-        if (selectedMacs.isEmpty()) {
+        
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
+        val adapter = bluetoothManager.adapter
+        
+        val hasBtConnectPermission = if (Build.VERSION.SDK_INT >= 31) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        } else true
+
+        // Only count/show devices that are currently bonded (if BT is enabled and we have permission)
+        // This prevents showing "2 devices" when one has been unpaired from system settings.
+        val bondedAddresses = if (adapter?.isEnabled == true && hasBtConnectPermission) {
+            try {
+                adapter.bondedDevices.map { it.address }.toSet()
+            } catch (e: SecurityException) { null }
+        } else null
+        
+        val validSelectedMacs = if (bondedAddresses != null) {
+            selectedMacs.filter { bondedAddresses.contains(it) }
+        } else {
+            selectedMacs.toList()
+        }
+
+        if (validSelectedMacs.isEmpty()) {
             tvBluetoothDeviceValue.text = getString(R.string.not_set)
         } else {
-            tvBluetoothDeviceValue.text = if (selectedMacs.size == 1) {
-                try {
-                    val bm = getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
-                    bm.adapter.getRemoteDevice(selectedMacs.first()).name ?: selectedMacs.first()
-                } catch (e: Exception) { selectedMacs.first() }
+            tvBluetoothDeviceValue.text = if (validSelectedMacs.size == 1) {
+                if (hasBtConnectPermission) {
+                    try {
+                        val device = adapter.getRemoteDevice(validSelectedMacs.first())
+                        val hardwareName = device.name ?: validSelectedMacs.first()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            device.alias ?: hardwareName
+                        } else {
+                            hardwareName
+                        }
+                    } catch (e: Exception) { validSelectedMacs.first() }
+                } else {
+                    validSelectedMacs.first()
+                }
             } else {
-                "${selectedMacs.size} ${getString(R.string.bt_devices_selected)}"
+                "${validSelectedMacs.size} ${getString(R.string.bt_devices_selected)}"
             }
         }
     }

@@ -78,6 +78,8 @@
     <string name="language_russian">Русский (Russian)</string>
     <string name="language_ukrainian">Українська (Ukrainian)</string>
     <string name="language_chinese">繁體中文 (Taiwan)</string>
+    <string name="language_korean">한국어 (Korean)</string>
+    <string name="language_turkish">Turkish (Türkçe)</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Egység keresése…</string>
@@ -93,6 +95,7 @@
     <string name="about_dialog_body">A Wireless Helper egy indító alkalmazás a Headunit Revived-hoz.\n\nFejlesztette: André Rinas\n© 2026</string>
 
     <!-- Bluetooth -->
+    <string name="bt_disabled">A Bluetooth ki van kapcsolva. Kérjük, kapcsolja be az eszközök kiválasztásához.</string>
     <string name="no_paired_devices">Nem találhatók párosított Bluetooth eszközök</string>
     <string name="select_bt_device">Válasszon Bluetooth eszközt</string>
     <string name="auto_start_linked">Automatikus indítás összekapcsolva ezzel: %s</string>

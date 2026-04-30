@@ -16,5 +16,6 @@ class WifiReceiver : BroadcastReceiver() {
 
     private fun checkWifiAndStart(context: Context) {
         WifiJobService.checkWifiAndStart(context)
+        WifiNotificationHelper.handlePendingWifiStart(context)
     }
 }

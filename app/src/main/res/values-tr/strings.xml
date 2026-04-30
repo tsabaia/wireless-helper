@@ -30,6 +30,7 @@
     <string name="bt_auto_reconnect_desc">Bluetooth hala bağlıyken bağlantı düşerse oturumu yeniden başlatmayı dener.</string>
     <string name="bt_disconnect_stop_title">BT bağlantısı kesildiğinde durdur</string>
     <string name="bt_disconnect_stop_desc">Aracın Bluetooth bağlantısı kesildiğinde hizmeti otomatik olarak durdurur.</string>
+    <string name="bt_disabled">Bluetooth devre dışı. Cihaz seçmek için lütfen etkinleştirin.</string>
     <string name="no_paired_devices">Eşleşmiş Bluetooth cihazı bulunamadı</string>
     <string name="select_bt_device">Bluetooth Cihazı Seç</string>
     <string name="auto_start_linked">Otomatik başlatma %s cihazı ile ilişkilendirildi</string>
@@ -81,6 +82,7 @@
     <string name="language_spanish">Español (İspanyolca)</string>
     <string name="language_italian">Italiano (İtalyanca)</string>
     <string name="language_turkish">Türkçe</string>
+    <string name="language_korean">한국어 (Korean)</string>
 
     <string name="notif_searching">Multimedya Sistemi aranıyor…</string>
     <string name="notif_connecting">Bulundu…</string>

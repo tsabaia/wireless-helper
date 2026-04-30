@@ -28,6 +28,7 @@
     <string name="bt_auto_reconnect_desc">Versucht die Sitzung neu zu starten, wenn die Verbindung abbricht, aber Bluetooth noch verbunden ist.</string>
     <string name="bt_disconnect_stop_title">Stoppen bei BT-Verlust</string>
     <string name="bt_disconnect_stop_desc">Beendet den Suchdienst automatisch, wenn die Bluetooth-Verbindung zum Auto getrennt wird.</string>
+    <string name="bt_disabled">Bluetooth ist deaktiviert. Bitte schalte es ein, um Geräte auszuwählen.</string>
     <string name="no_paired_devices">Keine gekoppelten Bluetooth-Geräte gefunden</string>
     <string name="select_bt_device">Bluetooth-Gerät auswählen</string>
     <string name="auto_start_linked">Auto-Start verknüpft mit %s</string>
@@ -82,6 +83,8 @@
     <string name="language_arabic">Arabisch</string>
     <string name="language_spanish">Español</string>
     <string name="language_italian">Italienisch</string>
+    <string name="language_korean">한국어 (Korean)</string>
+    <string name="language_turkish">Turkish (Türkçe)</string>
 
     <!-- Notifications & Service -->
     <string name="notif_searching">Suche nach Headunit…</string>
