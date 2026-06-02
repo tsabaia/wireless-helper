@@ -31,6 +31,9 @@ import androidx.core.os.LocaleListCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
 import java.io.File
 import java.io.FileOutputStream
 
@@ -53,6 +56,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvConnectionModeValue: TextView
     private lateinit var layoutStaticIp: View
     private lateinit var tvStaticIpValue: TextView
+    private lateinit var layoutHotspotCredentials: View
+    private lateinit var tvHotspotCredentialsValue: TextView
     private lateinit var layoutAutoStart: View
     private lateinit var tvAutoStartValue: TextView
     private lateinit var layoutBluetoothDevice: View
@@ -72,6 +77,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var layoutExportLog: View
     private lateinit var tvVersionValue: TextView
     private lateinit var layoutAbout: View
+    private lateinit var btnScanQrCodeHeader: View
+
+    private val scannerOptions by lazy {
+        GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+            .enableAutoZoom()
+            .build()
+    }
+    private val scannerClient by lazy {
+        GmsBarcodeScanning.getClient(this, scannerOptions)
+    }
 
     private var isServiceRunning = false
     private var lastRunningState: Boolean? = null
@@ -168,6 +184,8 @@ class MainActivity : AppCompatActivity() {
         tvConnectionModeValue = findViewById(R.id.tvConnectionModeValue)
         layoutStaticIp = findViewById(R.id.layoutStaticIp)
         tvStaticIpValue = findViewById(R.id.tvStaticIpValue)
+        layoutHotspotCredentials = findViewById(R.id.layoutHotspotCredentials)
+        tvHotspotCredentialsValue = findViewById(R.id.tvHotspotCredentialsValue)
         layoutAutoStart = findViewById(R.id.layoutAutoStart)
         tvAutoStartValue = findViewById(R.id.tvAutoStartValue)
         layoutBluetoothDevice = findViewById(R.id.layoutBluetoothDevice)
@@ -187,6 +205,7 @@ class MainActivity : AppCompatActivity() {
         layoutExportLog = findViewById(R.id.layoutExportLog)
         tvVersionValue = findViewById(R.id.tvVersionValue)
         layoutAbout = findViewById(R.id.layoutAbout)
+        btnScanQrCodeHeader = findViewById(R.id.btnScanQrCodeHeader)
         tvVersionValue.text = BuildConfig.VERSION_NAME
     }
 
@@ -202,7 +221,8 @@ class MainActivity : AppCompatActivity() {
         layoutLanguage.setOnClickListener { showLanguageSelector() }
 
         layoutStaticIp.setOnClickListener { showStaticIpDialog() }
-        
+        layoutHotspotCredentials.setOnClickListener { showHotspotCredentialsDialog() }
+
         layoutExportLog.setOnClickListener { exportLogs() }
 
         btnToggleService.setOnClickListener {
@@ -278,6 +298,7 @@ class MainActivity : AppCompatActivity() {
         setupSwitchSetting(layoutBtDisconnectStop, switchBtDisconnectStop, "bt_disconnect_stop")
         layoutWifiNetwork.setOnClickListener { showWifiSelector() }
         layoutWifiDirectName.setOnClickListener { showWifiDirectNameSelector() }
+        btnScanQrCodeHeader.setOnClickListener { startQrCodeScan() }
     }
 
     private fun setupSwitchSetting(layout: View, switch: androidx.appcompat.widget.SwitchCompat, prefKey: String) {
@@ -326,6 +347,45 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
         val ip = prefs.getString("static_ip_address", "") ?: ""
         tvStaticIpValue.text = if (ip.isEmpty()) getString(R.string.not_set) else ip
+    }
+
+    private fun showHotspotCredentialsDialog() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val securePrefs = com.andrerinas.wirelesshelper.utils.Prefs.getSecure(this)
+        val currentSsid = prefs.getString("hotspot_ssid", "") ?: ""
+        val currentPassword = securePrefs.getString("hotspot_password", "") ?: ""
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.layout_hotspot_credentials_dialog, null)
+        val etSsid = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_hotspot_ssid)
+        val etPassword = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_hotspot_password)
+
+        etSsid.setText(currentSsid)
+        etPassword.setText(currentPassword)
+
+        MaterialAlertDialogBuilder(this, R.style.DarkAlertDialog)
+            .setTitle(R.string.hotspot_credentials_dialog_title)
+            .setMessage(R.string.hotspot_credentials_dialog_msg)
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val newSsid = etSsid.text.toString().trim()
+                val newPassword = etPassword.text.toString()
+                prefs.edit { putString("hotspot_ssid", newSsid) }
+                securePrefs.edit { putString("hotspot_password", newPassword) }
+                updateHotspotCredentialsDisplay()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .setNeutralButton(R.string.reset) { _, _ ->
+                prefs.edit { remove("hotspot_ssid") }
+                securePrefs.edit { remove("hotspot_password") }
+                updateHotspotCredentialsDisplay()
+            }
+            .show()
+    }
+
+    private fun updateHotspotCredentialsDisplay() {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        val ssid = prefs.getString("hotspot_ssid", "") ?: ""
+        tvHotspotCredentialsValue.text = if (ssid.isEmpty()) getString(R.string.not_set) else ssid
     }
 
     private fun showBluetoothDeviceSelector() {
@@ -480,6 +540,7 @@ class MainActivity : AppCompatActivity() {
         tvConnectionModeValue.text = connectionModes.getOrElse(connMode) { connectionModes[0] }
         updateModeSpecificUI(connMode)
         updateStaticIpDisplay()
+        updateHotspotCredentialsDisplay()
         val autoMode = prefs.getInt("auto_start_mode", 0)
         updateAutoStartUI(autoMode)
         updateBluetoothValueDisplay()
@@ -544,6 +605,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateModeSpecificUI(mode: Int) {
         layoutHotspotForceStop.visibility = if (mode == MODE_HOTSPOT_PHONE) View.VISIBLE else View.GONE
         layoutStaticIp.visibility = if (mode == MODE_PASSIVE) View.VISIBLE else View.GONE
+        layoutHotspotCredentials.visibility = if (mode == MODE_PASSIVE) View.VISIBLE else View.GONE
         layoutWifiDirectName.visibility = if (mode == MODE_WIFI_DIRECT) View.VISIBLE else View.GONE
         // For nearby, we might want to hide other things or show a specific hint in the future.
     }
@@ -970,6 +1032,8 @@ class MainActivity : AppCompatActivity() {
         if (ssid != null) {
             val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
             prefs.edit {
+                putInt("connection_mode", 2) // Auto-switch to Tablet Hotspot / Passive Mode
+                putString("hotspot_ssid", ssid)
                 val ssids = prefs.getStringSet("auto_start_wifi_ssids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
                 ssids.add(ssid)
                 putStringSet("auto_start_wifi_ssids", ssids)
@@ -978,12 +1042,122 @@ class MainActivity : AppCompatActivity() {
             // Store password in encrypted storage
             if (pass != null) {
                 com.andrerinas.wirelesshelper.utils.Prefs.getSecure(this).edit {
+                    putString("hotspot_password", pass)
                     putString("wifi_pass_$ssid", pass)
                 }
             }
 
             Toast.makeText(this, "Configured WiFi: $ssid", Toast.LENGTH_LONG).show()
             restoreState()
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                connectToWifiLegacy(ssid, pass)
+            }
+
+            checkPermissionsAndStart()
+        }
+    }
+
+    private fun startQrCodeScan() {
+        scannerClient.startScan()
+            .addOnSuccessListener { barcode ->
+                val rawValue = barcode.rawValue
+                if (!rawValue.isNullOrEmpty()) {
+                    processScannedConfig(rawValue)
+                }
+            }
+            .addOnCanceledListener {
+                Toast.makeText(this, R.string.qr_scan_cancelled, Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, getString(R.string.qr_scan_failed, e.message), Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun processScannedConfig(contents: String) {
+        if (contents.startsWith("wirelesshelper://config", ignoreCase = true)) {
+            try {
+                handleConfigIntent(android.net.Uri.parse(contents))
+            } catch (e: Exception) {
+                Toast.makeText(this, "Failed to parse helper config: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        } else if (contents.startsWith("WIFI:", ignoreCase = true)) {
+            val parsed = parseStandardWifiQr(contents)
+            if (parsed != null) {
+                val (ssid, pass) = parsed
+                saveWifiCredentials(ssid, pass)
+            } else {
+                Toast.makeText(this, "Invalid WiFi QR Code format", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            Toast.makeText(this, "Unrecognized QR Code content", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun parseStandardWifiQr(contents: String): Pair<String, String?>? {
+        val parts = contents.substring(5).split(";")
+        var ssid: String? = null
+        var pass: String? = null
+        for (part in parts) {
+            if (part.startsWith("S:", ignoreCase = true)) {
+                ssid = part.substring(2)
+            } else if (part.startsWith("P:", ignoreCase = true)) {
+                pass = part.substring(2)
+            }
+        }
+        return if (ssid != null) Pair(ssid, pass) else null
+    }
+
+    private fun saveWifiCredentials(ssid: String, pass: String?) {
+        val prefs = getSharedPreferences("WirelessHelperPrefs", Context.MODE_PRIVATE)
+        prefs.edit {
+            putInt("connection_mode", 2) // Auto-switch to Tablet Hotspot / Passive Mode
+            putString("hotspot_ssid", ssid)
+            val ssids = prefs.getStringSet("auto_start_wifi_ssids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+            ssids.add(ssid)
+            putStringSet("auto_start_wifi_ssids", ssids)
+        }
+
+        if (pass != null) {
+            com.andrerinas.wirelesshelper.utils.Prefs.getSecure(this).edit {
+                putString("hotspot_password", pass)
+                putString("wifi_pass_$ssid", pass)
+            }
+        }
+
+        Toast.makeText(this, "Configured WiFi: $ssid", Toast.LENGTH_LONG).show()
+        restoreState()
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            connectToWifiLegacy(ssid, pass)
+        }
+
+        checkPermissionsAndStart()
+    }
+
+    private fun connectToWifiLegacy(ssid: String, pass: String?) {
+        try {
+            val wm = applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+            if (!wm.isWifiEnabled) {
+                wm.isWifiEnabled = true
+            }
+            val wifiConfig = android.net.wifi.WifiConfiguration().apply {
+                SSID = "\"$ssid\""
+                if (!pass.isNullOrEmpty()) {
+                    preSharedKey = "\"$pass\""
+                } else {
+                    allowedKeyManagement.set(android.net.wifi.WifiConfiguration.KeyMgmt.NONE)
+                }
+            }
+            val netId = wm.addNetwork(wifiConfig)
+            if (netId != -1) {
+                wm.disconnect()
+                wm.enableNetwork(netId, true)
+                wm.reconnect()
+                Log.i("HUREV_WIFI", "Legacy WiFi connection initiated for: $ssid")
+            }
+        } catch (e: Exception) {
+            Log.e("HUREV_WIFI", "Failed legacy WiFi connection: ${e.message}")
         }
     }
 
