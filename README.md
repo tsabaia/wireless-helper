@@ -10,6 +10,9 @@ A lightweight launcher utility for **Headunit Revived**.
 
 This app acts as a trigger to start Android Auto Wireless on your phone. It automatically detects your tablet running Headunit Revived via NSD (mDNS) or a passive TCP trigger, ensuring a seamless wireless connection experience.
 
+# WARNING
+**Since Android Auto 17.4, Google has removed the ability to connect wirelessly without bluetooth or the Headunit Server. This makes this app useless for Android Auto 17.4 and newer. Please check your Android Auto version before installing this app.**
+
 ## Features
 - **Auto-Trigger:** Fires the Android Auto wireless intent as soon as the Headunit is detected.
 - **NSD Support:** Finds your tablet in the same WiFi network automatically.
@@ -52,6 +55,23 @@ adb shell am start -a android.intent.action.VIEW -d "wirelesshelper://stop"
 ```
 
 ## Changelog
+### v.1.9.3
+- Sync Nearby Connections SERVICE_ID with HUR's rename to Open Headunit
+
+### v.1.9.2 - Maybe the last version :(
+- Fix isConnectingToPeer race, restore group reuse, and forget stale persistent groups, thanks to @o-jcardenass
+- Added BT address for Android Auto 17.4, which might help some devices to connect again
+
+### v.1.9.1
+- Wifi direct improve, thanks to @notathf
+- Fix stacked Overlay/Write-Settings/Battery-Optimization dialogs on first launch, thanks to @o-jcardenass 
+
+### v.1.9.0
+- **WiFi-Direct Teardown Fix:** Added proper `removeGroup` and `cancelConnect` calls on stop to prevent ghost P2P states and chip `BUSY` errors.
+- **WiFi-Direct Launch Optimization:** Paused peer discovery loop during launch while preserving active P2P connection (PR #58).
+- **Wi-Fi Auto-Start Fixes:** Added `WIFI_STATE_CHANGED` receiver and updated BT connection checks so pending auto-start triggers as soon as Wi-Fi turns on (e.g., via Samsung Routines).
+- **Bluetooth Delay Fix:** Preserved `EXTRA_FROM_BT` flag on pending Wi-Fi start to ensure configured Bluetooth auto-start delay countdown runs.
+
 ### v.1.8.1
 - Fixed QR Crash
 - Enhanced Google Nearby Manager
